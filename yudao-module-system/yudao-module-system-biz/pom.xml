@@ -108,13 +108,6 @@
 <!--            <artifactId>yudao-spring-boot-starter-protection</artifactId>-->
 <!--        </dependency>-->
 
-        <!-- Test 测试相关 -->
-        <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- 工具类相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
