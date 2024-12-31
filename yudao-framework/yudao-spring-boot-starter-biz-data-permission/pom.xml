@@ -48,12 +48,6 @@
             <version>${revision}</version>
         </dependency>
 
-        <!-- Test 测试相关 -->
-        <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>
