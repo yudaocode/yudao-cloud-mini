@@ -14,14 +14,14 @@
         <!--  各种 module 拓展 -->
         <module>yudao-module-system</module>
         <module>yudao-module-infra</module>
-        <module>yudao-module-member</module>
-        <module>yudao-module-bpm</module>
-        <module>yudao-module-pay</module>
-        <module>yudao-module-report</module>
-        <module>yudao-module-mp</module>
-        <module>yudao-module-mall</module>
-        <module>yudao-module-erp</module>
-        <module>yudao-module-crm</module>
+<!--        <module>yudao-module-member</module>-->
+<!--        <module>yudao-module-bpm</module>-->
+<!--        <module>yudao-module-pay</module>-->
+<!--        <module>yudao-module-report</module>-->
+<!--        <module>yudao-module-mp</module>-->
+<!--        <module>yudao-module-mall</module>-->
+<!--        <module>yudao-module-erp</module>-->
+<!--        <module>yudao-module-crm</module>-->
         <!-- 友情提示：基于 Spring AI 实现 LLM 大模型的接入，需要使用 JDK17 版本，详细可见 https://doc.iocoder.cn/ai/build/ -->
 <!--        <module>yudao-module-ai</module>-->
         <module>yudao-module-iot</module>
