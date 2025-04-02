@@ -1,0 +1,1 @@
+import{bz as a}from"./index-BaY5TDP-.js";const r=s=>a.put({url:"/mp/user/update",data:s}),u=s=>a.get({url:"/mp/user/get?id="+s}),e=s=>a.get({url:"/mp/user/page",params:s}),p=s=>a.post({url:"/mp/user/sync?accountId="+s});export{e as a,u as g,p as s,r as u};

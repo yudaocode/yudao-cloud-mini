@@ -1,0 +1,1 @@
+import{cw as l}from"./index-BaY5TDP-.js";const t=(n,o="default",e)=>{if(!n||!Reflect.has(n,o))return null;if(!l(n[o]))return console.error(`${o} is not a function!`),null;const r=n[o];return r?r(e):null};export{t as g};

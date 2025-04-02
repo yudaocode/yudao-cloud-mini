@@ -158,7 +158,7 @@ yudao:
     description: 提供管理员管理的所有功能
     version: ${yudao.info.version}
   codegen:
-    base-package: cn.iocoder.yudao
+    base-package: com
     db-schemas: ${spring.datasource.dynamic.datasource.master.name}
     front-type: 20 # 前端模版的类型，参见 CodegenFrontTypeEnum 枚举类
     unit-test-enable: false # 是否生成单元测试

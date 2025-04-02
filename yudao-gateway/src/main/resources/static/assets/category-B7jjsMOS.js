@@ -1,0 +1,1 @@
+import{bz as a}from"./index-BaY5TDP-.js";const r=t=>a.post({url:"/product/category/create",data:t}),e=t=>a.put({url:"/product/category/update",data:t}),o=t=>a.delete({url:`/product/category/delete?id=${t}`}),d=t=>a.get({url:`/product/category/get?id=${t}`}),c=t=>a.get({url:"/product/category/list",params:t});export{d as a,r as c,o as d,c as g,e as u};

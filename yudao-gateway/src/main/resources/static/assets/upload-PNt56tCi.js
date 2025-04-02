@@ -1,0 +1,1 @@
+import{ee as t}from"./index-BaY5TDP-.js";import{u as o,U as e}from"./useUpload-Dg-sFRn3.js";const r={Authorization:"Bearer "+t()},s="http://localhost:48080/admin-api/mp/material/upload-permanent",i=a=>o(e.Image,2)(a),m=a=>o(e.Voice,2)(a),p=a=>o(e.Video,10)(a);export{r as H,s as U,m as a,i as b,p as c};

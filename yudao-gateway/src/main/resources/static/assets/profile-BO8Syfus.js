@@ -1,0 +1,1 @@
+import{bz as a}from"./index-BaY5TDP-.js";const r=()=>a.get({url:"/system/user/profile/get"}),t=s=>a.put({url:"/system/user/profile/update",data:s}),u=(s,e)=>a.put({url:"/system/user/profile/update-password",data:{oldPassword:s,newPassword:e}}),o=s=>a.upload({url:"/system/user/profile/update-avatar",data:s});export{u as a,o as b,r as g,t as u};
