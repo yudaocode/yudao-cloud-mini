@@ -40,13 +40,6 @@
             <artifactId>yudao-spring-boot-starter-rpc</artifactId>
             <optional>true</optional>
         </dependency>
-
-        <!-- Test 测试相关 -->
-        <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>
