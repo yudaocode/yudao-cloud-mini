@@ -454,12 +454,6 @@
             </dependency>
 
             <!-- Test 测试相关 -->
-            <dependency>
-                <groupId>cn.iocoder.cloud</groupId>
-                <artifactId>yudao-spring-boot-starter-test</artifactId>
-                <version>${revision}</version>
-                <scope>test</scope>
-            </dependency>
 
             <dependency>
                 <groupId>org.mockito</groupId>
