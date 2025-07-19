@@ -56,6 +56,15 @@ public class TenantPackageController {
         return success(true);
     }
 
+    @DeleteMapping("/delete-list")
+    @Parameter(name = "ids", description = "编号列表", required = true)
+    @Operation(summary = "批量删除租户套餐")
+    @PreAuthorize("@ss.hasPermission('system:tenant-package:delete')")
+    public CommonResult<Boolean> deleteTenantPackageList(@RequestParam("ids") List<Long> ids) {
+        tenantPackageService.deleteTenantPackageList(ids);
+        return success(true);
+    }
+
     @GetMapping("/get")
     @Operation(summary = "获得租户套餐")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")

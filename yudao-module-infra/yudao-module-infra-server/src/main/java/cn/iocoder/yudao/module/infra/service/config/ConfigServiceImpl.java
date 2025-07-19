@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.infra.enums.ErrorCodeConstants.*;
@@ -62,6 +63,20 @@ public class ConfigServiceImpl implements ConfigService {
         }
         // 删除
         configMapper.deleteById(id);
+    }
+
+    @Override
+    public void deleteConfigList(List<Long> ids) {
+        // 校验是否有内置配置
+        List<ConfigDO> configs = configMapper.selectByIds(ids);
+        configs.forEach(config -> {
+            if (ConfigTypeEnum.SYSTEM.getType().equals(config.getType())) {
+                throw exception(CONFIG_CAN_NOT_DELETE_SYSTEM_TYPE);
+            }
+        });
+
+        // 批量删除
+        configMapper.deleteByIds(ids);
     }
 
     @Override
