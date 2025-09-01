@@ -1,0 +1,296 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/ddd-metamodel/1.0/ubiquitous-language.schema.json",
+    "title": "统一语言定义",
+    "description": "领域统一语言定义 - v1.0",
+    "version": "1.0.0",
+    "type": "object",
+    "properties": {
+      "version": {
+        "type": "string",
+        "description": "模式版本",
+        "const": "1.0.0"
+      },
+      "terms": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/term"
+        },
+        "minItems": 1,
+        "description": "术语列表"
+      },
+      "termRelationships": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/termRelationship"
+        },
+        "description": "术语关系列表"
+      }
+    },
+    "required": ["version", "terms"],
+    "additionalProperties": false,
+    "$defs": {
+      "term": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "术语唯一标识符"
+          },
+          "name": {
+            "type": "string",
+            "description": "术语名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "术语详细描述"
+          },
+          "englishName": {
+            "type": "string",
+            "description": "英文名称"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["DOMAIN", "CORE_CONCEPT", "CONTEXT_SPECIFIC", "ATTRIBUTE", "VALUE_OBJECT", "ENTITY", "SERVICE", "EVENT", "ENUM", "PARAMETER"],
+            "description": "术语类型"
+          },
+          "domainId": {
+            "type": "string",
+            "pattern": "^domain_[a-zA-Z0-9_]+$",
+            "description": "所属领域ID"
+          },
+          "boundedContextId": {
+            "type": "string",
+            "pattern": "^bc_[a-zA-Z0-9_]+$",
+            "description": "所属限界上下文ID"
+          },
+          "relatesTo": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^term_[a-zA-Z0-9_]+$"
+            },
+            "description": "关联的术语ID列表"
+          },
+          "dataType": {
+            "type": "string",
+            "enum": ["String", "Integer", "Long", "Double", "Boolean", "BigDecimal", "LocalDate", "LocalDateTime", "Enum", "Custom"],
+            "description": "数据类型"
+          },
+          "customType": {
+            "type": "string",
+            "description": "自定义类型名称"
+          },
+          "constraints": {
+            "$ref": "#/$defs/constraints"
+          },
+          "targetModelElements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/targetModelElement"
+            },
+            "description": "目标模型元素映射列表"
+          },
+          "example": {
+            "type": "string",
+            "description": "术语示例"
+          },
+          "businessRules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "相关业务规则描述"
+          }
+        },
+        "required": ["id", "name", "description", "type"],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": { "const": "DOMAIN" }
+              }
+            },
+            "then": {
+              "properties": {
+                "domainId": { "const": null },
+                "boundedContextId": { "const": null },
+                "dataType": { "const": null },
+                "targetModelElements": { "const": null }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": { "enum": ["CORE_CONCEPT", "ATTRIBUTE", "VALUE_OBJECT", "ENTITY", "SERVICE", "EVENT", "ENUM", "PARAMETER"] }
+              }
+            },
+            "then": {
+              "required": ["domainId"]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": { "const": "CONTEXT_SPECIFIC" }
+              }
+            },
+            "then": {
+              "required": ["domainId", "boundedContextId"]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": { "enum": ["ATTRIBUTE", "PARAMETER"] }
+              }
+            },
+            "then": {
+              "required": ["domainId", "dataType"]
+            }
+          }
+        ],
+        "additionalProperties": false
+      },
+      "targetModelElement": {
+        "type": "object",
+        "properties": {
+          "elementType": {
+            "type": "string",
+            "enum": ["Domain", "Subdomain", "BoundedContext", "Aggregate", "Entity", "EntityAttribute", "ValueObject", "ValueObjectAttribute", "DomainService", "DomainServiceMethod", "DomainServiceParameter", "DomainEvent", "DomainEventProperty", "Repository", "RepositoryMethod", "Factory", "FactoryMethod", "Enum", "EnumValue"],
+            "description": "目标模型元素类型"
+          },
+          "elementPath": {
+            "type": "string",
+            "description": "元素路径，格式：父元素.子元素（如：OrderEntity.totalAmount）"
+          },
+          "boundedContextId": {
+            "type": "string",
+            "pattern": "^bc_[a-zA-Z0-9_]+$",
+            "description": "所属限界上下文ID"
+          },
+          "mappingType": {
+            "type": "string",
+            "enum": ["DIRECT", "COMPOSED", "DERIVED", "VALIDATED"],
+            "description": "映射类型"
+          },
+          "transformationRule": {
+            "type": "string",
+            "description": "转换规则描述"
+          },
+          "isPrimary": {
+            "type": "boolean",
+            "description": "是否为主要映射目标"
+          }
+        },
+        "required": ["elementType", "elementPath", "boundedContextId"],
+        "additionalProperties": false
+      },
+      "termRelationship": {
+        "type": "object",
+        "properties": {
+          "sourceTermId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "源术语ID"
+          },
+          "targetTermId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "目标术语ID"
+          },
+          "relationshipType": {
+            "type": "string",
+            "enum": ["composition", "aggregation", "generalization", "realization", "dependency", "association", "enumeration"],
+            "description": "关系类型"
+          },
+          "description": {
+            "type": "string",
+            "description": "关系描述"
+          },
+          "cardinality": {
+            "type": "string",
+            "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many", "zero-or-one", "zero-or-many"],
+            "description": "关系基数"
+          },
+          "businessContext": {
+            "type": "string",
+            "description": "业务上下文描述"
+          }
+        },
+        "required": ["sourceTermId", "targetTermId", "relationshipType"],
+        "additionalProperties": false
+      },
+      "constraints": {
+        "type": "object",
+        "properties": {
+          "required": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+          "minLength": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "最小长度"
+          },
+          "maxLength": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "最大长度"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "正则表达式模式"
+          },
+          "minimum": {
+            "type": "number",
+            "description": "最小值"
+          },
+          "maximum": {
+            "type": "number",
+            "description": "最大值"
+          },
+          "exclusiveMinimum": {
+            "type": "boolean",
+            "description": "是否排除最小值"
+          },
+          "exclusiveMaximum": {
+            "type": "boolean",
+            "description": "是否排除最大值"
+          },
+          "enumValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "枚举值列表"
+          },
+          "precision": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "数值精度"
+          },
+          "scale": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "数值小数位数"
+          },
+          "defaultValue": {
+            "type": ["string", "number", "boolean", "object"],
+            "description": "默认值"
+          },
+          "validationRules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "验证规则列表"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }

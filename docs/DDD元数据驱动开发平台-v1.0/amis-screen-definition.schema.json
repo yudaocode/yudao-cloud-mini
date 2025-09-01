@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/amis-screen-definition.schema.json",
+  "title": "amis屏幕定义Schema - 基于DDD模型",
+  "description": "利用amis自身Schema和DDD模型，简化屏幕定义和验证 - v2.0",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema版本",
+      "const": "2.0.0"
+    },
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "所属限界上下文ID"
+    },
+    "screens": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/amisScreen"
+      },
+      "description": "amis屏幕列表"
+    },
+    "modelMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/modelMapping"
+      },
+      "description": "DDD模型到amis组件的映射配置"
+    },
+    "amisConfig": {
+      "type": "object",
+      "description": "amis全局配置，直接使用amis原生配置",
+      "additionalProperties": true
+    }
+  },
+  "required": ["version", "boundedContextId"],
+  "additionalProperties": false,
+  "$defs": {
+    "amisScreen": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^screen_[a-zA-Z0-9_]+$",
+          "description": "屏幕唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "屏幕名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "屏幕描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["LIST", "DETAIL", "FORM", "DASHBOARD", "WIZARD", "MODAL", "CRUD"],
+          "description": "屏幕类型"
+        },
+        "route": {
+          "type": "string",
+          "description": "路由路径"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "所需权限列表"
+        },
+        "amisPage": {
+          "type": "object",
+          "description": "amis页面配置，使用amis原生Schema",
+          "additionalProperties": true
+        },
+        "modelBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/modelBinding"
+          },
+          "description": "DDD模型绑定配置"
+        }
+      },
+      "required": ["id", "name", "type", "route", "amisPage"],
+      "additionalProperties": false
+    },
+    "modelBinding": {
+      "type": "object",
+      "properties": {
+        "modelType": {
+          "type": "string",
+          "enum": ["ENTITY", "VALUE_OBJECT", "AGGREGATE", "DTO", "SERVICE", "REPOSITORY"],
+          "description": "DDD模型类型"
+        },
+        "modelId": {
+          "type": "string",
+          "description": "模型ID，对应DDD模型中的ID"
+        },
+        "bindingType": {
+          "type": "string",
+          "enum": ["DATA_SOURCE", "FORM_FIELDS", "TABLE_COLUMNS", "VALIDATION", "API_ENDPOINT"],
+          "description": "绑定类型"
+        },
+        "componentPath": {
+          "type": "string",
+          "description": "amis组件路径，如 'body.0.fields' 或 'columns'"
+        },
+        "mappingRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/mappingRule"
+          },
+          "description": "映射规则列表"
+        }
+      },
+      "required": ["modelType", "modelId", "bindingType", "componentPath"],
+      "additionalProperties": false
+    },
+    "mappingRule": {
+      "type": "object",
+      "properties": {
+        "sourceField": {
+          "type": "string",
+          "description": "DDD模型中的源字段名"
+        },
+        "targetField": {
+          "type": "string",
+          "description": "amis组件中的目标字段名"
+        },
+        "transformation": {
+          "type": "string",
+          "enum": ["DIRECT", "FORMAT", "TRANSFORM", "CUSTOM"],
+          "description": "数据转换方式"
+        },
+        "customTransform": {
+          "type": "string",
+          "description": "自定义转换逻辑"
+        },
+        "validation": {
+          "type": "object",
+          "description": "验证规则，使用amis原生验证Schema",
+          "additionalProperties": true
+        },
+        "amisProps": {
+          "type": "object",
+          "description": "amis组件属性，直接使用amis原生属性",
+          "additionalProperties": true
+        }
+      },
+      "required": ["sourceField", "targetField"],
+      "additionalProperties": false
+    },
+    "modelMapping": {
+      "type": "object",
+      "properties": {
+        "modelType": {
+          "type": "string",
+          "enum": ["ENTITY", "VALUE_OBJECT", "AGGREGATE", "DTO", "SERVICE", "REPOSITORY"],
+          "description": "DDD模型类型"
+        },
+        "modelId": {
+          "type": "string",
+          "description": "模型ID"
+        },
+        "autoGeneration": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "是否启用自动生成"
+            },
+            "templates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["CRUD_FORM", "LIST_TABLE", "DETAIL_VIEW", "SEARCH_FORM", "BULK_ACTIONS", "TABLE_COLUMNS"]
+              },
+              "description": "可用的自动生成模板"
+            },
+            "defaults": {
+              "type": "object",
+              "description": "默认配置",
+              "additionalProperties": true
+            }
+          },
+          "description": "自动生成配置"
+        },
+        "amisDefaults": {
+          "type": "object",
+          "description": "amis组件默认配置",
+          "additionalProperties": true
+        }
+      },
+      "required": ["modelType", "modelId"],
+      "additionalProperties": false
+    }
+  }
+}

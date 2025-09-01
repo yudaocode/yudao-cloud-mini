@@ -1,0 +1,417 @@
+{
+  "version": "1.0.0",
+  "boundedContextId": "bc_order",
+  "screens": [
+    {
+      "id": "screen_order_list",
+      "name": "订单列表",
+      "description": "显示所有订单的列表页面",
+      "type": "LIST",
+      "route": "/orders",
+      "layout": "SINGLE_COLUMN",
+      "responsive": true,
+      "pages": [
+        {
+          "id": "page_order_list_main",
+          "name": "订单列表主页面",
+          "components": [
+            {
+              "id": "comp_order_search",
+              "name": "订单搜索组件",
+              "type": "FORM",
+              "description": "订单搜索表单",
+              "position": {
+                "gridArea": "search"
+              },
+              "properties": {
+                "collapsible": true,
+                "defaultCollapsed": false
+              },
+              "events": [
+                {
+                  "id": "event_search_submit",
+                  "name": "SUBMIT",
+                  "handler": "handleSearchSubmit"
+                }
+              ]
+            },
+            {
+              "id": "comp_order_table",
+              "name": "订单表格",
+              "type": "TABLE",
+              "description": "订单数据表格",
+              "position": {
+                "gridArea": "content"
+              },
+              "properties": {
+                "pagination": true,
+                "sortable": true,
+                "selectable": true
+              },
+              "events": [
+                {
+                  "id": "event_row_click",
+                  "name": "CLICK",
+                  "handler": "handleRowClick"
+                }
+              ]
+            }
+          ],
+          "actions": [
+            {
+              "id": "action_create_order",
+              "name": "创建订单",
+              "type": "NAVIGATE",
+              "description": "跳转到创建订单页面"
+            },
+            {
+              "id": "action_batch_delete",
+              "name": "批量删除",
+              "type": "DELETE",
+              "description": "批量删除选中的订单",
+              "confirmation": true,
+              "confirmationMessage": "确定要删除选中的订单吗？"
+            }
+          ],
+          "dataBindings": [
+            {
+              "id": "binding_order_list",
+              "source": "ENDPOINT",
+              "sourceId": "endpoint_get_orders",
+              "target": "comp_order_table",
+              "refreshOn": ["search", "pagination", "sort"]
+            }
+          ]
+        }
+      ],
+      "navigation": {
+        "breadcrumbs": [
+          {
+            "label": "首页",
+            "route": "/"
+          },
+          {
+            "label": "订单管理",
+            "route": "/orders"
+          }
+        ]
+      },
+      "permissions": ["order:read", "order:list"]
+    },
+    {
+      "id": "screen_order_create",
+      "name": "创建订单",
+      "description": "创建新订单的表单页面",
+      "type": "FORM",
+      "route": "/orders/create",
+      "layout": "SINGLE_COLUMN",
+      "responsive": true,
+      "pages": [
+        {
+          "id": "page_order_create_main",
+          "name": "创建订单主页面",
+          "components": [
+            {
+              "id": "comp_order_form",
+              "name": "订单创建表单",
+              "type": "FORM",
+              "description": "订单创建表单",
+              "position": {
+                "gridArea": "form"
+              },
+              "properties": {
+                "labelPosition": "top",
+                "size": "large"
+              },
+              "events": [
+                {
+                  "id": "event_form_submit",
+                  "name": "SUBMIT",
+                  "handler": "handleFormSubmit"
+                },
+                {
+                  "id": "event_form_reset",
+                  "name": "CLICK",
+                  "handler": "handleFormReset"
+                }
+              ]
+            }
+          ],
+          "actions": [
+            {
+              "id": "action_submit_order",
+              "name": "提交订单",
+              "type": "SUBMIT",
+              "description": "提交订单表单",
+              "endpointMapping": {
+                "endpointId": "endpoint_create_order",
+                "endpointName": "创建订单端点",
+                "httpMethod": "POST",
+                "url": "/api/orders",
+                "requestDto": "dto_create_order_cmd",
+                "responseDto": "dto_order_entity",
+                "timeout": 30000
+              },
+              "confirmation": true,
+              "confirmationMessage": "确定要创建订单吗？",
+              "successMessage": "订单创建成功！",
+              "loadingState": true
+            },
+            {
+              "id": "action_cancel_create",
+              "name": "取消",
+              "type": "NAVIGATE",
+              "description": "返回订单列表页面"
+            }
+          ]
+        }
+      ],
+      "navigation": {
+        "breadcrumbs": [
+          {
+            "label": "首页",
+            "route": "/"
+          },
+          {
+            "label": "订单管理",
+            "route": "/orders"
+          },
+          {
+            "label": "创建订单",
+            "route": "/orders/create"
+          }
+        ]
+      },
+      "permissions": ["order:create"]
+    },
+    {
+      "id": "screen_order_detail",
+      "name": "订单详情",
+      "description": "显示订单详细信息的页面",
+      "type": "DETAIL",
+      "route": "/orders/:id",
+      "layout": "SINGLE_COLUMN",
+      "responsive": true,
+      "pages": [
+        {
+          "id": "page_order_detail_main",
+          "name": "订单详情主页面",
+          "components": [
+            {
+              "id": "comp_order_info",
+              "name": "订单信息卡片",
+              "type": "CARD",
+              "description": "显示订单基本信息",
+              "position": {
+                "gridArea": "info"
+              }
+            },
+            {
+              "id": "comp_order_items",
+              "name": "订单项列表",
+              "type": "TABLE",
+              "description": "显示订单商品项",
+              "position": {
+                "gridArea": "items"
+              }
+            },
+            {
+              "id": "comp_order_actions",
+              "name": "订单操作按钮组",
+              "type": "BUTTON",
+              "description": "订单相关操作按钮",
+              "position": {
+                "gridArea": "actions"
+              }
+            }
+          ],
+          "actions": [
+            {
+              "id": "action_edit_order",
+              "name": "编辑订单",
+              "type": "NAVIGATE",
+              "description": "跳转到编辑订单页面"
+            },
+            {
+              "id": "action_cancel_order",
+              "name": "取消订单",
+              "type": "CUSTOM",
+              "description": "取消当前订单",
+              "endpointMapping": {
+                "endpointId": "endpoint_cancel_order",
+                "endpointName": "取消订单端点",
+                "httpMethod": "PUT",
+                "url": "/api/orders/:id/cancel",
+                "requestDto": "dto_cancel_order_cmd",
+                "responseDto": "dto_order_entity"
+              },
+              "confirmation": true,
+              "confirmationMessage": "确定要取消这个订单吗？",
+              "successMessage": "订单已取消"
+            }
+          ],
+          "dataBindings": [
+            {
+              "id": "binding_order_detail",
+              "source": "ENDPOINT",
+              "sourceId": "endpoint_get_order_by_id",
+              "target": "comp_order_info",
+              "refreshOn": ["route_change"]
+            }
+          ]
+        }
+      ],
+      "navigation": {
+        "breadcrumbs": [
+          {
+            "label": "首页",
+            "route": "/"
+          },
+          {
+            "label": "订单管理",
+            "route": "/orders"
+          },
+          {
+            "label": "订单详情",
+            "route": "/orders/:id"
+          }
+        ]
+      },
+      "permissions": ["order:read", "order:detail"]
+    }
+  ],
+  "endpointMappings": [
+    {
+      "endpointId": "endpoint_get_orders",
+      "endpointName": "获取订单列表",
+      "httpMethod": "GET",
+      "url": "/api/orders",
+      "requestDto": null,
+      "responseDto": "dto_order_list",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "timeout": 10000
+    },
+    {
+      "endpointId": "endpoint_create_order",
+      "endpointName": "创建订单",
+      "httpMethod": "POST",
+      "url": "/api/orders",
+      "requestDto": "dto_create_order_cmd",
+      "responseDto": "dto_order_entity",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "timeout": 30000,
+      "retry": {
+        "maxAttempts": 3,
+        "delay": 1000
+      }
+    },
+    {
+      "endpointId": "endpoint_get_order_by_id",
+      "endpointName": "根据ID获取订单",
+      "httpMethod": "GET",
+      "url": "/api/orders/:id",
+      "requestDto": null,
+      "responseDto": "dto_order_entity",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "timeout": 10000
+    },
+    {
+      "endpointId": "endpoint_cancel_order",
+      "endpointName": "取消订单",
+      "httpMethod": "PUT",
+      "url": "/api/orders/:id/cancel",
+      "requestDto": "dto_cancel_order_cmd",
+      "responseDto": "dto_order_entity",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "timeout": 15000
+    }
+  ],
+  "dtoMappings": [
+    {
+      "screenId": "screen_order_create",
+      "dtoId": "dto_create_order_cmd",
+      "mappingType": "INPUT",
+      "fieldMappings": [
+        {
+          "screenFieldId": "field_customer_id",
+          "dtoAttributeName": "customerId",
+          "dataType": "String",
+          "required": true,
+          "validation": {
+            "required": true,
+            "minLength": 1,
+            "maxLength": 36
+          }
+        },
+        {
+          "screenFieldId": "field_order_items",
+          "dtoAttributeName": "items",
+          "dataType": "List",
+          "required": true,
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "screenFieldId": "field_shipping_address",
+          "dtoAttributeName": "shippingAddress",
+          "dataType": "Object",
+          "required": true,
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "screenFieldId": "field_total_amount",
+          "dtoAttributeName": "totalAmount",
+          "dataType": "BigDecimal",
+          "required": true,
+          "validation": {
+            "required": true,
+            "min": 0
+          }
+        }
+      ]
+    },
+    {
+      "screenId": "screen_order_detail",
+      "dtoId": "dto_order_entity",
+      "mappingType": "OUTPUT",
+      "fieldMappings": [
+        {
+          "screenFieldId": "field_order_id",
+          "dtoAttributeName": "orderId",
+          "dataType": "String",
+          "required": true
+        },
+        {
+          "screenFieldId": "field_order_status",
+          "dtoAttributeName": "status",
+          "dataType": "String",
+          "required": true
+        },
+        {
+          "screenFieldId": "field_customer_id",
+          "dtoAttributeName": "customerId",
+          "dataType": "String",
+          "required": true
+        },
+        {
+          "screenFieldId": "field_total_amount",
+          "dtoAttributeName": "totalAmount",
+          "dataType": "BigDecimal",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
+

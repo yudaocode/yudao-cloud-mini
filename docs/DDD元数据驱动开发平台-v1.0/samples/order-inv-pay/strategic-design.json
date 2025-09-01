@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0",
+  "boundedContextId": "bc_order",
+  "termReferences": [
+    {
+      "termId": "term_order",
+      "modelElementType": "Aggregate",
+      "modelElementPath": "aggregates.0"
+    },
+    {
+      "termId": "term_order_entity",
+      "modelElementType": "Entity",
+      "modelElementPath": "aggregates.0.entities.0"
+    },
+    {
+      "termId": "term_order_item_entity",
+      "modelElementType": "Entity",
+      "modelElementPath": "aggregates.0.entities.1"
+    },
+    {
+      "termId": "term_order_id_vo",
+      "modelElementType": "ValueObject",
+      "modelElementPath": "aggregates.0.valueObjects.0"
+    },
+    {
+      "termId": "term_address_vo",
+      "modelElementType": "ValueObject",
+      "modelElementPath": "aggregates.0.valueObjects.1"
+    },
+    {
+      "termId": "term_order_creation_service",
+      "modelElementType": "DomainService",
+      "modelElementPath": "domainServices.0"
+    },
+    {
+      "termId": "term_order_created_event",
+      "modelElementType": "DomainEvent",
+      "modelElementPath": "domainEvents.0"
+    },
+    {
+      "termId": "term_order_cancelled_event",
+      "modelElementType": "DomainEvent",
+      "modelElementPath": "domainEvents.1"
+    },
+    {
+      "termId": "term_order_repository",
+      "modelElementType": "Repository",
+      "modelElementPath": "repositories.0"
+    },
+    {
+      "termId": "term_order_factory",
+      "modelElementType": "Factory",
+      "modelElementPath": "factories.0"
+    },
+    {
+      "termId": "term_order_status_enum",
+      "modelElementType": "Enum",
+      "modelElementPath": "enums.0"
+    }
+  ],
+  "dtoReferences": [
+    {
+      "dtoId": "dto_create_order_cmd",
+      "modelElementType": "DomainServiceMethod",
+      "modelElementPath": "domainServices.0.methods.0.parameters.0",
+      "usageType": "PARAMETER"
+    },
+    {
+      "dtoId": "dto_order_entity",
+      "modelElementType": "RepositoryMethod",
+      "modelElementPath": "repositories.0.methods.1.parameters.0",
+      "usageType": "PARAMETER"
+    }
+  ],
+  "aggregates": [],
+  "domainServices": [],
+  "domainEvents": [],
+  "repositories": [],
+  "factories": [],
+  "modules": [],
+  "enums": []
+} 

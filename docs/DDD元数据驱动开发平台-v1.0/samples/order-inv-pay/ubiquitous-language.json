@@ -1,0 +1,141 @@
+{
+  "version": "1.0.0",
+  "terms": [
+    {
+      "id": "term_ec_domain",
+      "name": "电商领域",
+      "description": "在线商品交易和服务提供的商业领域",
+      "englishName": "E-commerce Domain",
+      "type": "DOMAIN"
+    },
+    {
+      "id": "term_order",
+      "name": "订单",
+      "description": "客户购买商品的请求，是交易的核心凭证",
+      "englishName": "Order",
+      "type": "CORE_CONCEPT",
+      "domainId": "domain_ec_retail"
+    },
+    {
+      "id": "term_inventory",
+      "name": "库存",
+      "description": "商品的可销售数量管理",
+      "englishName": "Inventory",
+      "type": "CORE_CONCEPT",
+      "domainId": "domain_ec_retail"
+    },
+    {
+      "id": "term_payment",
+      "name": "支付",
+      "description": "完成订单金额转移的过程",
+      "englishName": "Payment",
+      "type": "CORE_CONCEPT",
+      "domainId": "domain_ec_retail"
+    },
+    {
+      "id": "term_order_status",
+      "name": "订单状态",
+      "description": "订单在不同阶段的状态标识",
+      "englishName": "Order Status",
+      "type": "ENUM",
+      "domainId": "domain_ec_retail",
+      "dataType": "Enum",
+      "constraints": {
+        "enumValues": ["CREATED", "PAID", "SHIPPED", "COMPLETED", "CANCELLED"]
+      }
+    },
+    {
+      "id": "term_order_amount",
+      "name": "订单金额",
+      "description": "订单的总金额，包含所有费用和折扣",
+      "englishName": "Order Amount",
+      "type": "ATTRIBUTE",
+      "domainId": "domain_ec_retail",
+      "dataType": "BigDecimal",
+      "constraints": {
+        "required": true,
+        "minimum": 0,
+        "precision": 10,
+        "scale": 2
+      }
+    },
+    {
+      "id": "term_stock_quantity",
+      "name": "库存数量",
+      "description": "商品的可用库存数量",
+      "englishName": "Stock Quantity",
+      "type": "ATTRIBUTE",
+      "domainId": "domain_ec_retail",
+      "dataType": "Integer",
+      "constraints": {
+        "required": true,
+        "minimum": 0
+      }
+    },
+    {
+      "id": "term_payment_status",
+      "name": "支付状态",
+      "description": "支付操作的状态标识",
+      "englishName": "Payment Status",
+      "type": "ENUM",
+      "domainId": "domain_ec_retail",
+      "dataType": "Enum",
+      "constraints": {
+        "enumValues": ["PENDING", "SUCCESS", "FAILED", "REFUNDED"]
+      }
+    },
+    {
+      "id": "term_order_bc",
+      "name": "订单",
+      "description": "订单上下文中指用户提交的购买请求，包含商品清单、价格、收货地址等信息",
+      "englishName": "Order",
+      "type": "CONTEXT_SPECIFIC",
+      "domainId": "domain_ec_retail",
+      "boundedContextId": "bc_order",
+      "relatesTo": ["term_order"]
+    },
+    {
+      "id": "term_inventory_bc",
+      "name": "库存",
+      "description": "库存上下文中指商品的可销售数量管理和库存操作",
+      "englishName": "Inventory",
+      "type": "CONTEXT_SPECIFIC",
+      "domainId": "domain_ec_retail",
+      "boundedContextId": "bc_inventory",
+      "relatesTo": ["term_inventory"]
+    },
+    {
+      "id": "term_payment_bc",
+      "name": "支付",
+      "description": "支付上下文中指订单金额的转移过程和支付状态管理",
+      "englishName": "Payment",
+      "type": "CONTEXT_SPECIFIC",
+      "domainId": "domain_ec_retail",
+      "boundedContextId": "bc_payment",
+      "relatesTo": ["term_payment"]
+    }
+  ],
+  "termRelationships": [
+    {
+      "sourceTermId": "term_order",
+      "targetTermId": "term_inventory",
+      "relationshipType": "dependency",
+      "cardinality": "many-to-many",
+      "description": "订单依赖于库存进行库存检查"
+    },
+    {
+      "sourceTermId": "term_order",
+      "targetTermId": "term_payment",
+      "relationshipType": "dependency",
+      "cardinality": "one-to-one",
+      "description": "订单依赖于支付完成交易"
+    },
+    {
+      "sourceTermId": "term_order_bc",
+      "targetTermId": "term_order_amount",
+      "relationshipType": "composition",
+      "cardinality": "one-to-one",
+      "description": "订单包含订单金额"
+    }
+  ]
+}

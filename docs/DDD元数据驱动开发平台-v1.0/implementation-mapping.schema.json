@@ -1,0 +1,537 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/ddd-metamodel/1.0/implementation-mapping.schema.json",
+    "title": "实现映射定义",
+    "description": "领域模型到实现技术的映射定义 - v1.0",
+    "version": "1.0.0",
+    "type": "object",
+    "properties": {
+      "version": {
+        "type": "string",
+        "description": "模式版本",
+        "const": "1.0.0"
+      },
+      "boundedContextId": {
+        "type": "string",
+        "pattern": "^bc_[a-zA-Z0-9_]+$",
+        "description": "所属限界上下文ID"
+      },
+      "dtoMappings": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/dtoMapping"
+        },
+        "description": "DTO映射列表"
+      },
+      "colaArchitecture": {
+        "type": "object",
+        "properties": {
+          "clientLayer": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/architectureComponent"
+            }
+          },
+          "adapterLayer": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/architectureComponent"
+            }
+          },
+          "appLayer": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/architectureComponent"
+            }
+          },
+          "domainLayer": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/architectureComponent"
+            }
+          },
+          "infrastructureLayer": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/architectureComponent"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "persistenceMapping": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/persistenceMapping"
+        }
+      },
+      "integrationMapping": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/integrationMapping"
+        }
+      }
+    },
+    "required": ["version", "boundedContextId"],
+    "additionalProperties": false,
+    "$defs": {
+      "dtoMapping": {
+        "type": "object",
+        "properties": {
+          "dtoId": {
+            "type": "string",
+            "pattern": "^dto_[a-zA-Z0-9_]+$",
+            "description": "DTO ID"
+          },
+          "className": {
+            "type": "string",
+            "description": "生成的类名"
+          },
+          "packageName": {
+            "type": "string",
+            "description": "包名"
+          },
+          "layer": {
+            "type": "string",
+            "enum": ["CLIENT", "APPLICATION", "DOMAIN", "INFRASTRUCTURE"],
+            "description": "所在架构层"
+          },
+          "annotations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "类级别注解"
+          },
+          "serializationConfig": {
+            "type": "object",
+            "properties": {
+              "format": {
+                "type": "string",
+                "enum": ["JSON", "XML", "PROTOBUF", "AVRO", "NONE"],
+                "description": "序列化格式"
+              },
+              "library": {
+                "type": "string",
+                "enum": ["JACKSON", "GSON", "JAXB", "PROTOBUF_LIB", "NONE"],
+                "description": "序列化库"
+              },
+              "includeTypeInfo": {
+                "type": "boolean",
+                "description": "是否包含类型信息"
+              }
+            },
+            "additionalProperties": false
+          },
+          "validationConfig": {
+            "type": "object",
+            "properties": {
+              "framework": {
+                "type": "string",
+                "enum": ["JSR303", "JSR380", "CUSTOM", "NONE"],
+                "description": "验证框架"
+              },
+              "groups": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "验证组"
+              },
+              "validateOnBuild": {
+                "type": "boolean",
+                "description": "是否在构建时验证"
+              }
+            },
+            "additionalProperties": false
+          },
+          "builderConfig": {
+            "type": "object",
+            "properties": {
+              "generateBuilder": {
+                "type": "boolean",
+                "description": "是否生成构建器"
+              },
+              "builderName": {
+                "type": "string",
+                "description": "构建器类名"
+              },
+              "builderMethod": {
+                "type": "string",
+                "description": "构建器方法名"
+              },
+              "toBuilder": {
+                "type": "boolean",
+                "description": "是否生成toBuilder方法"
+              }
+            },
+            "additionalProperties": false
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/dtoAttributeMapping"
+            }
+          }
+        },
+        "required": ["dtoId", "className", "packageName", "layer"],
+        "additionalProperties": false
+      },
+      "dtoAttributeMapping": {
+        "type": "object",
+        "properties": {
+          "attributeName": {
+            "type": "string",
+            "description": "属性名称"
+          },
+          "fieldName": {
+            "type": "string",
+            "description": "字段名称"
+          },
+          "fieldType": {
+            "type": "string",
+            "description": "字段类型"
+          },
+          "annotations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "字段注解"
+          },
+          "getter": {
+            "type": "boolean",
+            "description": "是否生成getter方法"
+          },
+          "setter": {
+            "type": "boolean",
+            "description": "是否生成setter方法"
+          },
+          "validationAnnotations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "验证注解"
+          },
+          "serializationAnnotations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "序列化注解"
+          },
+          "defaultValue": {
+            "type": ["string", "number", "boolean", "object"],
+            "description": "默认值"
+          },
+          "isFinal": {
+            "type": "boolean",
+            "description": "是否final"
+          }
+        },
+        "required": ["attributeName", "fieldName", "fieldType"],
+        "additionalProperties": false
+      },
+      "architectureComponent": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "组件名称"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["INTERFACE", "CLASS", "DTO", "ENUM", "ANNOTATION"]
+          },
+          "implements": {
+            "type": "string",
+            "description": "实现的接口"
+          },
+          "annotations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "注解列表"
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "方法列表"
+          }
+        },
+        "required": ["name", "type"],
+        "additionalProperties": false
+      },
+      "persistenceMapping": {
+        "type": "object",
+        "properties": {
+          "entityName": {
+            "type": "string",
+            "description": "实体名称"
+          },
+          "tableName": {
+            "type": "string",
+            "description": "表名"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/columnMapping"
+            }
+          }
+        },
+        "required": ["entityName", "tableName"],
+        "additionalProperties": false
+      },
+      "columnMapping": {
+        "type": "object",
+        "properties": {
+          "attributeName": {
+            "type": "string",
+            "description": "属性名称"
+          },
+          "columnName": {
+            "type": "string",
+            "description": "列名"
+          },
+          "columnType": {
+            "type": "string",
+            "description": "列类型"
+          },
+          "primaryKey": {
+            "type": "boolean",
+            "description": "是否主键"
+          },
+          "nullable": {
+            "type": "boolean",
+            "description": "是否可为空"
+          },
+          "length": {
+            "type": "integer",
+            "description": "长度限制"
+          }
+        },
+        "required": ["attributeName", "columnName", "columnType"],
+        "additionalProperties": false
+      },
+      "integrationMapping": {
+        "type": "object",
+        "properties": {
+          "targetContextId": {
+            "type": "string",
+            "pattern": "^bc_[a-zA-Z0-9_]+$",
+            "description": "目标上下文ID"
+          },
+          "protocol": {
+            "type": "string",
+            "enum": ["REST", "RPC", "MESSAGE", "FILE"]
+          },
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/endpoint"
+            }
+          }
+        },
+        "required": ["targetContextId", "protocol"],
+        "additionalProperties": false
+      },
+      "endpoint": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "端点名称"
+          },
+          "url": {
+            "type": "string",
+            "description": "端点URL"
+          },
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"]
+          },
+          "request": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/requestParameter"
+            }
+          },
+          "response": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/responseParameter"
+            }
+          },
+          "fallback": {
+            "type": "string",
+            "description": "降级处理类"
+          }
+        },
+        "required": ["name", "url", "method"],
+        "additionalProperties": false
+      },
+      "requestParameter": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "参数名称"
+          },
+          "type": {
+            "type": "string",
+            "description": "参数类型"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "是否必需"
+          }
+        },
+        "required": ["name", "type"],
+        "additionalProperties": false
+      },
+      "responseParameter": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "参数名称"
+          },
+          "type": {
+            "type": "string",
+            "description": "参数类型"
+          }
+        },
+        "required": ["name", "type"],
+        "additionalProperties": false
+      },
+      "screenMapping": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^screen_mapping_[a-zA-Z0-9_]+$",
+            "description": "屏幕映射唯一标识"
+          },
+          "screenId": {
+            "type": "string",
+            "pattern": "^screen_[a-zA-Z0-9_]+$",
+            "description": "关联的屏幕ID"
+          },
+          "endpointId": {
+            "type": "string",
+            "pattern": "^endpoint_[a-zA-Z0-9_]+$",
+            "description": "关联的端点ID"
+          },
+          "mappingType": {
+            "type": "string",
+            "enum": ["READ", "WRITE", "BOTH"],
+            "description": "映射类型"
+          },
+          "dtoMapping": {
+            "type": "object",
+            "properties": {
+              "requestDto": {
+                "type": "string",
+                "pattern": "^dto_[a-zA-Z0-9_]+$",
+                "description": "请求DTO ID"
+              },
+              "responseDto": {
+                "type": "string",
+                "pattern": "^dto_[a-zA-Z0-9_]+$",
+                "description": "响应DTO ID"
+              },
+              "fieldMappings": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/screenFieldMapping"
+                },
+                "description": "字段映射列表"
+              }
+            },
+            "required": ["requestDto", "responseDto"],
+            "additionalProperties": false
+          },
+          "uiBehavior": {
+            "type": "object",
+            "properties": {
+              "loadingState": {
+                "type": "boolean",
+                "description": "是否显示加载状态"
+              },
+              "successMessage": {
+                "type": "string",
+                "description": "成功消息"
+              },
+              "errorMessage": {
+                "type": "string",
+                "description": "错误消息"
+              },
+              "confirmationRequired": {
+                "type": "boolean",
+                "description": "是否需要确认"
+              },
+              "redirectAfterSuccess": {
+                "type": "string",
+                "description": "成功后重定向路径"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": ["id", "screenId", "endpointId", "mappingType"],
+        "additionalProperties": false
+      },
+      "screenFieldMapping": {
+        "type": "object",
+        "properties": {
+          "screenFieldId": {
+            "type": "string",
+            "pattern": "^field_[a-zA-Z0-9_]+$",
+            "description": "屏幕字段ID"
+          },
+          "dtoAttributeName": {
+            "type": "string",
+            "description": "DTO属性名"
+          },
+          "dataType": {
+            "type": "string",
+            "description": "数据类型"
+          },
+          "transformation": {
+            "type": "string",
+            "enum": ["DIRECT", "FORMAT", "TRANSFORM", "CUSTOM"],
+            "description": "数据转换方式"
+          },
+          "validation": {
+            "type": "object",
+            "properties": {
+              "required": {
+                "type": "boolean",
+                "description": "是否必填"
+              },
+              "pattern": {
+                "type": "string",
+                "description": "正则表达式模式"
+              },
+              "minLength": {
+                "type": "integer",
+                "description": "最小长度"
+              },
+              "maxLength": {
+                "type": "integer",
+                "description": "最大长度"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": ["screenFieldId", "dtoAttributeName"],
+        "additionalProperties": false
+      }
+    }
+  }

@@ -1,0 +1,31 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "DDD元数据模型根定义",
+    "description": "领域驱动设计元数据完整定义 - v1.0",
+    "version": "1.0.0",
+    "type": "object",
+    "properties": {
+      "version": {
+        "type": "string",
+        "description": "元模型版本",
+        "const": "1.0.0"
+      },
+      "ubiquitousLanguage": {
+        "$ref": "./ubiquitous-language.schema.json"
+      },
+      "strategicDesign": {
+        "$ref": "./strategic-design.schema.json"
+      },
+      "tacticalDesign": {
+        "$ref": "./tactical-design.schema.json"
+      },
+      "implementationMapping": {
+        "$ref": "./implementation-mapping.schema.json"
+      },
+      "dataTransferObjects": {
+        "$ref": "./data-transfer-objects.schema.json"
+      }
+    },
+    "required": ["version", "ubiquitousLanguage", "strategicDesign", "tacticalDesign"],
+    "additionalProperties": false
+  }

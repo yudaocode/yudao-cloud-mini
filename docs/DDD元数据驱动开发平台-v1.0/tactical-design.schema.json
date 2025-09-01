@@ -1,0 +1,607 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "./tactical-design.schema.json",
+    "title": "战术设计定义",
+    "description": "领域驱动设计战术设计定义 - v1.0",
+    "version": "1.0.0",
+    "type": "object",
+    "properties": {
+      "version": {
+        "type": "string",
+        "description": "模式版本",
+        "const": "1.0.0"
+      },
+      "boundedContextId": {
+        "type": "string",
+        "pattern": "^bc_[a-zA-Z0-9_]+$",
+        "description": "所属限界上下文ID"
+      },
+      "termReferences": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/termReference"
+        },
+        "description": "术语引用列表"
+      },
+      "dtoReferences": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/dtoReference"
+        },
+        "description": "DTO引用列表"
+      },
+      "aggregates": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/aggregate"
+        },
+        "description": "聚合列表"
+      },
+      "domainServices": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/domainService"
+        },
+        "description": "领域服务列表"
+      },
+      "domainEvents": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/domainEvent"
+        },
+        "description": "领域事件列表"
+      },
+      "repositories": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/repository"
+        },
+        "description": "仓储列表"
+      },
+      "factories": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/factory"
+        },
+        "description": "工厂列表"
+      },
+      "modules": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/module"
+        },
+        "description": "模块列表"
+      },
+      "enums": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/enumDefinition"
+        },
+        "description": "枚举列表"
+      }
+    },
+    "required": ["version", "boundedContextId", "termReferences"],
+    "additionalProperties": false,
+    "$defs": {
+      "termReference": {
+        "type": "object",
+        "properties": {
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "引用的术语ID"
+          },
+          "modelElementType": {
+            "type": "string",
+            "enum": ["Aggregate", "Entity", "EntityAttribute", "ValueObject", "ValueObjectAttribute", "DomainService", "DomainServiceMethod", "DomainServiceParameter", "DomainEvent", "DomainEventProperty", "Repository", "RepositoryMethod", "Factory", "FactoryMethod", "Enum", "EnumValue"],
+            "description": "模型元素类型"
+          },
+          "modelElementPath": {
+            "type": "string",
+            "description": "模型元素路径"
+          },
+          "mappingType": {
+            "type": "string",
+            "enum": ["DIRECT", "COMPOSED", "DERIVED", "VALIDATED"],
+            "description": "映射类型"
+          },
+          "transformationLogic": {
+            "type": "string",
+            "description": "转换逻辑描述"
+          }
+        },
+        "required": ["termId", "modelElementType", "modelElementPath"],
+        "additionalProperties": false
+      },
+      "dtoReference": {
+        "type": "object",
+        "properties": {
+          "dtoId": {
+            "type": "string",
+            "pattern": "^dto_[a-zA-Z0-9_]+$",
+            "description": "引用的DTO ID"
+          },
+          "modelElementType": {
+            "type": "string",
+            "enum": ["DomainServiceMethod", "ApplicationServiceMethod", "ControllerMethod", "RepositoryMethod", "FactoryMethod", "EventHandler", "ViewProjection"],
+            "description": "模型元素类型"
+          },
+          "modelElementPath": {
+            "type": "string",
+            "description": "模型元素路径"
+          },
+          "usageType": {
+            "type": "string",
+            "enum": ["PARAMETER", "RETURN", "BOTH"],
+            "description": "使用类型"
+          },
+          "mappingType": {
+            "type": "string",
+            "enum": ["DIRECT", "ADAPTER", "PROJECTION", "COMPOSITION"],
+            "description": "映射类型"
+          },
+          "validationContext": {
+            "type": "string",
+            "description": "验证上下文"
+          }
+        },
+        "required": ["dtoId", "modelElementType", "modelElementPath", "usageType"],
+        "additionalProperties": false
+      },
+      "aggregate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "聚合名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "聚合详细描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "rootEntity": {
+            "type": "string",
+            "description": "聚合根实体名称"
+          },
+          "invariants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "不变约束列表"
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/entity"
+            }
+          },
+          "valueObjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/valueObject"
+            }
+          }
+        },
+        "required": ["name", "description", "termId", "rootEntity"],
+        "additionalProperties": false
+      },
+      "entity": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "实体名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "实体详细描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/attribute"
+            }
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/method"
+            }
+          }
+        },
+        "required": ["name", "description", "termId"],
+        "additionalProperties": false
+      },
+      "valueObject": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "值对象名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "值对象详细描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "immutable": {
+            "type": "boolean",
+            "description": "是否不可变"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/attribute"
+            }
+          },
+          "equalityLogic": {
+            "type": "string",
+            "description": "相等性判断逻辑描述"
+          }
+        },
+        "required": ["name", "description", "termId", "immutable"],
+        "additionalProperties": false
+      },
+      "attribute": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "属性名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "属性详细描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "dataType": {
+            "type": "string",
+            "description": "数据类型"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+                      "constraints": {
+              "$ref": "./ubiquitous-language.schema.json#/$defs/constraints"
+            }
+        },
+        "required": ["name", "description", "termId", "dataType"],
+        "additionalProperties": false
+      },
+      "method": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "方法名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "方法详细描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/methodParameter"
+            }
+          },
+          "returnType": {
+            "type": "string",
+            "description": "返回值类型"
+          },
+          "returnDtoId": {
+            "type": "string",
+            "pattern": "^dto_[a-zA-Z0-9_]+$",
+            "description": "返回DTO ID"
+          },
+          "businessLogic": {
+            "type": "string",
+            "description": "业务逻辑描述"
+          },
+          "preconditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "前置条件列表"
+          },
+          "postconditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "后置条件列表"
+          }
+        },
+        "required": ["name", "description", "termId"],
+        "additionalProperties": false
+      },
+      "methodParameter": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "参数名称",
+            "minLength": 1
+          },
+          "dtoId": {
+            "type": "string",
+            "pattern": "^dto_[a-zA-Z0-9_]+$",
+            "description": "DTO ID"
+          },
+          "simpleType": {
+            "type": "string",
+            "description": "简单类型（当dtoId未指定时使用）"
+          },
+          "description": {
+            "type": "string",
+            "description": "参数描述"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "是否必需"
+          },
+          "parameterRole": {
+            "type": "string",
+            "enum": ["INPUT", "OUTPUT", "INOUT"],
+            "description": "参数角色"
+          },
+          "parameterType": {
+            "type": "string",
+            "enum": ["COMMAND", "QUERY", "CRITERIA", "CONTEXT"],
+            "description": "参数类型"
+          }
+        },
+        "oneOf": [
+          {
+            "required": ["name", "dtoId"]
+          },
+          {
+            "required": ["name", "simpleType"]
+          }
+        ],
+        "additionalProperties": false
+      },
+      "domainService": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "领域服务名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "领域服务详细描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/method"
+            }
+          }
+        },
+        "required": ["name", "description", "termId"],
+        "additionalProperties": false
+      },
+      "domainEvent": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "领域事件名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "领域事件详细描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "properties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/attribute"
+            }
+          },
+          "subscribers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/eventSubscriber"
+            }
+          }
+        },
+        "required": ["name", "description", "termId"],
+        "additionalProperties": false
+      },
+      "eventSubscriber": {
+        "type": "object",
+        "properties": {
+          "contextId": {
+            "type": "string",
+            "pattern": "^bc_[a-zA-Z0-9_]+$",
+            "description": "订阅者上下文ID"
+          },
+          "handlerName": {
+            "type": "string",
+            "description": "事件处理器名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "订阅处理描述"
+          }
+        },
+        "required": ["contextId", "handlerName"],
+        "additionalProperties": false
+      },
+      "repository": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "仓储名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "仓储详细描述"
+          },
+          "interfaceName": {
+            "type": "string",
+            "description": "接口名称"
+          },
+          "implementationName": {
+            "type": "string",
+            "description": "实现类名称"
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/method"
+            }
+          }
+        },
+        "required": ["name", "description", "interfaceName"],
+        "additionalProperties": false
+      },
+      "factory": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "工厂名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "工厂详细描述"
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/method"
+            }
+          }
+        },
+        "required": ["name", "description"],
+        "additionalProperties": false
+      },
+      "module": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "模块名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "模块详细描述"
+          },
+          "packageName": {
+            "type": "string",
+            "description": "包名"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "依赖的模块名称"
+          }
+        },
+        "required": ["name", "description", "packageName"],
+        "additionalProperties": false
+      },
+      "enumDefinition": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "枚举名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "枚举详细描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/enumValue"
+            }
+          }
+        },
+        "required": ["name", "description", "termId"],
+        "additionalProperties": false
+      },
+      "enumValue": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "枚举值名称",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "description": "枚举值描述"
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$",
+            "description": "对应术语ID引用"
+          },
+          "value": {
+            "type": ["string", "number"],
+            "description": "枚举值"
+          }
+        },
+        "required": ["name", "value", "termId"],
+        "additionalProperties": false
+      }
+    }
+  }
