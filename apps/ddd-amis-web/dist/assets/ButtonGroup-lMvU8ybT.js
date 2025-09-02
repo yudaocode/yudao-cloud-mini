@@ -1,0 +1,1 @@
+import{a as e,d as n,e as o,B as u}from"./index-SNKBwPMT.js";var d=(function(r){e(t,r);function t(){return r!==null&&r.apply(this,arguments)||this}return t=n([o({type:"button-group"})],t),t})(u);export{d as ButtonGroupRenderer,u as default};

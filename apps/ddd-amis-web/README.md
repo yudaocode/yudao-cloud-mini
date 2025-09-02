@@ -1,3 +1,11 @@
+<!--
+ * @Author: liuxin liuin@sweib.com
+ * @Date: 2025-09-01 15:37:57
+ * @LastEditors: liuxin liuin@sweib.com
+ * @LastEditTime: 2025-09-01 17:52:31
+ * @FilePath: /yudao-cloud-mini/apps/ddd-amis-web/README.md
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 # DDD-AMIS 低代码开发平台
 
 基于 Vite + React + TypeScript + AMIS 的前端开发平台，支持DDD模型驱动的amis配置自动生成和可视化编辑。
@@ -26,7 +34,7 @@
 
 ## 🛠️ 技术栈
 
-- **前端框架**: React 17 + TypeScript
+- **前端框架**: React 16 + TypeScript
 - **构建工具**: Vite
 - **低代码框架**: AMIS
 - **可视化编辑器**: amis-editor
@@ -58,14 +66,11 @@ npm run preview
 ```
 src/
 ├── components/          # React组件
-│   ├── AmisEditor.tsx  # amis可视化编辑器
-│   └── DynamicCRUD.tsx # 动态CRUD组件
+│   └── AmisEditor.tsx  # amis可视化编辑器
 ├── services/           # 服务层
 │   └── dddParser.ts   # DDD模型解析器
 ├── types/              # TypeScript类型定义
 │   └── ddd.ts         # DDD相关类型
-├── config/             # 配置文件
-│   └── paths.ts       # 路径配置
 ├── App.tsx            # 主应用组件
 ├── main.tsx           # 应用入口
 └── App.css            # 应用样式
@@ -101,13 +106,10 @@ src/
 
 ### 屏幕定义文件路径
 
-在 `src/config/paths.ts` 中配置：
+在 `src/App.tsx` 中配置：
 
 ```typescript
-export const CONFIG_PATHS = {
-  SCREEN_DEFINITION: '/docs/DDD元数据驱动开发平台-v1.0/samples/order-inv-pay/amis-screen-definition.json',
-  // ... 其他配置
-};
+const definition = await dddParser.loadScreenDefinition('/docs/DDD元数据驱动开发平台-v1.0/samples/order-inv-pay/amis-screen-definition.json');
 ```
 
 ### 环境配置

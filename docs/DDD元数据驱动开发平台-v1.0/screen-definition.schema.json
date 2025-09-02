@@ -1,15 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/ddd-metamodel/1.0/screen-definition.schema.json",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition.schema.json",
   "title": "屏幕定义Schema",
-  "description": "前端屏幕、页面、组件的定义Schema - v1.0",
-  "version": "1.0.0",
+  "description": "前端屏幕、页面、组件的定义Schema - v2.0",
+  "version": "2.0.0",
   "type": "object",
   "properties": {
     "version": {
       "type": "string",
       "description": "Schema版本",
-      "const": "1.0.0"
+      "const": "2.0.0"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain_[a-zA-Z0-9_]+$",
+      "description": "所属领域ID"
     },
     "boundedContextId": {
       "type": "string",
@@ -36,9 +41,30 @@
         "$ref": "#/$defs/screenDtoMapping"
       },
       "description": "屏幕DTO映射列表"
+    },
+    "layouts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/layout"
+      },
+      "description": "布局定义列表"
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/theme"
+      },
+      "description": "主题定义列表"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/permission"
+      },
+      "description": "权限定义列表"
     }
   },
-  "required": ["version", "boundedContextId"],
+  "required": ["version", "domainId", "boundedContextId"],
   "additionalProperties": false,
   "$defs": {
     "screen": {
@@ -59,7 +85,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["LIST", "DETAIL", "FORM", "DASHBOARD", "WIZARD", "MODAL"],
+          "enum": ["LIST", "DETAIL", "FORM", "DASHBOARD", "WIZARD", "MODAL", "MASTER_DETAIL", "WORKFLOW", "REPORT"],
           "description": "屏幕类型"
         },
         "route": {
@@ -67,13 +93,10 @@
           "description": "路由路径"
         },
         "layout": {
-          "type": "string",
-          "enum": ["SINGLE_COLUMN", "TWO_COLUMN", "THREE_COLUMN", "SIDEBAR", "TABS"],
-          "description": "布局类型"
+          "$ref": "#/$defs/screenLayout"
         },
         "responsive": {
-          "type": "boolean",
-          "description": "是否响应式"
+          "$ref": "#/$defs/responsiveConfig"
         },
         "pages": {
           "type": "array",
@@ -91,9 +114,84 @@
             "type": "string"
           },
           "description": "所需权限列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "name", "type", "route"],
+      "additionalProperties": false
+    },
+    "screenLayout": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^layout_[a-zA-Z0-9_]+$",
+          "description": "布局ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SINGLE_COLUMN", "TWO_COLUMN", "THREE_COLUMN", "SIDEBAR", "TABS", "GRID", "CUSTOM"],
+          "description": "布局类型"
+        },
+        "config": {
+          "type": "object",
+          "description": "布局配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "type"],
+      "additionalProperties": false
+    },
+    "responsiveConfig": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^responsive_[a-zA-Z0-9_]+$",
+          "description": "响应式配置ID"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "是否启用响应式"
+        },
+        "breakpoints": {
+          "type": "object",
+          "properties": {
+            "xs": {
+              "type": "integer",
+              "description": "超小屏幕断点"
+            },
+            "sm": {
+              "type": "integer",
+              "description": "小屏幕断点"
+            },
+            "md": {
+              "type": "integer",
+              "description": "中等屏幕断点"
+            },
+            "lg": {
+              "type": "integer",
+              "description": "大屏幕断点"
+            },
+            "xl": {
+              "type": "integer",
+              "description": "超大屏幕断点"
+            }
+          },
+          "description": "断点配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "enabled"],
       "additionalProperties": false
     },
     "page": {
@@ -132,6 +230,10 @@
             "$ref": "#/$defs/dataBinding"
           },
           "description": "数据绑定列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "name"],
@@ -151,7 +253,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["FORM", "TABLE", "CHART", "BUTTON", "INPUT", "SELECT", "MODAL", "CARD", "NAVIGATION"],
+          "enum": ["FORM", "TABLE", "CHART", "BUTTON", "INPUT", "SELECT", "MODAL", "CARD", "NAVIGATION", "DASHBOARD", "WIZARD", "TABS", "SIDEBAR"],
           "description": "组件类型"
         },
         "description": {
@@ -177,6 +279,10 @@
         },
         "styling": {
           "$ref": "#/$defs/styling"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "name", "type"],
@@ -234,7 +340,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["TEXT", "NUMBER", "EMAIL", "PASSWORD", "SELECT", "CHECKBOX", "RADIO", "TEXTAREA", "DATE", "FILE"],
+          "enum": ["TEXT", "NUMBER", "EMAIL", "PASSWORD", "SELECT", "CHECKBOX", "RADIO", "TEXTAREA", "DATE", "FILE", "RICH_TEXT", "UPLOAD", "RATING"],
           "description": "字段类型"
         },
         "required": {
@@ -260,6 +366,10 @@
         },
         "dtoMapping": {
           "$ref": "#/$defs/dtoFieldMapping"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "name", "type"],
@@ -268,6 +378,11 @@
     "dtoFieldMapping": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^dto_mapping_[a-zA-Z0-9_]+$",
+          "description": "DTO映射ID"
+        },
         "dtoId": {
           "type": "string",
           "pattern": "^dto_[a-zA-Z0-9_]+$",
@@ -283,15 +398,19 @@
         },
         "transformation": {
           "type": "string",
-          "enum": ["DIRECT", "FORMAT", "TRANSFORM", "CUSTOM"],
+          "enum": ["DIRECT", "FORMAT", "TRANSFORM", "CUSTOM", "ENUM_MAPPING", "DATE_FORMAT", "NUMBER_FORMAT"],
           "description": "数据转换方式"
         },
         "customTransform": {
           "type": "string",
           "description": "自定义转换逻辑"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
-      "required": ["dtoId", "attributeName"],
+      "required": ["id", "dtoId", "attributeName"],
       "additionalProperties": false
     },
     "action": {
@@ -308,7 +427,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["SUBMIT", "RESET", "NAVIGATE", "OPEN_MODAL", "CLOSE_MODAL", "REFRESH", "DELETE", "CUSTOM"],
+          "enum": ["SUBMIT", "RESET", "NAVIGATE", "OPEN_MODAL", "CLOSE_MODAL", "REFRESH", "DELETE", "CUSTOM", "EXPORT", "IMPORT", "PRINT"],
           "description": "操作类型"
         },
         "description": {
@@ -337,6 +456,10 @@
         "loadingState": {
           "type": "boolean",
           "description": "是否显示加载状态"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "name", "type"],
@@ -345,6 +468,11 @@
     "endpointMapping": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^endpoint_mapping_[a-zA-Z0-9_]+$",
+          "description": "端点映射ID"
+        },
         "endpointId": {
           "type": "string",
           "pattern": "^endpoint_[a-zA-Z0-9_]+$",
@@ -356,7 +484,7 @@
         },
         "httpMethod": {
           "type": "string",
-          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
           "description": "HTTP方法"
         },
         "url": {
@@ -382,20 +510,43 @@
           "description": "超时时间（毫秒）"
         },
         "retry": {
-          "type": "object",
-          "properties": {
-            "maxAttempts": {
-              "type": "integer",
-              "description": "最大重试次数"
-            },
-            "delay": {
-              "type": "integer",
-              "description": "重试延迟（毫秒）"
-            }
-          }
+          "$ref": "#/$defs/retryConfig"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
-      "required": ["endpointId", "httpMethod", "url"],
+      "required": ["id", "endpointId", "httpMethod", "url"],
+      "additionalProperties": false
+    },
+    "retryConfig": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^retry_[a-zA-Z0-9_]+$",
+          "description": "重试配置ID"
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "description": "最大重试次数"
+        },
+        "delay": {
+          "type": "integer",
+          "description": "重试延迟（毫秒）"
+        },
+        "backoff": {
+          "type": "string",
+          "enum": ["FIXED", "EXPONENTIAL", "LINEAR"],
+          "description": "退避策略"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "maxAttempts", "delay"],
       "additionalProperties": false
     },
     "dataBinding": {
@@ -408,7 +559,7 @@
         },
         "source": {
           "type": "string",
-          "enum": ["ENDPOINT", "LOCAL_STORAGE", "SESSION_STORAGE", "CONTEXT", "PROP"],
+          "enum": ["ENDPOINT", "LOCAL_STORAGE", "SESSION_STORAGE", "CONTEXT", "PROP", "STATE"],
           "description": "数据源"
         },
         "sourceId": {
@@ -429,6 +580,10 @@
             "type": "string"
           },
           "description": "触发刷新的条件"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "source", "target"],
@@ -437,6 +592,11 @@
     "validation": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^validation_[a-zA-Z0-9_]+$",
+          "description": "验证配置ID"
+        },
         "required": {
           "type": "boolean",
           "description": "是否必填"
@@ -467,8 +627,13 @@
             "type": "string"
           },
           "description": "自定义验证规则"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
+      "required": ["id"],
       "additionalProperties": false
     },
     "fieldValidation": {
@@ -502,7 +667,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["REQUIRED", "LENGTH", "PATTERN", "RANGE", "CUSTOM", "CROSS_FIELD"],
+          "enum": ["REQUIRED", "LENGTH", "PATTERN", "RANGE", "CUSTOM", "CROSS_FIELD", "BUSINESS_RULE"],
           "description": "规则类型"
         },
         "message": {
@@ -517,6 +682,10 @@
         "condition": {
           "type": "string",
           "description": "条件表达式"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "type", "message"],
@@ -525,6 +694,11 @@
     "position": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^position_[a-zA-Z0-9_]+$",
+          "description": "位置配置ID"
+        },
         "x": {
           "type": "integer",
           "description": "X坐标"
@@ -548,13 +722,23 @@
         "zIndex": {
           "type": "integer",
           "description": "层级"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
+      "required": ["id"],
       "additionalProperties": false
     },
     "styling": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^styling_[a-zA-Z0-9_]+$",
+          "description": "样式配置ID"
+        },
         "cssClass": {
           "type": "string",
           "description": "CSS类名"
@@ -575,8 +759,13 @@
           "type": "string",
           "enum": ["SMALL", "MEDIUM", "LARGE"],
           "description": "尺寸"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
+      "required": ["id"],
       "additionalProperties": false
     },
     "event": {
@@ -589,7 +778,7 @@
         },
         "name": {
           "type": "string",
-          "enum": ["CLICK", "CHANGE", "SUBMIT", "FOCUS", "BLUR", "KEYUP", "KEYDOWN", "MOUSEENTER", "MOUSELEAVE"],
+          "enum": ["CLICK", "CHANGE", "SUBMIT", "FOCUS", "BLUR", "KEYUP", "KEYDOWN", "MOUSEENTER", "MOUSELEAVE", "LOAD", "UNLOAD"],
           "description": "事件名称"
         },
         "handler": {
@@ -603,6 +792,10 @@
         "stopPropagation": {
           "type": "boolean",
           "description": "是否阻止事件冒泡"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "name"],
@@ -611,6 +804,11 @@
     "fieldOption": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^option_[a-zA-Z0-9_]+$",
+          "description": "选项ID"
+        },
         "value": {
           "description": "选项值"
         },
@@ -625,14 +823,23 @@
         "icon": {
           "type": "string",
           "description": "图标"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
-      "required": ["value", "label"],
+      "required": ["id", "value", "label"],
       "additionalProperties": false
     },
     "navigation": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^navigation_[a-zA-Z0-9_]+$",
+          "description": "导航配置ID"
+        },
         "breadcrumbs": {
           "type": "array",
           "items": {
@@ -649,13 +856,23 @@
         },
         "sidebar": {
           "$ref": "#/$defs/sidebar"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
+      "required": ["id"],
       "additionalProperties": false
     },
     "breadcrumb": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^breadcrumb_[a-zA-Z0-9_]+$",
+          "description": "面包屑ID"
+        },
         "label": {
           "type": "string",
           "description": "标签文本"
@@ -667,9 +884,13 @@
         "icon": {
           "type": "string",
           "description": "图标"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
-      "required": ["label"],
+      "required": ["id", "label"],
       "additionalProperties": false
     },
     "tab": {
@@ -695,6 +916,10 @@
         "badge": {
           "type": "string",
           "description": "徽章内容"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "label"],
@@ -703,6 +928,11 @@
     "sidebar": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^sidebar_[a-zA-Z0-9_]+$",
+          "description": "侧边栏ID"
+        },
         "collapsible": {
           "type": "boolean",
           "description": "是否可折叠"
@@ -717,8 +947,13 @@
             "$ref": "#/$defs/sidebarItem"
           },
           "description": "侧边栏项目"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
+      "required": ["id"],
       "additionalProperties": false
     },
     "sidebarItem": {
@@ -726,7 +961,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^sidebar_[a-zA-Z0-9_]+$",
+          "pattern": "^sidebar_item_[a-zA-Z0-9_]+$",
           "description": "侧边栏项目唯一标识"
         },
         "label": {
@@ -747,6 +982,10 @@
             "$ref": "#/$defs/sidebarItem"
           },
           "description": "子项目"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
       "required": ["id", "label"],
@@ -755,6 +994,11 @@
     "screenDtoMapping": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^screen_dto_mapping_[a-zA-Z0-9_]+$",
+          "description": "屏幕DTO映射ID"
+        },
         "screenId": {
           "type": "string",
           "pattern": "^screen_[a-zA-Z0-9_]+$",
@@ -780,14 +1024,23 @@
         "transformation": {
           "type": "string",
           "description": "数据转换逻辑"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
-      "required": ["screenId", "dtoId", "mappingType"],
+      "required": ["id", "screenId", "dtoId", "mappingType"],
       "additionalProperties": false
     },
     "screenFieldMapping": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^field_mapping_[a-zA-Z0-9_]+$",
+          "description": "字段映射ID"
+        },
         "screenFieldId": {
           "type": "string",
           "pattern": "^field_[a-zA-Z0-9_]+$",
@@ -810,9 +1063,115 @@
         },
         "validation": {
           "$ref": "#/$defs/validation"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
         }
       },
-      "required": ["screenFieldId", "dtoAttributeName"],
+      "required": ["id", "screenFieldId", "dtoAttributeName"],
+      "additionalProperties": false
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^layout_def_[a-zA-Z0-9_]+$",
+          "description": "布局定义ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "布局名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "布局描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SINGLE_COLUMN", "TWO_COLUMN", "THREE_COLUMN", "SIDEBAR", "TABS", "GRID", "CUSTOM"],
+          "description": "布局类型"
+        },
+        "config": {
+          "type": "object",
+          "description": "布局配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "type"],
+      "additionalProperties": false
+    },
+    "theme": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^theme_def_[a-zA-Z0-9_]+$",
+          "description": "主题定义ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "主题名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "主题描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["LIGHT", "DARK", "CUSTOM"],
+          "description": "主题类型"
+        },
+        "config": {
+          "type": "object",
+          "description": "主题配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "type"],
+      "additionalProperties": false
+    },
+    "permission": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^permission_def_[a-zA-Z0-9_]+$",
+          "description": "权限定义ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "权限名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "权限描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["READ", "WRITE", "DELETE", "ADMIN"],
+          "description": "权限类型"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "角色列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "type"],
       "additionalProperties": false
     }
   }

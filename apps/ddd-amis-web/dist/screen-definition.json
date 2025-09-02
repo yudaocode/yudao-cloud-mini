@@ -1,0 +1,99 @@
+{
+  "version": "2.0",
+  "name": "订单管理系统",
+  "description": "基于DDD模型的订单管理amis配置",
+  "screens": [
+    {
+      "id": "order-management",
+      "name": "订单管理",
+      "type": "CRUD",
+      "route": "/orders",
+      "modelBindings": [
+        {
+          "bindingType": "TABLE_COLUMNS",
+          "modelName": "Order",
+          "properties": [
+            {
+              "name": "id",
+              "label": "ID",
+              "type": "string",
+              "sortable": true
+            },
+            {
+              "name": "orderNo",
+              "label": "订单编号",
+              "type": "string",
+              "sortable": true
+            },
+            {
+              "name": "customerName",
+              "label": "客户",
+              "type": "string",
+              "sortable": true
+            },
+            {
+              "name": "totalAmount",
+              "label": "金额",
+              "type": "number",
+              "sortable": true
+            },
+            {
+              "name": "status",
+              "label": "状态",
+              "type": "enum",
+              "options": [
+                { "label": "待支付", "value": "pending" },
+                { "label": "已确认", "value": "confirmed" },
+                { "label": "已发货", "value": "shipped" },
+                { "label": "已完成", "value": "completed" }
+              ]
+            }
+          ]
+        },
+        {
+          "bindingType": "FORM_FIELDS",
+          "modelName": "Order",
+          "properties": [
+            {
+              "name": "orderNo",
+              "label": "订单编号",
+              "type": "input-text",
+              "required": true
+            },
+            {
+              "name": "customerName",
+              "label": "客户姓名",
+              "type": "input-text",
+              "required": true
+            },
+            {
+              "name": "totalAmount",
+              "label": "订单金额",
+              "type": "input-number",
+              "required": true
+            },
+            {
+              "name": "status",
+              "label": "订单状态",
+              "type": "select",
+              "options": [
+                { "label": "待支付", "value": "pending" },
+                { "label": "已确认", "value": "confirmed" },
+                { "label": "已发货", "value": "shipped" },
+                { "label": "已完成", "value": "completed" }
+              ]
+            }
+          ]
+        }
+      ],
+      "amisProps": {
+        "api": "/api/orders",
+        "perPage": 10,
+        "filter": {
+          "title": "搜索",
+          "mode": "inline"
+        }
+      }
+    }
+  ]
+}
