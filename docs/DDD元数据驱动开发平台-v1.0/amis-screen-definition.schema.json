@@ -14,12 +14,12 @@
     "domainId": {
       "type": "string",
       "pattern": "^domain_[a-zA-Z0-9_]+$",
-      "description": "所属领域ID"
+      "description": "所属领域ID（可选，在战略设计完成后必填）"
     },
     "boundedContextId": {
       "type": "string",
       "pattern": "^bc_[a-zA-Z0-9_]+$",
-      "description": "所属限界上下文ID"
+      "description": "所属限界上下文ID（可选，在战略设计完成后必填）"
     },
     "screens": {
       "type": "array",
@@ -58,9 +58,36 @@
         "$ref": "#/$defs/screenPermission"
       },
       "description": "屏幕权限配置"
+    },
+    "validationStage": {
+      "type": "string",
+      "enum": ["DRAFT", "STRATEGIC_COMPLETE", "SCREEN_DEFINED", "COMPLETE"],
+      "description": "验证阶段：DRAFT(草稿)、STRATEGIC_COMPLETE(战略设计完成)、SCREEN_DEFINED(屏幕定义完成)、COMPLETE(完整)"
+    },
+    "validationRules": {
+      "type": "object",
+      "properties": {
+        "requireDomainId": {
+          "type": "boolean",
+          "description": "是否要求domainId（在STRATEGIC_COMPLETE阶段后为true）"
+        },
+        "requireBoundedContextId": {
+          "type": "boolean",
+          "description": "是否要求boundedContextId（在STRATEGIC_COMPLETE阶段后为true）"
+        },
+        "requireScreenReferences": {
+          "type": "boolean",
+          "description": "是否要求屏幕引用（在SCREEN_DEFINED阶段后为true）"
+        },
+        "crossReferenceValidation": {
+          "type": "boolean",
+          "description": "是否启用跨Schema引用验证"
+        }
+      },
+      "additionalProperties": false
     }
   },
-  "required": ["version", "domainId", "boundedContextId"],
+  "required": ["version"],
   "additionalProperties": false,
   "$defs": {
     "amisScreen": {

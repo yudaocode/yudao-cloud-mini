@@ -14,7 +14,7 @@
     "domainId": {
       "type": "string",
       "pattern": "^domain_[a-zA-Z0-9_]+$",
-      "description": "所属领域ID"
+      "description": "所属领域ID（可选，在战略设计阶段完成后必填）"
     },
     "businessTerms": {
       "type": "array",
@@ -44,9 +44,36 @@
         "$ref": "#/$defs/termRelationship"
       },
       "description": "术语关系列表"
+    },
+    "usageStatus": {
+      "type": "object",
+      "properties": {
+        "isReferencedByStrategic": {
+          "type": "boolean",
+          "description": "是否被战略设计引用"
+        },
+        "isReferencedByTactical": {
+          "type": "boolean",
+          "description": "是否被战术设计引用"
+        },
+        "isReferencedByDto": {
+          "type": "boolean",
+          "description": "是否被DTO管理引用"
+        },
+        "isReferencedByImplementation": {
+          "type": "boolean",
+          "description": "是否被实现映射引用"
+        },
+        "lastReferencedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最后被引用的时间"
+        }
+      },
+      "description": "使用状态信息（系统自动维护）"
     }
   },
-  "required": ["version", "domainId", "businessTerms"],
+  "required": ["version", "businessTerms"],
   "additionalProperties": false,
   "$defs": {
     "businessTerm": {
@@ -66,14 +93,19 @@
           "type": "string",
           "description": "英文名称"
         },
+        "programmingName": {
+          "type": "string",
+          "pattern": "^[A-Z][a-zA-Z0-9]*$",
+          "description": "编程名称，用于代码生成和模型映射，遵循驼峰命名规范"
+        },
         "description": {
           "type": "string",
           "description": "术语详细描述"
         },
         "category": {
           "type": "string",
-          "enum": ["DOMAIN_CONCEPT", "BUSINESS_PROCESS", "BUSINESS_RULE", "BUSINESS_EVENT", "BUSINESS_VALUE"],
-          "description": "术语分类"
+          "enum": ["DOMAIN_ENTITY", "BUSINESS_CONCEPT", "BUSINESS_PROCESS", "BUSINESS_RULE", "BUSINESS_EVENT", "BUSINESS_VALUE"],
+          "description": "术语分类：DOMAIN_ENTITY(领域实体/业务对象)、BUSINESS_CONCEPT(业务概念)、BUSINESS_PROCESS(业务流程)、BUSINESS_RULE(业务规则)、BUSINESS_EVENT(业务事件)、BUSINESS_VALUE(业务价值)"
         },
         "boundedContextId": {
           "type": "string",
@@ -140,7 +172,7 @@
           "description": "优先级（1-5，5为最高）"
         }
       },
-      "required": ["id", "name", "description", "category"],
+      "required": ["id", "name", "programmingName", "description", "category"],
       "additionalProperties": false
     },
     "businessAttribute": {
@@ -155,6 +187,11 @@
           "type": "string",
           "description": "属性名称",
           "minLength": 1
+        },
+        "programmingName": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$",
+          "description": "编程名称，用于代码生成和模型映射，遵循驼峰命名规范"
         },
         "description": {
           "type": "string",
@@ -214,7 +251,7 @@
           "description": "示例值列表"
         }
       },
-      "required": ["id", "name", "description", "dataType"],
+      "required": ["id", "name", "programmingName", "description", "dataType"],
       "additionalProperties": false
     },
     "businessRule": {

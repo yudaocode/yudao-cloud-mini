@@ -1,0 +1,221 @@
+{
+  "examples": [
+    {
+      "name": "基本类型返回",
+      "description": "方法返回基本数据类型",
+      "returnType": {
+        "type": "PRIMITIVE",
+        "primitiveType": "STRING",
+        "description": "返回字符串类型",
+        "examples": ["\"success\"", "\"error message\""]
+      }
+    },
+    {
+      "name": "DTO返回",
+      "description": "方法返回DTO对象",
+      "returnType": {
+        "type": "DTO",
+        "dtoId": "dto_order_result",
+        "description": "返回订单结果DTO",
+        "examples": ["OrderResultDTO"]
+      }
+    },
+    {
+      "name": "实体返回",
+      "description": "方法返回实体对象",
+      "returnType": {
+        "type": "ENTITY",
+        "entityId": "entity_order",
+        "description": "返回订单实体",
+        "examples": ["OrderEntity"]
+      }
+    },
+    {
+      "name": "值对象返回",
+      "description": "方法返回值对象",
+      "returnType": {
+        "type": "VALUE_OBJECT",
+        "valueObjectId": "vo_money",
+        "description": "返回金额值对象",
+        "examples": ["MoneyValueObject"]
+      }
+    },
+    {
+      "name": "集合返回",
+      "description": "方法返回集合类型",
+      "returnType": {
+        "type": "COLLECTION",
+        "collectionType": "LIST",
+        "collectionElementType": {
+          "type": "DTO",
+          "dtoId": "dto_order_item"
+        },
+        "description": "返回订单项列表",
+        "examples": ["List<OrderItemDTO>"]
+      }
+    },
+    {
+      "name": "Map集合返回",
+      "description": "方法返回Map类型",
+      "returnType": {
+        "type": "COLLECTION",
+        "collectionType": "MAP",
+        "collectionElementType": {
+          "type": "PRIMITIVE",
+          "primitiveType": "STRING"
+        },
+        "description": "返回字符串Map",
+        "examples": ["Map<String, String>"]
+      }
+    },
+    {
+      "name": "泛型返回",
+      "description": "方法返回泛型类型",
+      "returnType": {
+        "type": "GENERIC",
+        "customType": "Result",
+        "genericTypes": [
+          {
+            "type": "DTO",
+            "dtoId": "dto_order"
+          }
+        ],
+        "description": "返回泛型结果类型",
+        "examples": ["Result<OrderDTO>"]
+      }
+    },
+    {
+      "name": "复杂嵌套返回",
+      "description": "方法返回复杂的嵌套类型",
+      "returnType": {
+        "type": "COLLECTION",
+        "collectionType": "LIST",
+        "collectionElementType": {
+          "type": "GENERIC",
+          "customType": "OrderSummary",
+          "genericTypes": [
+            {
+              "type": "DTO",
+              "dtoId": "dto_order"
+            },
+            {
+              "type": "VALUE_OBJECT",
+              "valueObjectId": "vo_money"
+            }
+          ]
+        },
+        "description": "返回订单摘要列表",
+        "examples": ["List<OrderSummary<OrderDTO, MoneyVO>>"]
+      }
+    },
+    {
+      "name": "空返回",
+      "description": "方法无返回值",
+      "returnType": {
+        "type": "VOID",
+        "description": "方法无返回值",
+        "examples": ["void"]
+      }
+    },
+    {
+      "name": "自定义类型返回",
+      "description": "方法返回自定义类型",
+      "returnType": {
+        "type": "GENERIC",
+        "customType": "ApiResponse",
+        "description": "返回API响应类型",
+        "examples": ["ApiResponse<T>"]
+      }
+    }
+  ],
+  "usageScenarios": [
+    {
+      "scenario": "实体方法",
+      "description": "实体中的方法返回类型",
+      "examples": [
+        {
+          "methodName": "calculateTotal",
+          "returnType": {
+            "type": "VALUE_OBJECT",
+            "valueObjectId": "vo_money"
+          }
+        },
+        {
+          "methodName": "getOrderItems",
+          "returnType": {
+            "type": "COLLECTION",
+            "collectionType": "LIST",
+            "collectionElementType": {
+              "type": "ENTITY",
+              "entityId": "entity_order_item"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "领域服务方法",
+      "description": "领域服务中的方法返回类型",
+      "examples": [
+        {
+          "methodName": "processOrder",
+          "returnType": {
+            "type": "DTO",
+            "dtoId": "dto_order_result"
+          }
+        },
+        {
+          "methodName": "validateOrder",
+          "returnType": {
+            "type": "COLLECTION",
+            "collectionType": "LIST",
+            "collectionElementType": {
+              "type": "VALUE_OBJECT",
+              "valueObjectId": "vo_validation_error"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "scenario": "仓储方法",
+      "description": "仓储中的方法返回类型",
+      "examples": [
+        {
+          "methodName": "findById",
+          "returnType": {
+            "type": "ENTITY",
+            "entityId": "entity_order"
+          }
+        },
+        {
+          "methodName": "findAll",
+          "returnType": {
+            "type": "COLLECTION",
+            "collectionType": "LIST",
+            "collectionElementType": {
+              "type": "ENTITY",
+              "entityId": "entity_order"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "codeGenerationExamples": {
+    "java": {
+      "primitive": "public String getStatus() { return status; }",
+      "dto": "public OrderDTO getOrderDetails() { return orderMapper.toDTO(order); }",
+      "entity": "public Order getOrder() { return order; }",
+      "collection": "public List<OrderItem> getOrderItems() { return orderItems; }",
+      "generic": "public Result<OrderDTO> processOrder(OrderCommand command) { ... }"
+    },
+    "typescript": {
+      "primitive": "getStatus(): string { return this.status; }",
+      "dto": "getOrderDetails(): OrderDTO { return this.orderMapper.toDTO(this.order); }",
+      "entity": "getOrder(): Order { return this.order; }",
+      "collection": "getOrderItems(): OrderItem[] { return this.orderItems; }",
+      "generic": "processOrder(command: OrderCommand): Result<OrderDTO> { ... }"
+    }
+  }
+}

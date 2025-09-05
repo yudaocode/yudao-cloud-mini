@@ -366,6 +366,133 @@ class DDDSchemaValidator {
   }
 }
 
+/**
+ * 验证项目元数据Schema
+ */
+async function validateProjectMetadata(projectMetadata) {
+  try {
+    const schema = await loadSchema('./project-metadata.schema.json');
+    const result = await validate(schema, projectMetadata);
+    
+    if (result.valid) {
+      console.log('✅ 项目元数据验证通过');
+      return { valid: true, errors: [] };
+    } else {
+      console.log('❌ 项目元数据验证失败:');
+      result.errors.forEach(error => {
+        console.log(`  - ${error.instancePath}: ${error.message}`);
+      });
+      return { valid: false, errors: result.errors };
+    }
+  } catch (error) {
+    console.error('❌ 项目元数据验证出错:', error.message);
+    return { valid: false, errors: [{ message: error.message }] };
+  }
+}
+
+/**
+ * 验证所有Schema文件
+ */
+async function validateAllSchemas() {
+  console.log('🔍 开始验证所有Schema文件...\n');
+  
+  const schemas = [
+    { name: '项目元数据', file: './project-metadata.schema.json', example: './samples/project-metadata-example.json' },
+    { name: '统一语言', file: './ubiquitous-language.schema.json', example: './samples/ubiquitous-language-example.json' },
+    { name: '战略设计', file: './strategic-design.schema.json', example: './samples/strategic-design-example.json' },
+    { name: '战术设计', file: './tactical-design.schema.json', example: './samples/tactical-design-example.json' },
+    { name: '数据传输对象', file: './data-transfer-objects.schema.json', example: './samples/data-transfer-objects-example.json' },
+    { name: '实现映射', file: './implementation-mapping.schema.json', example: './samples/implementation-mapping-example.json' },
+    { name: '屏幕定义', file: './screen-definition.schema.json', example: './samples/screen-definition-example.json' },
+    { name: 'amis屏幕定义', file: './amis-screen-definition.schema.json', example: './samples/amis-screen-definition-example.json' },
+    { name: '根Schema', file: './root.schema.json', example: './samples/root-example.json' }
+  ];
+  
+  let totalValid = 0;
+  let totalInvalid = 0;
+  
+  for (const schema of schemas) {
+    try {
+      console.log(`📋 验证 ${schema.name} Schema...`);
+      
+      // 验证Schema文件本身
+      const schemaContent = await fs.readFile(schema.file, 'utf8');
+      const schemaObj = JSON.parse(schemaContent);
+      
+      if (schemaObj.$schema) {
+        console.log(`  ✅ ${schema.name} Schema 格式正确`);
+        totalValid++;
+      } else {
+        console.log(`  ❌ ${schema.name} Schema 缺少 $schema 字段`);
+        totalInvalid++;
+      }
+      
+      // 验证示例文件（如果存在）
+      try {
+        const exampleContent = await fs.readFile(schema.example, 'utf8');
+        const exampleObj = JSON.parse(exampleContent);
+        
+        // 根据Schema类型选择验证方法
+        let validationResult;
+        switch (schema.name) {
+          case '项目元数据':
+            validationResult = await validateProjectMetadata(exampleObj);
+            break;
+          case '统一语言':
+            validationResult = await validateUbiquitousLanguage(exampleObj);
+            break;
+          case '战略设计':
+            validationResult = await validateStrategicDesign(exampleObj);
+            break;
+          case '战术设计':
+            validationResult = await validateTacticalDesign(exampleObj);
+            break;
+          case '数据传输对象':
+            validationResult = await validateDataTransferObjects(exampleObj);
+            break;
+          case '实现映射':
+            validationResult = await validateImplementationMapping(exampleObj);
+            break;
+          case '屏幕定义':
+            validationResult = await validateScreenDefinition(exampleObj);
+            break;
+          case 'amis屏幕定义':
+            validationResult = await validateAmisScreenDefinition(exampleObj);
+            break;
+          case '根Schema':
+            validationResult = await validateRootSchema(exampleObj);
+            break;
+          default:
+            validationResult = { valid: true, errors: [] };
+        }
+        
+        if (validationResult.valid) {
+          console.log(`  ✅ ${schema.name} 示例验证通过`);
+          totalValid++;
+        } else {
+          console.log(`  ❌ ${schema.name} 示例验证失败`);
+          totalInvalid++;
+        }
+      } catch (error) {
+        console.log(`  ⚠️  ${schema.name} 示例文件不存在或读取失败: ${error.message}`);
+      }
+      
+    } catch (error) {
+      console.log(`  ❌ ${schema.name} Schema 验证失败: ${error.message}`);
+      totalInvalid++;
+    }
+    
+    console.log('');
+  }
+  
+  console.log('📊 验证结果汇总:');
+  console.log(`  ✅ 验证通过: ${totalValid}`);
+  console.log(`  ❌ 验证失败: ${totalInvalid}`);
+  console.log(`  📈 成功率: ${((totalValid / (totalValid + totalInvalid)) * 100).toFixed(1)}%`);
+  
+  return { totalValid, totalInvalid };
+}
+
 // 如果直接运行此脚本
 if (require.main === module) {
   const validator = new DDDSchemaValidator();

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/ddd-metamodel/1.0/data-transfer-objects.schema.json",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects.schema.json",
   "title": "数据传输对象定义",
   "description": "统一的数据传输对象定义 - 重构版 v2.0",
   "version": "2.0.0",
@@ -29,9 +29,12 @@
         "$ref": "#/$defs/dtoMapping"
       },
       "description": "DTO映射列表"
+    },
+    "usageStatus": {
+      "$ref": "#/$defs/usageStatus"
     }
   },
-  "required": ["version", "boundedContextId", "dataTransferObjects"],
+  "required": ["version", "dataTransferObjects"],
   "additionalProperties": false,
   "$defs": {
     "dataTransferObject": {
@@ -46,6 +49,11 @@
           "type": "string",
           "description": "DTO名称",
           "minLength": 1
+        },
+        "programmingName": {
+          "type": "string",
+          "description": "编程名称",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
         },
         "description": {
           "type": "string",
@@ -122,9 +130,12 @@
           "type": "string",
           "pattern": "^dto_[a-zA-Z0-9_]+$",
           "description": "替代DTO ID"
+        },
+        "usageStatus": {
+          "$ref": "#/$defs/usageStatus"
         }
       },
-      "required": ["id", "name", "description", "type", "layer", "attributes"],
+      "required": ["id", "name", "programmingName", "description", "type", "layer", "attributes"],
       "additionalProperties": false
     },
     "dtoAttribute": {
@@ -140,6 +151,11 @@
           "description": "属性名称",
           "minLength": 1
         },
+        "programmingName": {
+          "type": "string",
+          "description": "编程名称",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
         "description": {
           "type": "string",
           "description": "属性详细描述"
@@ -147,7 +163,16 @@
         "businessAttributeId": {
           "type": "string",
           "pattern": "^attr_[a-zA-Z0-9_]+$",
-          "description": "引用的业务属性ID"
+          "description": "引用的业务属性ID（最高优先级）"
+        },
+        "dtoAttributeId": {
+          "type": "string",
+          "pattern": "^attr_[a-zA-Z0-9_]+$",
+          "description": "引用的其他DTO属性ID（次优先级）"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "直接数据类型定义（最低优先级）"
         },
         "isRequired": {
           "type": "boolean",
@@ -156,13 +181,50 @@
         "defaultValue": {
           "description": "默认值"
         },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "验证规则列表"
+        },
+        "unit": {
+          "type": "string",
+          "description": "单位"
+        },
+        "format": {
+          "type": "string",
+          "description": "格式"
+        },
+        "constraints": {
+          "$ref": "#/$defs/constraints"
+        },
+        "isUnique": {
+          "type": "boolean",
+          "description": "是否唯一"
+        },
+        "isReadOnly": {
+          "type": "boolean",
+          "description": "是否只读"
+        },
+        "businessLogic": {
+          "type": "string",
+          "description": "业务逻辑描述"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "示例值列表"
+        },
         "isCollection": {
           "type": "boolean",
           "description": "是否是集合类型"
         },
         "collectionType": {
           "type": "string",
-          "enum": ["LIST", "SET", "MAP"],
+          "enum": ["LIST", "SET", "MAP", "ARRAY"],
           "description": "集合类型"
         },
         "mapKeyType": {
@@ -173,31 +235,91 @@
           "type": "string",
           "description": "Map值类型"
         },
+        "nestedType": {
+          "type": "string",
+          "description": "嵌套类型名称"
+        },
         "nestedDtoId": {
           "type": "string",
           "pattern": "^dto_[a-zA-Z0-9_]+$",
           "description": "嵌套DTO ID"
         },
-        "validationRules": {
+        "nestedEntityId": {
+          "type": "string",
+          "pattern": "^entity_[a-zA-Z0-9_]+$",
+          "description": "嵌套实体ID"
+        },
+        "nestedValueObjectId": {
+          "type": "string",
+          "pattern": "^vo_[a-zA-Z0-9_]+$",
+          "description": "嵌套值对象ID"
+        },
+        "nestedAggregateId": {
+          "type": "string",
+          "pattern": "^agg_[a-zA-Z0-9_]+$",
+          "description": "嵌套聚合ID"
+        },
+        "genericTypes": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "验证规则列表"
+          "description": "泛型类型参数列表"
         },
         "serialization": {
           "$ref": "#/$defs/attributeSerialization"
         },
-        "isReadOnly": {
-          "type": "boolean",
-          "description": "是否只读"
-        },
         "isDeprecated": {
           "type": "boolean",
           "description": "是否已废弃"
+        },
+        "replacementAttributeId": {
+          "type": "string",
+          "pattern": "^attr_[a-zA-Z0-9_]+$",
+          "description": "替代属性ID"
         }
       },
-      "required": ["id", "name", "description", "businessAttributeId"],
+      "required": ["id", "name", "programmingName", "description"],
+      "additionalProperties": false
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "最小长度"
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "最大长度"
+        },
+        "minValue": {
+          "description": "最小值"
+        },
+        "maxValue": {
+          "description": "最大值"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "正则表达式模式"
+        },
+        "enum": {
+          "type": "array",
+          "description": "枚举值列表"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "精度（小数位数）"
+        },
+        "scale": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "刻度"
+        }
+      },
       "additionalProperties": false
     },
     "validationRule": {
@@ -218,7 +340,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["REQUIRED", "LENGTH", "PATTERN", "RANGE", "CUSTOM", "CROSS_FIELD"],
+          "enum": ["REQUIRED", "LENGTH", "PATTERN", "RANGE", "CUSTOM", "CROSS_FIELD", "BUSINESS_RULE"],
           "description": "规则类型"
         },
         "expression": {
@@ -270,6 +392,11 @@
         "numberFormat": {
           "type": "string",
           "description": "数字格式"
+        },
+        "namingStrategy": {
+          "type": "string",
+          "enum": ["CAMEL_CASE", "SNAKE_CASE", "PASCAL_CASE", "KEBAB_CASE"],
+          "description": "命名策略"
         }
       },
       "required": ["format"],
@@ -293,6 +420,10 @@
         "includeNulls": {
           "type": "boolean",
           "description": "是否包含null值"
+        },
+        "customConverter": {
+          "type": "string",
+          "description": "自定义转换器类名"
         }
       },
       "additionalProperties": false
@@ -305,19 +436,35 @@
           "pattern": "^mapping_[a-zA-Z0-9_]+$",
           "description": "映射唯一标识符"
         },
-        "sourceDtoId": {
+        "name": {
           "type": "string",
-          "pattern": "^dto_[a-zA-Z0-9_]+$",
-          "description": "源DTO ID"
+          "description": "映射名称"
         },
-        "targetDtoId": {
+        "description": {
           "type": "string",
-          "pattern": "^dto_[a-zA-Z0-9_]+$",
-          "description": "目标DTO ID"
+          "description": "映射描述"
+        },
+        "sourceType": {
+          "type": "string",
+          "enum": ["ENTITY", "DTO", "VALUE_OBJECT"],
+          "description": "源类型"
+        },
+        "sourceId": {
+          "type": "string",
+          "description": "源ID"
+        },
+        "targetType": {
+          "type": "string",
+          "enum": ["DTO", "ENTITY", "VALUE_OBJECT"],
+          "description": "目标类型"
+        },
+        "targetId": {
+          "type": "string",
+          "description": "目标ID"
         },
         "mappingType": {
           "type": "string",
-          "enum": ["DIRECT", "TRANSFORM", "AGGREGATE", "SPLIT"],
+          "enum": ["ENTITY_TO_DTO", "DTO_TO_ENTITY", "DTO_TO_DTO", "VALUE_OBJECT_TO_DTO"],
           "description": "映射类型"
         },
         "fieldMappings": {
@@ -334,12 +481,19 @@
           },
           "description": "转换规则列表"
         },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationRule"
+          },
+          "description": "验证规则列表"
+        },
         "isActive": {
           "type": "boolean",
           "description": "是否激活"
         }
       },
-      "required": ["id", "sourceDtoId", "targetDtoId", "mappingType"],
+      "required": ["id", "name", "description", "sourceType", "sourceId", "targetType", "targetId", "mappingType"],
       "additionalProperties": false
     },
     "fieldMapping": {
@@ -360,7 +514,7 @@
         },
         "mappingType": {
           "type": "string",
-          "enum": ["DIRECT", "TRANSFORM", "CONSTANT", "EXPRESSION"],
+          "enum": ["DIRECT", "TRANSFORM", "CONSTANT", "EXPRESSION", "AGGREGATE", "SPLIT"],
           "description": "映射类型"
         },
         "transformation": {
@@ -376,6 +530,13 @@
         },
         "defaultValue": {
           "description": "默认值"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "字段级验证规则"
         }
       },
       "required": ["id", "sourceField", "targetField", "mappingType"],
@@ -399,7 +560,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["FORMAT", "CALCULATE", "VALIDATE", "CUSTOM"],
+          "enum": ["FORMAT", "CALCULATE", "VALIDATE", "CUSTOM", "TYPE_CONVERSION"],
           "description": "规则类型"
         },
         "expression": {
@@ -416,6 +577,47 @@
         }
       },
       "required": ["id", "name", "description", "type", "expression"],
+      "additionalProperties": false
+    },
+    "usageStatus": {
+      "type": "object",
+      "properties": {
+        "isReferencedByStrategic": {
+          "type": "boolean",
+          "description": "是否被战略设计引用"
+        },
+        "isReferencedByTactical": {
+          "type": "boolean",
+          "description": "是否被战术设计引用"
+        },
+        "isReferencedByImplementation": {
+          "type": "boolean",
+          "description": "是否被实现映射引用"
+        },
+        "isReferencedByScreen": {
+          "type": "boolean",
+          "description": "是否被屏幕定义引用"
+        },
+        "referencedBy": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "schemaType": {
+                "type": "string",
+                "enum": ["STRATEGIC", "TACTICAL", "IMPLEMENTATION", "SCREEN"]
+              },
+              "elementId": {
+                "type": "string"
+              },
+              "elementName": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "引用详情列表"
+        }
+      },
       "additionalProperties": false
     }
   }

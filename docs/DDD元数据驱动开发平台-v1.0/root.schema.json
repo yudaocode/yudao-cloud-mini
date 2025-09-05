@@ -11,6 +11,9 @@
       "description": "元模型版本",
       "const": "2.0.0"
     },
+    "projectMetadata": {
+      "$ref": "./project-metadata.schema.json"
+    },
     "metadata": {
       "$ref": "#/$defs/metadata"
     },
@@ -26,17 +29,17 @@
     "tacticalDesign": {
       "$ref": "./tactical-design.schema.json"
     },
-    "implementationMapping": {
-      "$ref": "./implementation-mapping.schema.json"
-    },
     "dataTransferObjects": {
       "$ref": "./data-transfer-objects.schema.json"
     },
-    "amisScreenDefinition": {
-      "$ref": "./amis-screen-definition.schema.json"
+    "implementationMapping": {
+      "$ref": "./implementation-mapping.schema.json"
     },
     "screenDefinition": {
       "$ref": "./screen-definition.schema.json"
+    },
+    "amisScreenDefinition": {
+      "$ref": "./amis-screen-definition.schema.json"
     },
     "relationships": {
       "type": "array",
@@ -53,7 +56,7 @@
       "description": "是否激活"
     }
   },
-  "required": ["version", "metadata", "domain", "ubiquitousLanguage", "strategicDesign", "tacticalDesign"],
+  "required": ["version", "projectMetadata", "metadata", "domain", "ubiquitousLanguage", "strategicDesign", "tacticalDesign"],
   "additionalProperties": false,
   "$defs": {
     "metadata": {

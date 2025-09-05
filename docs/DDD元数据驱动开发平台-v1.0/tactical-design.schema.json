@@ -14,7 +14,7 @@
     "boundedContextId": {
       "type": "string",
       "pattern": "^bc_[a-zA-Z0-9_]+$",
-      "description": "所属限界上下文ID"
+      "description": "所属限界上下文ID（可选，在战略设计完成后必填）"
     },
     "aggregates": {
       "type": "array",
@@ -71,9 +71,43 @@
         "$ref": "#/$defs/enumDefinition"
       },
       "description": "枚举列表"
+    },
+    "antiCorruptionLayers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/antiCorruptionLayer"
+      },
+      "description": "防腐层列表（Anti-Corruption Layer）"
+    },
+    "validationStage": {
+      "type": "string",
+      "enum": ["DRAFT", "STRATEGIC_COMPLETE", "AGGREGATE_DEFINED", "COMPLETE"],
+      "description": "验证阶段：DRAFT(草稿)、STRATEGIC_COMPLETE(战略设计完成)、AGGREGATE_DEFINED(聚合已定义)、COMPLETE(完整)"
+    },
+    "validationRules": {
+      "type": "object",
+      "properties": {
+        "requireBoundedContextId": {
+          "type": "boolean",
+          "description": "是否要求boundedContextId（在STRATEGIC_COMPLETE阶段后为true）"
+        },
+        "requireTermReferences": {
+          "type": "boolean",
+          "description": "是否要求术语引用（在STRATEGIC_COMPLETE阶段后为true）"
+        },
+        "requireAttributeReferences": {
+          "type": "boolean",
+          "description": "是否要求属性引用（在AGGREGATE_DEFINED阶段后为true）"
+        },
+        "crossReferenceValidation": {
+          "type": "boolean",
+          "description": "是否启用跨Schema引用验证"
+        }
+      },
+      "additionalProperties": false
     }
   },
-  "required": ["version", "boundedContextId"],
+  "required": ["version"],
   "additionalProperties": false,
   "$defs": {
     "aggregate": {
@@ -419,8 +453,7 @@
           "description": "参数列表"
         },
         "returnType": {
-          "type": "string",
-          "description": "返回值类型"
+          "$ref": "#/$defs/methodReturnType"
         },
         "businessLogic": {
           "type": "string",
@@ -508,6 +541,11 @@
           "description": "仓储名称",
           "minLength": 1
         },
+        "programmingName": {
+          "type": "string",
+          "description": "编程名称",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
         "description": {
           "type": "string",
           "description": "仓储详细描述"
@@ -525,6 +563,11 @@
           "type": "string",
           "description": "实现类名称"
         },
+        "factoryId": {
+          "type": "string",
+          "pattern": "^factory_[a-zA-Z0-9_]+$",
+          "description": "关联的工厂ID（用于复杂对象重建）"
+        },
         "methods": {
           "type": "array",
           "items": {
@@ -532,12 +575,25 @@
           },
           "description": "方法列表"
         },
+        "persistenceStrategy": {
+          "type": "string",
+          "enum": ["JPA", "MYBATIS", "JDBC", "NOSQL", "CUSTOM"],
+          "description": "持久化策略"
+        },
+        "queryOptimization": {
+          "type": "string",
+          "enum": ["NONE", "INDEX", "CACHE", "PAGINATION", "PROJECTION"],
+          "description": "查询优化策略"
+        },
         "isActive": {
           "type": "boolean",
           "description": "是否激活"
+        },
+        "usageStatus": {
+          "$ref": "#/$defs/usageStatus"
         }
       },
-      "required": ["id", "name", "description", "aggregateId"],
+      "required": ["id", "name", "programmingName", "description", "aggregateId"],
       "additionalProperties": false
     },
     "factory": {
@@ -553,14 +609,34 @@
           "description": "工厂名称",
           "minLength": 1
         },
+        "programmingName": {
+          "type": "string",
+          "description": "编程名称",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
         "description": {
           "type": "string",
           "description": "工厂详细描述"
+        },
+        "aggregateId": {
+          "type": "string",
+          "pattern": "^agg_[a-zA-Z0-9_]+$",
+          "description": "所属聚合ID"
         },
         "targetEntityId": {
           "type": "string",
           "pattern": "^entity_[a-zA-Z0-9_]+$",
           "description": "目标实体ID"
+        },
+        "factoryType": {
+          "type": "string",
+          "enum": ["SIMPLE", "COMPLEX", "ABSTRACT", "SPECIALIZED"],
+          "description": "工厂类型"
+        },
+        "creationStrategy": {
+          "type": "string",
+          "enum": ["NEW", "BUILDER", "PROTOTYPE", "SINGLETON", "POOL"],
+          "description": "创建策略"
         },
         "methods": {
           "type": "array",
@@ -572,9 +648,12 @@
         "isActive": {
           "type": "boolean",
           "description": "是否激活"
+        },
+        "usageStatus": {
+          "$ref": "#/$defs/usageStatus"
         }
       },
-      "required": ["id", "name", "description"],
+      "required": ["id", "name", "programmingName", "description", "aggregateId", "targetEntityId"],
       "additionalProperties": false
     },
     "domainEvent": {
@@ -840,6 +919,233 @@
         }
       },
       "required": ["from", "to", "trigger"],
+      "additionalProperties": false
+    },
+    "methodReturnType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["PRIMITIVE", "DTO", "ENTITY", "VALUE_OBJECT", "COLLECTION", "GENERIC", "VOID"],
+          "description": "返回类型分类"
+        },
+        "primitiveType": {
+          "type": "string",
+          "enum": ["STRING", "INTEGER", "LONG", "DOUBLE", "BOOLEAN", "DATE", "DATETIME", "DECIMAL", "UUID"],
+          "description": "基本数据类型"
+        },
+        "dtoId": {
+          "type": "string",
+          "pattern": "^dto_[a-zA-Z0-9_]+$",
+          "description": "引用的DTO ID"
+        },
+        "entityId": {
+          "type": "string",
+          "pattern": "^entity_[a-zA-Z0-9_]+$",
+          "description": "引用的实体ID"
+        },
+        "valueObjectId": {
+          "type": "string",
+          "pattern": "^vo_[a-zA-Z0-9_]+$",
+          "description": "引用的值对象ID"
+        },
+        "collectionType": {
+          "type": "string",
+          "enum": ["LIST", "SET", "MAP", "ARRAY"],
+          "description": "集合类型"
+        },
+        "collectionElementType": {
+          "$ref": "#/$defs/methodReturnType",
+          "description": "集合元素类型"
+        },
+        "genericTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/methodReturnType"
+          },
+          "description": "泛型类型参数列表"
+        },
+        "customType": {
+          "type": "string",
+          "description": "自定义类型名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "返回类型描述"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "示例值列表"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "antiCorruptionLayer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^acl_[a-zA-Z0-9_]+$",
+          "description": "防腐层唯一标识符（Anti-Corruption Layer）"
+        },
+        "name": {
+          "type": "string",
+          "description": "防腐层名称（Anti-Corruption Layer）",
+          "minLength": 1
+        },
+        "programmingName": {
+          "type": "string",
+          "description": "编程名称",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
+        "description": {
+          "type": "string",
+          "description": "防腐层详细描述（Anti-Corruption Layer）"
+        },
+        "externalSystemId": {
+          "type": "string",
+          "pattern": "^sys_[a-zA-Z0-9_]+$",
+          "description": "外部系统ID"
+        },
+        "externalSystemName": {
+          "type": "string",
+          "description": "外部系统名称"
+        },
+        "externalSystemType": {
+          "type": "string",
+          "enum": ["LEGACY", "THIRD_PARTY", "MICROSERVICE", "DATABASE", "API", "FILE_SYSTEM"],
+          "description": "外部系统类型"
+        },
+        "translationLayer": {
+          "type": "object",
+          "properties": {
+            "inputTranslator": {
+              "type": "string",
+              "description": "输入转换器类名"
+            },
+            "outputTranslator": {
+              "type": "string",
+              "description": "输出转换器类名"
+            },
+            "dataMapper": {
+              "type": "string",
+              "description": "数据映射器类名"
+            }
+          },
+          "description": "转换层配置"
+        },
+        "adapters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/adapter"
+          },
+          "description": "适配器列表"
+        },
+        "facades": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/facade"
+          },
+          "description": "外观模式列表"
+        },
+        "isolationLevel": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "COMPLETE"],
+          "description": "隔离级别"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        },
+        "usageStatus": {
+          "$ref": "#/$defs/usageStatus"
+        }
+      },
+      "required": ["id", "name", "programmingName", "description", "externalSystemId", "externalSystemName"],
+      "additionalProperties": false
+    },
+    "adapter": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^adapter_[a-zA-Z0-9_]+$",
+          "description": "适配器唯一标识符"
+        },
+        "name": {
+          "type": "string",
+          "description": "适配器名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "适配器描述"
+        },
+        "adapterType": {
+          "type": "string",
+          "enum": ["INPUT", "OUTPUT", "BIDIRECTIONAL"],
+          "description": "适配器类型"
+        },
+        "sourceFormat": {
+          "type": "string",
+          "description": "源数据格式"
+        },
+        "targetFormat": {
+          "type": "string",
+          "description": "目标数据格式"
+        },
+        "transformationRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "转换规则列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "description", "adapterType"],
+      "additionalProperties": false
+    },
+    "facade": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^facade_[a-zA-Z0-9_]+$",
+          "description": "外观唯一标识符"
+        },
+        "name": {
+          "type": "string",
+          "description": "外观名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "外观描述"
+        },
+        "facadeType": {
+          "type": "string",
+          "enum": ["SERVICE", "DATA", "UI", "INTEGRATION"],
+          "description": "外观类型"
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/method"
+          },
+          "description": "方法列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "description", "facadeType"],
       "additionalProperties": false
     },
     "invariant": {

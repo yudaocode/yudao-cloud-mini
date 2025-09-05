@@ -1,4 +1,14 @@
 import { DDDParser } from './dddParser';
+import { 
+  ubiquitousLanguageService, 
+  strategicDesignService, 
+  tacticalDesignService, 
+  dtoService, 
+  implementationMappingService, 
+  screenDefinitionService, 
+  amisScreenDefinitionService, 
+  analysisService 
+} from './dddApiService';
 
 export interface DDDModuleSchema {
   type: string;
@@ -638,5 +648,228 @@ export class DDDPlatformService {
         }
       ]
     };
+  }
+
+  // ==================== 新增API服务集成 ====================
+
+  /**
+   * 获取统一语言数据
+   */
+  async getUbiquitousLanguage(domainId: string) {
+    try {
+      const response = await ubiquitousLanguageService.getUbiquitousLanguage(domainId);
+      return response;
+    } catch (error) {
+      console.error('获取统一语言数据失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 更新统一语言数据
+   */
+  async updateUbiquitousLanguage(domainId: string, data: any) {
+    try {
+      const response = await ubiquitousLanguageService.updateUbiquitousLanguage(domainId, data);
+      return response;
+    } catch (error) {
+      console.error('更新统一语言数据失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取业务术语列表
+   */
+  async getTerms(domainId: string, params?: any) {
+    try {
+      const response = await ubiquitousLanguageService.getTerms(domainId, params);
+      return response;
+    } catch (error) {
+      console.error('获取业务术语列表失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 创建业务术语
+   */
+  async createTerm(domainId: string, term: any) {
+    try {
+      const response = await ubiquitousLanguageService.createTerm(domainId, term);
+      return response;
+    } catch (error) {
+      console.error('创建业务术语失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 更新业务术语
+   */
+  async updateTerm(domainId: string, termId: string, term: any) {
+    try {
+      const response = await ubiquitousLanguageService.updateTerm(domainId, termId, term);
+      return response;
+    } catch (error) {
+      console.error('更新业务术语失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 删除业务术语
+   */
+  async deleteTerm(domainId: string, termId: string) {
+    try {
+      const response = await ubiquitousLanguageService.deleteTerm(domainId, termId);
+      return response;
+    } catch (error) {
+      console.error('删除业务术语失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取业务属性列表
+   */
+  async getAttributes(domainId: string, params?: any) {
+    try {
+      const response = await ubiquitousLanguageService.getAttributes(domainId, params);
+      return response;
+    } catch (error) {
+      console.error('获取业务属性列表失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 创建业务属性
+   */
+  async createAttribute(domainId: string, attribute: any) {
+    try {
+      const response = await ubiquitousLanguageService.createAttribute(domainId, attribute);
+      return response;
+    } catch (error) {
+      console.error('创建业务属性失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取战略设计数据
+   */
+  async getStrategicDesign(domainId: string) {
+    try {
+      const response = await strategicDesignService.getStrategicDesign(domainId);
+      return response;
+    } catch (error) {
+      console.error('获取战略设计数据失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 更新战略设计数据
+   */
+  async updateStrategicDesign(domainId: string, data: any) {
+    try {
+      const response = await strategicDesignService.updateStrategicDesign(domainId, data);
+      return response;
+    } catch (error) {
+      console.error('更新战略设计数据失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取限界上下文列表
+   */
+  async getBoundedContexts(domainId: string, params?: any) {
+    try {
+      const response = await strategicDesignService.getBoundedContexts(domainId, params);
+      return response;
+    } catch (error) {
+      console.error('获取限界上下文列表失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 创建限界上下文
+   */
+  async createBoundedContext(domainId: string, context: any) {
+    try {
+      const response = await strategicDesignService.createBoundedContext(domainId, context);
+      return response;
+    } catch (error) {
+      console.error('创建限界上下文失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取使用状态摘要
+   */
+  async getUsageSummary(params?: any) {
+    try {
+      const response = await analysisService.getUsageSummary(params);
+      return response;
+    } catch (error) {
+      console.error('获取使用状态摘要失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取未使用元素
+   */
+  async getUnusedElements(params?: any) {
+    try {
+      const response = await analysisService.getUnusedElements(params);
+      return response;
+    } catch (error) {
+      console.error('获取未使用元素失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取孤立引用
+   */
+  async getOrphanedReferences(params?: any) {
+    try {
+      const response = await analysisService.getOrphanedReferences(params);
+      return response;
+    } catch (error) {
+      console.error('获取孤立引用失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 获取设计建议
+   */
+  async getRecommendations(params?: any) {
+    try {
+      const response = await analysisService.getRecommendations(params);
+      return response;
+    } catch (error) {
+      console.error('获取设计建议失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 分析引用关系
+   */
+  async analyzeReferences(params?: any) {
+    try {
+      const response = await analysisService.analyzeReferences(params);
+      return response;
+    } catch (error) {
+      console.error('分析引用关系失败:', error);
+      throw error;
+    }
   }
 }

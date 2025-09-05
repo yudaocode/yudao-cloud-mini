@@ -1,0 +1,469 @@
+{
+  "version": "2.0.0",
+  "boundedContextId": "bc_order_management",
+  "dataTransferObjects": [
+    {
+      "id": "dto_create_order_command",
+      "name": "创建订单命令",
+      "programmingName": "CreateOrderCommand",
+      "description": "用于创建新订单的命令DTO",
+      "englishName": "Create Order Command",
+      "type": "COMMAND",
+      "layer": "APPLICATION",
+      "purpose": "在应用层处理创建订单的业务逻辑",
+      "attributes": [
+        {
+          "id": "attr_customer_id",
+          "name": "客户ID",
+          "programmingName": "customerId",
+          "description": "客户唯一标识符",
+          "businessAttributeId": "attr_customer_identifier",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL", "UUID_FORMAT"],
+          "unit": null,
+          "format": "UUID",
+          "constraints": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "isUnique": true,
+          "isReadOnly": false,
+          "businessLogic": "必须是有效的客户ID",
+          "examples": ["550e8400-e29b-41d4-a716-446655440000"],
+          "isCollection": false,
+          "isDeprecated": false
+        },
+        {
+          "id": "attr_order_items",
+          "name": "订单项列表",
+          "programmingName": "orderItems",
+          "description": "订单中的商品项列表",
+          "businessAttributeId": "attr_order_line_items",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL", "NOT_EMPTY"],
+          "isCollection": true,
+          "collectionType": "LIST",
+          "nestedDtoId": "dto_order_item",
+          "constraints": {
+            "minLength": 1
+          },
+          "isUnique": false,
+          "isReadOnly": false,
+          "businessLogic": "订单必须包含至少一个商品项",
+          "examples": [],
+          "isDeprecated": false
+        },
+        {
+          "id": "attr_shipping_address",
+          "name": "收货地址",
+          "programmingName": "shippingAddress",
+          "description": "订单收货地址信息",
+          "businessAttributeId": "attr_delivery_address",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL"],
+          "isCollection": false,
+          "nestedValueObjectId": "vo_address",
+          "constraints": null,
+          "isUnique": false,
+          "isReadOnly": false,
+          "businessLogic": "必须提供有效的收货地址",
+          "examples": [],
+          "isDeprecated": false
+        },
+        {
+          "id": "attr_payment_method",
+          "name": "支付方式",
+          "programmingName": "paymentMethod",
+          "description": "订单支付方式",
+          "dataType": "PaymentMethodEnum",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL", "VALID_ENUM"],
+          "constraints": {
+            "enum": ["CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "DIGITAL_WALLET"]
+          },
+          "isUnique": false,
+          "isReadOnly": false,
+          "businessLogic": "必须选择有效的支付方式",
+          "examples": ["CREDIT_CARD", "DIGITAL_WALLET"],
+          "isCollection": false,
+          "isDeprecated": false
+        }
+      ],
+      "termReferences": ["term_order", "term_customer", "term_payment"],
+      "validationRules": [
+        {
+          "id": "rule_order_total_positive",
+          "name": "订单总额必须为正数",
+          "description": "验证订单总金额大于零",
+          "type": "BUSINESS_RULE",
+          "expression": "orderItems.sum(item => item.price * item.quantity) > 0",
+          "message": "订单总额必须大于零",
+          "severity": "ERROR",
+          "isActive": true
+        }
+      ],
+      "serialization": {
+        "format": "JSON",
+        "version": "1.0",
+        "compatibility": "BACKWARD",
+        "includeNulls": false,
+        "dateFormat": "ISO8601",
+        "numberFormat": "DECIMAL",
+        "namingStrategy": "CAMEL_CASE"
+      },
+      "example": {
+        "customerId": "550e8400-e29b-41d4-a716-446655440000",
+        "orderItems": [
+          {
+            "productId": "prod_123",
+            "quantity": 2,
+            "unitPrice": 29.99
+          }
+        ],
+        "shippingAddress": {
+          "street": "123 Main St",
+          "city": "New York",
+          "state": "NY",
+          "zipCode": "10001"
+        },
+        "paymentMethod": "CREDIT_CARD"
+      },
+      "isImmutable": false,
+      "generateBuilder": true,
+      "isActive": true,
+      "version": "1.0.0",
+      "deprecated": false,
+      "usageStatus": {
+        "isReferencedByStrategic": true,
+        "isReferencedByTactical": true,
+        "isReferencedByImplementation": false,
+        "isReferencedByScreen": false,
+        "referencedBy": [
+          {
+            "schemaType": "STRATEGIC",
+            "elementId": "bc_order_management",
+            "elementName": "订单管理限界上下文"
+          },
+          {
+            "schemaType": "TACTICAL",
+            "elementId": "agg_order",
+            "elementName": "订单聚合"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dto_order_item",
+      "name": "订单项",
+      "programmingName": "OrderItem",
+      "description": "订单中的单个商品项",
+      "englishName": "Order Item",
+      "type": "VALUE_OBJECT",
+      "layer": "DOMAIN",
+      "purpose": "表示订单中的商品项信息",
+      "attributes": [
+        {
+          "id": "attr_product_id",
+          "name": "商品ID",
+          "programmingName": "productId",
+          "description": "商品唯一标识符",
+          "businessAttributeId": "attr_product_identifier",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL"],
+          "constraints": {
+            "pattern": "^prod_[a-zA-Z0-9_]+$"
+          },
+          "isUnique": false,
+          "isReadOnly": false,
+          "businessLogic": "必须是有效的商品ID",
+          "examples": ["prod_123", "prod_456"],
+          "isCollection": false,
+          "isDeprecated": false
+        },
+        {
+          "id": "attr_quantity",
+          "name": "数量",
+          "programmingName": "quantity",
+          "description": "商品购买数量",
+          "businessAttributeId": "attr_item_quantity",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL", "POSITIVE_NUMBER"],
+          "constraints": {
+            "minValue": 1,
+            "maxValue": 999
+          },
+          "isUnique": false,
+          "isReadOnly": false,
+          "businessLogic": "数量必须大于0且不超过999",
+          "examples": ["1", "5", "10"],
+          "isCollection": false,
+          "isDeprecated": false
+        },
+        {
+          "id": "attr_unit_price",
+          "name": "单价",
+          "programmingName": "unitPrice",
+          "description": "商品单价",
+          "businessAttributeId": "attr_product_price",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL", "POSITIVE_NUMBER"],
+          "constraints": {
+            "minValue": 0.01,
+            "precision": 2
+          },
+          "isUnique": false,
+          "isReadOnly": false,
+          "businessLogic": "单价必须大于0",
+          "examples": ["29.99", "15.50"],
+          "isCollection": false,
+          "isDeprecated": false
+        }
+      ],
+      "termReferences": ["term_product", "term_quantity"],
+      "validationRules": [],
+      "serialization": {
+        "format": "JSON",
+        "version": "1.0",
+        "compatibility": "BACKWARD",
+        "includeNulls": false,
+        "dateFormat": "ISO8601",
+        "numberFormat": "DECIMAL",
+        "namingStrategy": "CAMEL_CASE"
+      },
+      "example": {
+        "productId": "prod_123",
+        "quantity": 2,
+        "unitPrice": 29.99
+      },
+      "isImmutable": true,
+      "generateBuilder": false,
+      "isActive": true,
+      "version": "1.0.0",
+      "deprecated": false,
+      "usageStatus": {
+        "isReferencedByStrategic": true,
+        "isReferencedByTactical": true,
+        "isReferencedByImplementation": false,
+        "isReferencedByScreen": false,
+        "referencedBy": [
+          {
+            "schemaType": "STRATEGIC",
+            "elementId": "bc_order_management",
+            "elementName": "订单管理限界上下文"
+          },
+          {
+            "schemaType": "TACTICAL",
+            "elementId": "vo_order_item",
+            "elementName": "订单项值对象"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dto_order_query_result",
+      "name": "订单查询结果",
+      "programmingName": "OrderQueryResult",
+      "description": "订单查询的返回结果",
+      "englishName": "Order Query Result",
+      "type": "RESPONSE",
+      "layer": "APPLICATION",
+      "purpose": "返回订单查询的结果数据",
+      "attributes": [
+        {
+          "id": "attr_orders",
+          "name": "订单列表",
+          "programmingName": "orders",
+          "description": "查询到的订单列表",
+          "businessAttributeId": "attr_order_list",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL"],
+          "isCollection": true,
+          "collectionType": "LIST",
+          "nestedEntityId": "entity_order",
+          "constraints": null,
+          "isUnique": false,
+          "isReadOnly": true,
+          "businessLogic": "返回查询到的订单列表",
+          "examples": [],
+          "isDeprecated": false
+        },
+        {
+          "id": "attr_total_count",
+          "name": "总数量",
+          "programmingName": "totalCount",
+          "description": "查询结果的总数量",
+          "businessAttributeId": "attr_result_count",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL", "NON_NEGATIVE"],
+          "constraints": {
+            "minValue": 0
+          },
+          "isUnique": false,
+          "isReadOnly": true,
+          "businessLogic": "总数量不能为负数",
+          "examples": ["0", "10", "100"],
+          "isCollection": false,
+          "isDeprecated": false
+        },
+        {
+          "id": "attr_page_info",
+          "name": "分页信息",
+          "programmingName": "pageInfo",
+          "description": "分页相关信息",
+          "dataType": "PageInfo",
+          "isRequired": true,
+          "validationRules": ["NOT_NULL"],
+          "isCollection": false,
+          "nestedDtoId": "dto_page_info",
+          "constraints": null,
+          "isUnique": false,
+          "isReadOnly": true,
+          "businessLogic": "包含分页信息",
+          "examples": [],
+          "isDeprecated": false
+        }
+      ],
+      "termReferences": ["term_order", "term_pagination"],
+      "validationRules": [],
+      "serialization": {
+        "format": "JSON",
+        "version": "1.0",
+        "compatibility": "BACKWARD",
+        "includeNulls": false,
+        "dateFormat": "ISO8601",
+        "numberFormat": "DECIMAL",
+        "namingStrategy": "CAMEL_CASE"
+      },
+      "example": {
+        "orders": [
+          {
+            "id": "order_123",
+            "customerId": "550e8400-e29b-41d4-a716-446655440000",
+            "status": "CONFIRMED",
+            "totalAmount": 59.98
+          }
+        ],
+        "totalCount": 1,
+        "pageInfo": {
+          "page": 1,
+          "size": 20,
+          "totalPages": 1
+        }
+      },
+      "isImmutable": true,
+      "generateBuilder": false,
+      "isActive": true,
+      "version": "1.0.0",
+      "deprecated": false,
+      "usageStatus": {
+        "isReferencedByStrategic": true,
+        "isReferencedByTactical": false,
+        "isReferencedByImplementation": false,
+        "isReferencedByScreen": true,
+        "referencedBy": [
+          {
+            "schemaType": "STRATEGIC",
+            "elementId": "bc_order_management",
+            "elementName": "订单管理限界上下文"
+          },
+          {
+            "schemaType": "SCREEN",
+            "elementId": "screen_order_list",
+            "elementName": "订单列表页面"
+          }
+        ]
+      }
+    }
+  ],
+  "dtoMappings": [
+    {
+      "id": "mapping_entity_to_dto_order",
+      "name": "订单实体到DTO映射",
+      "description": "将订单实体映射为DTO",
+      "sourceType": "ENTITY",
+      "sourceId": "entity_order",
+      "targetType": "DTO",
+      "targetId": "dto_order_query_result",
+      "mappingType": "ENTITY_TO_DTO",
+      "fieldMappings": [
+        {
+          "id": "fm_order_id",
+          "sourceField": "id",
+          "targetField": "orderId",
+          "mappingType": "DIRECT",
+          "isRequired": true
+        },
+        {
+          "id": "fm_customer_id",
+          "sourceField": "customerId",
+          "targetField": "customerId",
+          "mappingType": "DIRECT",
+          "isRequired": true
+        },
+        {
+          "id": "fm_order_status",
+          "sourceField": "status",
+          "targetField": "orderStatus",
+          "mappingType": "TRANSFORM",
+          "transformation": "status.toString()",
+          "isRequired": true
+        },
+        {
+          "id": "fm_total_amount",
+          "sourceField": "totalAmount",
+          "targetField": "totalAmount",
+          "mappingType": "DIRECT",
+          "isRequired": true
+        }
+      ],
+      "transformationRules": [
+        {
+          "id": "tr_format_amount",
+          "name": "格式化金额",
+          "description": "将金额格式化为两位小数",
+          "type": "FORMAT",
+          "expression": "String.format(\"%.2f\", value)",
+          "parameters": {
+            "precision": 2
+          },
+          "isActive": true
+        }
+      ],
+      "validationRules": [
+        {
+          "id": "rule_valid_order_status",
+          "name": "有效订单状态",
+          "description": "验证订单状态是否有效",
+          "type": "BUSINESS_RULE",
+          "expression": "status in ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED']",
+          "message": "订单状态无效",
+          "severity": "ERROR",
+          "isActive": true
+        }
+      ],
+      "isActive": true
+    }
+  ],
+  "usageStatus": {
+    "isReferencedByStrategic": true,
+    "isReferencedByTactical": true,
+    "isReferencedByImplementation": false,
+    "isReferencedByScreen": true,
+    "referencedBy": [
+      {
+        "schemaType": "STRATEGIC",
+        "elementId": "bc_order_management",
+        "elementName": "订单管理限界上下文"
+      },
+      {
+        "schemaType": "TACTICAL",
+        "elementId": "agg_order",
+        "elementName": "订单聚合"
+      },
+      {
+        "schemaType": "SCREEN",
+        "elementId": "screen_order_management",
+        "elementName": "订单管理页面"
+      }
+    ]
+  }
+}

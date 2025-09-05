@@ -14,7 +14,7 @@
     "domainId": {
       "type": "string",
       "pattern": "^domain_[a-zA-Z0-9_]+$",
-      "description": "所属领域ID"
+      "description": "所属领域ID（可选，在领域定义完成后必填）"
     },
     "boundedContexts": {
       "type": "array",
@@ -44,9 +44,36 @@
         "$ref": "#/$defs/domainEvent"
       },
       "description": "领域事件列表"
+    },
+    "usageStatus": {
+      "type": "object",
+      "properties": {
+        "isReferencedByTactical": {
+          "type": "boolean",
+          "description": "是否被战术设计引用"
+        },
+        "isReferencedByDto": {
+          "type": "boolean",
+          "description": "是否被DTO管理引用"
+        },
+        "isReferencedByImplementation": {
+          "type": "boolean",
+          "description": "是否被实现映射引用"
+        },
+        "isReferencedByScreen": {
+          "type": "boolean",
+          "description": "是否被屏幕定义引用"
+        },
+        "lastReferencedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最后被引用的时间"
+        }
+      },
+      "description": "使用状态信息（系统自动维护）"
     }
   },
-  "required": ["version", "domainId", "boundedContexts"],
+  "required": ["version", "boundedContexts"],
   "additionalProperties": false,
   "$defs": {
     "boundedContext": {

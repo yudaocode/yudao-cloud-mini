@@ -19,8 +19,9 @@
       "id": "term_order",
       "name": "订单",
       "englishName": "Order",
+      "programmingName": "Order",
       "description": "客户购买商品时创建的订单",
-      "category": "DOMAIN_CONCEPT",
+      "category": "DOMAIN_ENTITY",
       "attributes": ["attr_order_id", "attr_order_amount", "attr_order_status"],
       "relatedTerms": ["term_customer", "term_product"],
       "examples": ["用户下单购买iPhone", "订单状态从待付款变为已付款"],
@@ -31,18 +32,33 @@
       "id": "term_customer",
       "name": "客户",
       "englishName": "Customer",
+      "programmingName": "Customer",
       "description": "购买商品的用户",
-      "category": "DOMAIN_CONCEPT",
+      "category": "DOMAIN_ENTITY",
       "attributes": ["attr_customer_id", "attr_customer_name", "attr_customer_email"],
       "relatedTerms": ["term_order"],
       "isCore": true,
       "priority": "HIGH"
+    },
+    {
+      "id": "term_customer_satisfaction",
+      "name": "客户满意度",
+      "englishName": "Customer Satisfaction",
+      "programmingName": "CustomerSatisfaction",
+      "description": "客户对产品或服务的满意程度",
+      "category": "BUSINESS_CONCEPT",
+      "attributes": ["attr_satisfaction_score", "attr_feedback_content"],
+      "relatedTerms": ["term_customer"],
+      "examples": ["客户满意度调查", "满意度评分"],
+      "isCore": false,
+      "priority": "MEDIUM"
     }
   ],
   "businessAttributes": [
     {
       "id": "attr_order_id",
       "name": "订单ID",
+      "programmingName": "orderId",
       "description": "订单的唯一标识符",
       "dataType": "String",
       "constraints": {
@@ -56,6 +72,7 @@
     {
       "id": "attr_order_amount",
       "name": "订单金额",
+      "programmingName": "orderAmount",
       "description": "订单的总金额",
       "dataType": "BigDecimal",
       "unit": "元",
@@ -68,6 +85,7 @@
     {
       "id": "attr_order_status",
       "name": "订单状态",
+      "programmingName": "orderStatus",
       "description": "订单的当前状态",
       "dataType": "Enum",
       "customType": "OrderStatus",
@@ -75,6 +93,30 @@
         "allowedValues": ["PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"]
       },
       "isRequired": true
+    },
+    {
+      "id": "attr_satisfaction_score",
+      "name": "满意度评分",
+      "programmingName": "satisfactionScore",
+      "description": "客户满意度的数值评分",
+      "dataType": "Integer",
+      "unit": "分",
+      "constraints": {
+        "minValue": 1,
+        "maxValue": 10
+      },
+      "isRequired": true
+    },
+    {
+      "id": "attr_feedback_content",
+      "name": "反馈内容",
+      "programmingName": "feedbackContent",
+      "description": "客户的文字反馈内容",
+      "dataType": "String",
+      "constraints": {
+        "maxLength": 1000
+      },
+      "isRequired": false
     }
   ]
 }
@@ -492,13 +534,16 @@
 - **使用业务术语**：避免技术术语，使用业务人员能理解的词汇
 - **保持一致性**：在整个项目中保持术语使用的一致性
 - **提供英文名称**：为国际化做准备
+- **提供编程名称**：为代码生成提供统一的编程命名
 - **详细描述**：提供清晰的描述和示例
+- **正确分类**：区分DOMAIN_ENTITY（可映射到模型元素）和BUSINESS_CONCEPT（纯粹的业务概念）
 
 #### 1.2 业务属性设计
 - **复用性**：设计可复用的业务属性
 - **类型安全**：使用明确的数据类型
 - **约束完整**：提供完整的验证约束
 - **单位明确**：为数值类型指定单位
+- **编程命名**：提供符合编程规范的属性名称
 
 ### 2. 战略设计
 
