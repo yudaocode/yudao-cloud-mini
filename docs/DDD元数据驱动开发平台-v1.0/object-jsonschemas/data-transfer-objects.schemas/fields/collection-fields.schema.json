@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/fields/collection-fields.schema.json",
+  "title": "集合类型字段",
+  "description": "DTO属性的集合类型相关字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "isCollection": {
+      "type": "boolean",
+      "description": "是否是集合类型"
+    },
+    "collectionType": {
+      "type": "string",
+      "enum": ["LIST", "SET", "MAP", "ARRAY"],
+      "description": "集合类型"
+    },
+    "mapKeyType": {
+      "type": "string",
+      "description": "Map键类型"
+    },
+    "mapValueType": {
+      "type": "string",
+      "description": "Map值类型"
+    },
+    "nestedType": {
+      "type": "string",
+      "description": "嵌套类型名称"
+    },
+    "nestedDtoId": {
+      "type": "string",
+      "pattern": "^dto_[a-zA-Z0-9_]+$",
+      "description": "嵌套DTO ID"
+    },
+    "nestedEntityId": {
+      "type": "string",
+      "pattern": "^entity_[a-zA-Z0-9_]+$",
+      "description": "嵌套实体ID"
+    },
+    "nestedValueObjectId": {
+      "type": "string",
+      "pattern": "^vo_[a-zA-Z0-9_]+$",
+      "description": "嵌套值对象ID"
+    },
+    "nestedAggregateId": {
+      "type": "string",
+      "pattern": "^agg_[a-zA-Z0-9_]+$",
+      "description": "嵌套聚合ID"
+    },
+    "genericTypes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "泛型类型参数列表"
+    }
+  }
+}

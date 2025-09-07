@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/full/persistence-mapping.schema.json",
+  "title": "持久化映射",
+  "description": "持久化映射定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/persistenceMappingId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "aggregateId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/aggregateId"
+    },
+    "entityId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/entityId"
+    },
+    "storageType": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/storageType"
+    },
+    "databaseType": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/databaseType"
+    },
+    "tableName": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/tableName"
+    },
+    "collectionName": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/collectionName"
+    },
+    "partitionStrategy": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/partitionStrategy"
+    },
+    "cachingStrategy": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/cachingStrategy"
+    },
+    "transactionBoundary": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/transactionBoundary"
+    },
+    "consistencyLevel": {
+      "$ref": "../fields/persistence-fields.schema.json#/$defs/consistencyLevel"
+    },
+    "fieldMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./field-mapping.schema.json"
+      },
+      "description": "字段映射列表"
+    },
+    "indexDefinitions": {
+      "type": "array",
+      "items": {
+        "$ref": "./index-definition.schema.json"
+      },
+      "description": "索引定义列表"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id", "name", "storageType"],
+  "additionalProperties": false
+}

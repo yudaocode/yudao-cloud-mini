@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/tactical-design.schemas/operations/bulk/aggregate-bulk.schema.json",
+  "title": "聚合批量操作Schema",
+  "description": "聚合的批量操作Schema，支持批量创建、更新、删除操作",
+  "type": "object",
+  "properties": {
+    "operation": {
+      "type": "string",
+      "enum": ["CREATE", "UPDATE", "DELETE", "ACTIVATE", "DEACTIVATE"],
+      "description": "批量操作类型"
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "../../full/aggregate.schema.json"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^aggregate_[a-zA-Z0-9_]+$"
+              },
+              "updates": {
+                "$ref": "../patch/aggregate-patch.schema.json"
+              }
+            },
+            "required": ["id"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^aggregate_[a-zA-Z0-9_]+$"
+              }
+            },
+            "required": ["id"]
+          }
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 1000,
+      "description": "批量操作的数据数组"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "continueOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "遇到错误时是否继续执行"
+        },
+        "validateOnly": {
+          "type": "boolean",
+          "default": false,
+          "description": "仅验证不执行实际操作"
+        },
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 50,
+          "description": "批处理大小"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 3600,
+          "default": 300,
+          "description": "操作超时时间（秒）"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "请求标识符"
+        },
+        "source": {
+          "type": "string",
+          "description": "操作来源"
+        },
+        "reason": {
+          "type": "string",
+          "description": "操作原因"
+        },
+        "domainId": {
+          "type": "string",
+          "pattern": "^domain_[a-zA-Z0-9_]+$",
+          "description": "关联的领域ID"
+        }
+      }
+    }
+  },
+  "required": ["operation", "data"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "operation": "CREATE",
+      "data": [
+        {
+          "id": "aggregate_order_001",
+          "name": "订单聚合",
+          "description": "电商订单管理聚合",
+          "isActive": true
+        }
+      ],
+      "options": {
+        "continueOnError": true,
+        "batchSize": 10
+      }
+    },
+    {
+      "operation": "UPDATE",
+      "data": [
+        {
+          "id": "aggregate_order_001",
+          "updates": {
+            "description": "更新后的订单聚合描述"
+          }
+        }
+      ]
+    }
+  ]
+}

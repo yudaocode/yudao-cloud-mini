@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/root.schema.json",
+  "title": "DDD元数据模型根定义",
+  "description": "领域驱动设计元数据完整定义 - v2.0 (引用分层架构Schema)",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "元模型版本",
+      "const": "2.0.0"
+    },
+    "projectMetadata": {
+      "$ref": "./project-metadata.schemas/full/project-metadata.schema.json",
+      "description": "项目元数据 - 包含项目信息、团队、技术栈、业务上下文和领域定义"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "domain": {
+      "$ref": "#/$defs/domain"
+    },
+    "ubiquitousLanguage": {
+      "$ref": "./ubiquitous-language.schemas/full/ubiquitous-language.schema.json",
+      "description": "统一语言定义 - 业务术语、属性、关系和概念映射"
+    },
+    "strategicDesign": {
+      "$ref": "./strategic-design.schemas/full/strategic-design.schema.json",
+      "description": "战略设计 - 限界上下文、子域和上下文映射"
+    },
+    "tacticalDesign": {
+      "$ref": "./tactical-design.schemas/full/tactical-design.schema.json", 
+      "description": "战术设计 - 聚合根、实体、值对象和领域服务"
+    },
+    "dataTransferObjects": {
+      "$ref": "./data-transfer-objects.schemas/full/data-transfer-objects.schema.json",
+      "description": "数据传输对象 - DTO定义、映射规则和序列化配置"
+    },
+    "apiDefinition": {
+      "$ref": "./api-definition.schemas/full/api-specification.schema.json",
+      "description": "API定义模式 - OpenAPI规范、端点、参数和响应定义"
+    },
+    "implementationMapping": {
+      "$ref": "./implementation-mapping.schemas/full/implementation-mapping.schema.json",
+      "description": "实现映射 - 架构组件、持久化和集成配置"
+    },
+    "screenDefinition": {
+      "$ref": "./screen-definition.schemas/full/screen-definition.schema.json",
+      "description": "界面定义 - 页面组件、布局和交互设计"
+    },
+    "amisScreenDefinition": {
+      "$ref": "./screen-definition.schemas/full/amis-screen-definition.schema.json",
+      "description": "Amis界面定义 - 基于Amis框架的低代码界面配置"
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relationship"
+      },
+      "description": "Schema间关系定义"
+    },
+    "validation": {
+      "$ref": "./validation.schemas/full/validation-configuration.schema.json",
+      "description": "验证配置 - 数据验证规则和约束定义"
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "是否激活",
+      "default": true
+    }
+  },
+  "required": [
+    "version", 
+    "projectMetadata", 
+    "metadata"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^metadata_[a-zA-Z0-9_]+$",
+          "description": "元数据ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "元数据名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "元数据描述"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "更新时间"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "创建者"
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "更新者"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "版本号"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "标签"
+        }
+      },
+      "required": ["id", "name", "version"],
+      "additionalProperties": false
+    },
+    "domain": {
+      "type": "object",
+      "properties": {
+        "domainId": {
+          "type": "string",
+          "pattern": "^domain_[a-zA-Z0-9_]+$",
+          "description": "领域ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "领域名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "领域描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["CORE", "SUPPORTING", "GENERIC"],
+          "description": "领域类型"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"],
+          "description": "优先级"
+        },
+        "complexity": {
+          "type": "string",
+          "enum": ["SIMPLE", "MEDIUM", "COMPLEX", "VERY_COMPLEX"],
+          "description": "复杂度"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PLANNED", "IN_PROGRESS", "COMPLETED", "ON_HOLD", "CANCELLED"],
+          "description": "状态"
+        }
+      },
+      "required": ["domainId", "name"],
+      "additionalProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "properties": {
+        "relationshipId": {
+          "type": "string",
+          "pattern": "^rel_[a-zA-Z0-9_]+$",
+          "description": "关系ID"
+        },
+        "source": {
+          "type": "string",
+          "description": "源Schema"
+        },
+        "target": {
+          "type": "string",
+          "description": "目标Schema"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["DEPENDS_ON", "CONTAINS", "REFERENCES", "EXTENDS", "IMPLEMENTS"],
+          "description": "关系类型"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["1:1", "1:N", "N:1", "N:N"],
+          "description": "基数关系"
+        },
+        "description": {
+          "type": "string",
+          "description": "关系描述"
+        },
+        "isOptional": {
+          "type": "boolean",
+          "description": "是否可选",
+          "default": false
+        }
+      },
+      "required": ["relationshipId", "source", "target", "type"],
+      "additionalProperties": false
+    }
+  }
+}

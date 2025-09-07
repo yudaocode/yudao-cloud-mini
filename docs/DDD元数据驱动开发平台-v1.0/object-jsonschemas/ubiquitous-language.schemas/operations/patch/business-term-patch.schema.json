@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/schemas/operations/patch/business-term-patch.schema.json",
+  "title": "业务术语局部更新",
+  "description": "业务术语PATCH操作Schema定义",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../../fields/business-term-fields.schema.json#/$defs/termId"
+    },
+    "name": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/name"
+    },
+    "englishName": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/englishName"
+    },
+    "programmingName": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/programmingName"
+    },
+    "description": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/description"
+    },
+    "category": {
+      "$ref": "../../fields/business-term-fields.schema.json#/$defs/termCategory"
+    },
+    "boundedContextId": {
+      "$ref": "../../fields/business-term-fields.schema.json#/$defs/boundedContextId"
+    },
+    "synonyms": {
+      "$ref": "../../fields/business-term-fields.schema.json#/$defs/synonyms"
+    },
+    "antonyms": {
+      "$ref": "../../fields/business-term-fields.schema.json#/$defs/antonyms"
+    },
+    "usageNotes": {
+      "$ref": "../../fields/business-term-fields.schema.json#/$defs/usageNotes"
+    },
+    "isCore": {
+      "$ref": "../../fields/business-term-fields.schema.json#/$defs/isCore"
+    },
+    "priority": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/priority"
+    },
+    "isActive": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id"],
+  "additionalProperties": false,
+  "minProperties": 2
+}

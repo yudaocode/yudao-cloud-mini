@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/project-metadata/fields/team-fields.schema.json",
+  "title": "团队字段定义",
+  "description": "团队和人员相关的字段定义模式 - 包含团队成员、角色、联系信息等",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "personName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50,
+      "description": "人员姓名"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "maxLength": 100,
+      "description": "邮箱地址"
+    },
+    "phone": {
+      "type": "string",
+      "pattern": "^[+]?[0-9\\s-()]+$",
+      "maxLength": 20,
+      "description": "电话号码"
+    },
+    "employeeId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "maxLength": 20,
+      "description": "员工编号"
+    },
+    "department": {
+      "type": "string",
+      "maxLength": 50,
+      "description": "部门"
+    },
+    "teamRole": {
+      "type": "string",
+      "enum": [
+        "PRODUCT_OWNER", "TECHNICAL_LEAD", "ARCHITECT", "BACKEND_DEVELOPER", 
+        "FRONTEND_DEVELOPER", "FULLSTACK_DEVELOPER", "QA_ENGINEER", 
+        "DEVOPS_ENGINEER", "UI_UX_DESIGNER", "BUSINESS_ANALYST", 
+        "PROJECT_MANAGER", "SCRUM_MASTER", "INTERN", "CONSULTANT", "OTHER"
+      ],
+      "description": "团队角色"
+    },
+    "skillLevel": {
+      "type": "string",
+      "enum": ["JUNIOR", "INTERMEDIATE", "SENIOR", "EXPERT", "LEAD"],
+      "description": "技能水平"
+    },
+    "workType": {
+      "type": "string",
+      "enum": ["FULL_TIME", "PART_TIME", "CONTRACT", "FREELANCE", "INTERN"],
+      "description": "工作类型"
+    },
+    "location": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "工作地点"
+    },
+    "timezone": {
+      "type": "string",
+      "pattern": "^[A-Z][a-z]+/[A-Z][a-z_]+$",
+      "description": "时区，如：Asia/Shanghai"
+    },
+    "availability": {
+      "type": "object",
+      "properties": {
+        "percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "可用工作时间百分比"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date",
+          "description": "开始日期"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date",
+          "description": "结束日期"
+        }
+      },
+      "required": ["percentage"],
+      "description": "人员可用性"
+    },
+    "skill": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "技能名称"
+        },
+        "level": { "$ref": "#/$defs/skillLevel" },
+        "experience": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 50,
+          "description": "经验年数"
+        },
+        "certified": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否有认证"
+        }
+      },
+      "required": ["name", "level"],
+      "description": "技能定义"
+    },
+    "teamMember": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^member_[a-zA-Z0-9_]+$",
+          "description": "成员ID"
+        },
+        "name": { "$ref": "#/$defs/personName" },
+        "email": { "$ref": "#/$defs/email" },
+        "phone": { "$ref": "#/$defs/phone" },
+        "employeeId": { "$ref": "#/$defs/employeeId" },
+        "department": { "$ref": "#/$defs/department" },
+        "role": { "$ref": "#/$defs/teamRole" },
+        "workType": { "$ref": "#/$defs/workType" },
+        "location": { "$ref": "#/$defs/location" },
+        "timezone": { "$ref": "#/$defs/timezone" },
+        "availability": { "$ref": "#/$defs/availability" },
+        "skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/skill" },
+          "description": "技能列表"
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "maxItems": 10,
+          "description": "职责描述"
+        },
+        "joinDate": {
+          "type": "string",
+          "format": "date",
+          "description": "加入项目日期"
+        },
+        "leaveDate": {
+          "type": "string",
+          "format": "date",
+          "description": "离开项目日期"
+        }
+      },
+      "required": ["id", "name", "email", "role"],
+      "description": "团队成员完整信息"
+    },
+    "communicationChannel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["EMAIL", "SLACK", "TEAMS", "WECHAT", "DINGTALK", "DISCORD", "OTHER"],
+          "description": "沟通渠道类型"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "渠道名称"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "渠道链接"
+        },
+        "purpose": {
+          "type": "string",
+          "enum": ["GENERAL", "DEVELOPMENT", "QA", "DEPLOYMENT", "EMERGENCY", "SOCIAL"],
+          "description": "使用目的"
+        }
+      },
+      "required": ["type", "name"],
+      "description": "团队沟通渠道"
+    }
+  }
+}

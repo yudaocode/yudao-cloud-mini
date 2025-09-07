@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/operations/read/dto-query.schema.json",
+  "title": "DTO查询操作",
+  "description": "查询数据传输对象的操作模式 - 支持多维度查询和过滤",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "精确匹配DTO ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "按名称模糊查询"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["request", "response", "internal", "external"],
+          "description": "按类型查询"
+        },
+        "apiContext": {
+          "type": "string",
+          "description": "按API上下文查询"
+        },
+        "hasValidation": {
+          "type": "boolean",
+          "description": "是否包含验证规则"
+        },
+        "fieldCount": {
+          "type": "object",
+          "properties": {
+            "min": {"type": "integer", "minimum": 0},
+            "max": {"type": "integer", "minimum": 0}
+          },
+          "description": "字段数量范围"
+        }
+      },
+      "minProperties": 1,
+      "description": "查询条件"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "includeFields": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否包含字段详情"
+        },
+        "includeValidation": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含验证规则"
+        },
+        "includeMapping": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含映射关系"
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "page": {"type": "integer", "minimum": 1, "default": 1},
+            "pageSize": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}
+          }
+        }
+      },
+      "description": "查询选项"
+    }
+  },
+  "required": ["query"],
+  "additionalProperties": false
+}

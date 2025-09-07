@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/usage-status.schema.json",
+  "title": "使用状态",
+  "description": "使用状态定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "isReferencedByStrategic": {
+      "type": "boolean",
+      "description": "是否被战略设计引用"
+    },
+    "isReferencedByTactical": {
+      "type": "boolean",
+      "description": "是否被战术设计引用"
+    },
+    "isReferencedByImplementation": {
+      "type": "boolean",
+      "description": "是否被实现映射引用"
+    },
+    "isReferencedByScreen": {
+      "type": "boolean",
+      "description": "是否被屏幕定义引用"
+    },
+    "referencedBy": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "schemaType": {
+            "type": "string",
+            "enum": ["STRATEGIC", "TACTICAL", "IMPLEMENTATION", "SCREEN"]
+          },
+          "elementId": {
+            "type": "string"
+          },
+          "elementName": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "引用详情列表"
+    }
+  },
+  "additionalProperties": false
+}

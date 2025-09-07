@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/operations/bulk/implementation-mapping-bulk-operations.schema.json",
+  "title": "实现映射批量操作",
+  "description": "实现映射的批量创建、更新、删除操作模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "domainId": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/domainId",
+      "description": "操作范围的领域ID"
+    },
+    "boundedContextId": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/boundedContextId",
+      "description": "操作范围的限界上下文ID"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/createOperation"
+          },
+          {
+            "$ref": "#/$defs/updateOperation"
+          },
+          {
+            "$ref": "#/$defs/deleteOperation"
+          }
+        ]
+      },
+      "description": "批量操作列表",
+      "minItems": 1,
+      "maxItems": 50
+    },
+    "transactional": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否作为事务执行（全部成功或全部失败）"
+    },
+    "validateOnly": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否仅验证而不实际执行操作"
+    },
+    "validationLevel": {
+      "$ref": "../../fields/validation-fields.schema.json#/$defs/validationLevel"
+    }
+  },
+  "required": ["operations"],
+  "additionalProperties": false,
+  "$defs": {
+    "createOperation": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "create"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["architecture", "dto", "persistence", "integration", "screen", "api", "event", "security", "monitoring"]
+        },
+        "data": {
+          "description": "创建的映射数据，根据type确定具体模式"
+        }
+      },
+      "required": ["operation", "type", "data"],
+      "additionalProperties": false
+    },
+    "updateOperation": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "update"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["architecture", "dto", "persistence", "integration", "screen", "api", "event", "security", "monitoring"]
+        },
+        "data": {
+          "description": "更新的映射数据，使用对应的patch模式"
+        }
+      },
+      "required": ["operation", "type", "data"],
+      "additionalProperties": false
+    },
+    "deleteOperation": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "delete"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["dto", "persistence", "integration", "screen", "api", "event", "security", "monitoring"]
+        },
+        "id": {
+          "type": "string",
+          "description": "要删除的映射ID"
+        }
+      },
+      "required": ["operation", "type", "id"],
+      "additionalProperties": false
+    }
+  }
+}

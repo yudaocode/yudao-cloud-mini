@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/constraints.schema.json",
+  "title": "约束",
+  "description": "约束定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "minLength": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/minLength"
+    },
+    "maxLength": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/maxLength"
+    },
+    "minValue": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/minValue"
+    },
+    "maxValue": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/maxValue"
+    },
+    "pattern": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/pattern"
+    },
+    "enum": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/enum"
+    },
+    "precision": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/precision"
+    },
+    "scale": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/scale"
+    }
+  },
+  "additionalProperties": false
+}

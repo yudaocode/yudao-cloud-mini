@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/operations/create/screen-create.schema.json",
+  "title": "界面定义创建操作",
+  "description": "创建新界面定义的操作模式 - 支持页面、组件和布局创建",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "screen": {
+      "$ref": "../../full/screen.schema.json",
+      "description": "要创建的界面完整定义"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "validateSchema": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证界面模式"
+        },
+        "generatePreview": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否生成预览"
+        },
+        "autoBindData": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否自动绑定数据源"
+        },
+        "validateAccess": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证访问权限"
+        }
+      },
+      "description": "创建选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "创建者"
+        },
+        "module": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "所属模块"
+        },
+        "purpose": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "创建目的"
+        },
+        "template": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "基于的模板"
+        }
+      },
+      "description": "创建元数据"
+    }
+  },
+  "required": ["screen"],
+  "additionalProperties": false
+}

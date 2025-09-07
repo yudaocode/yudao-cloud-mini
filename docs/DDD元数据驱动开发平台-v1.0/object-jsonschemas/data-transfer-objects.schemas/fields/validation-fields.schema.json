@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/fields/validation-fields.schema.json",
+  "title": "验证相关字段",
+  "description": "验证规则和约束相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "ruleId": {
+      "type": "string",
+      "pattern": "^rule_[a-zA-Z0-9_]+$",
+      "description": "验证规则唯一标识符"
+    },
+    "ruleType": {
+      "type": "string",
+      "enum": ["REQUIRED", "LENGTH", "PATTERN", "RANGE", "CUSTOM", "CROSS_FIELD", "BUSINESS_RULE"],
+      "description": "规则类型"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["ERROR", "WARNING", "INFO"],
+      "description": "严重程度"
+    },
+    "message": {
+      "type": "string",
+      "description": "验证失败消息"
+    },
+    "minLength": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "最小长度"
+    },
+    "maxLength": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "最大长度"
+    },
+    "minValue": {
+      "description": "最小值"
+    },
+    "maxValue": {
+      "description": "最大值"
+    },
+    "pattern": {
+      "type": "string",
+      "description": "正则表达式模式"
+    },
+    "enum": {
+      "type": "array",
+      "description": "枚举值列表"
+    },
+    "precision": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "精度（小数位数）"
+    },
+    "scale": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "刻度"
+    }
+  }
+}

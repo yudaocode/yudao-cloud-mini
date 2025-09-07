@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/attribute-serialization.schema.json",
+  "title": "属性序列化配置",
+  "description": "属性序列化配置定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/serializationName"
+    },
+    "format": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/format"
+    },
+    "ignore": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/ignore"
+    },
+    "includeNulls": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/includeNulls"
+    },
+    "customConverter": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/customConverter"
+    }
+  },
+  "additionalProperties": false
+}

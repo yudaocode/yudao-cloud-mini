@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/full/permission.schema.json",
+  "title": "屏幕权限完整定义",
+  "description": "屏幕权限的完整定义模式 - 描述访问和操作权限控制",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^perm_[a-zA-Z0-9_]+$",
+      "description": "权限唯一标识符"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "title": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/title"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["screen", "component", "action", "data", "api"],
+      "description": "权限类型"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["global", "tenant", "user", "role", "group"],
+      "description": "权限范围"
+    },
+    "level": {
+      "type": "string",
+      "enum": ["view", "edit", "create", "delete", "admin"],
+      "description": "权限级别"
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "screenId": {
+          "$ref": "../fields/screen-fields.schema.json#/$defs/screenId",
+          "description": "目标屏幕ID"
+        },
+        "componentId": {
+          "$ref": "../fields/component-fields.schema.json#/$defs/componentId",
+          "description": "目标组件ID"
+        },
+        "actionId": {
+          "type": "string",
+          "description": "目标操作ID"
+        },
+        "resource": {
+          "type": "string",
+          "description": "目标资源"
+        }
+      },
+      "description": "权限目标"
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "条件字段"
+          },
+          "operator": {
+            "type": "string",
+            "enum": ["eq", "ne", "gt", "lt", "gte", "lte", "in", "nin", "contains", "exists"],
+            "description": "操作符"
+          },
+          "value": {
+            "description": "条件值"
+          },
+          "logicalOperator": {
+            "type": "string",
+            "enum": ["AND", "OR"],
+            "default": "AND",
+            "description": "逻辑操作符"
+          }
+        },
+        "required": ["field", "operator"]
+      },
+      "description": "权限条件"
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "适用角色列表"
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "适用用户列表"
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "适用用户组列表"
+    },
+    "timeWindow": {
+      "type": "object",
+      "properties": {
+        "startTime": {
+          "type": "string",
+          "format": "time",
+          "description": "开始时间"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "time",
+          "description": "结束时间"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date",
+          "description": "开始日期"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date",
+          "description": "结束日期"
+        },
+        "daysOfWeek": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "description": "星期几（0=周日，6=周六）"
+        },
+        "timezone": {
+          "type": "string",
+          "description": "时区"
+        }
+      },
+      "description": "时间窗口限制"
+    },
+    "ipRestrictions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\/([0-9]|[1-2][0-9]|3[0-2]))?$"
+      },
+      "description": "IP地址限制（CIDR格式）"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "order": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/order"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" },
+        "updatedBy": { "type": "string" },
+        "version": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "description": "权限元数据"
+    }
+  },
+  "required": ["id", "name", "type", "scope", "level"],
+  "additionalProperties": false
+}

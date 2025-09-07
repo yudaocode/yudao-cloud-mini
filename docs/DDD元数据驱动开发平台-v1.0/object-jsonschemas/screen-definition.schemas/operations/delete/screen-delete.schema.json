@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/operations/delete/screen-delete.schema.json",
+  "title": "界面定义删除操作",
+  "description": "删除界面定义的操作模式 - 支持级联删除和权限检查",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "description": "要删除的界面ID"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "特定版本（可选）"
+          }
+        },
+        "required": ["id"]
+      },
+      "minItems": 1,
+      "description": "删除目标列表"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "softDelete": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否软删除（标记为已删除而非物理删除）"
+        },
+        "cascadeDelete": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否级联删除子组件"
+        },
+        "checkPermissions": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否检查删除权限"
+        },
+        "cleanupResources": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否清理相关资源"
+        },
+        "notifyUsers": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否通知相关用户"
+        }
+      },
+      "description": "删除选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "deletedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "删除者"
+        },
+        "deleteReason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "删除原因"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3650,
+          "default": 30,
+          "description": "软删除保留天数"
+        },
+        "affectedUsers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "受影响的用户列表"
+        }
+      },
+      "description": "删除元数据"
+    }
+  },
+  "required": ["targets"],
+  "additionalProperties": false
+}

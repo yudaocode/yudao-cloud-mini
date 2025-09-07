@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/full/component.schema.json",
+  "title": "UI组件完整定义",
+  "description": "UI组件的完整定义模式 - 描述屏幕中的单个交互组件",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/component-fields.schema.json#/$defs/componentId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "title": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/title"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../fields/component-fields.schema.json#/$defs/componentType"
+    },
+    "subtype": {
+      "$ref": "../fields/component-fields.schema.json#/$defs/componentSubtype"
+    },
+    "category": {
+      "$ref": "../fields/component-fields.schema.json#/$defs/componentCategory"
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "x": { "$ref": "../fields/layout-fields.schema.json#/$defs/coordinate" },
+        "y": { "$ref": "../fields/layout-fields.schema.json#/$defs/coordinate" },
+        "width": { "$ref": "../fields/layout-fields.schema.json#/$defs/dimension" },
+        "height": { "$ref": "../fields/layout-fields.schema.json#/$defs/dimension" },
+        "zIndex": { "$ref": "../fields/layout-fields.schema.json#/$defs/zIndex" },
+        "position": {
+          "type": "string",
+          "enum": ["static", "relative", "absolute", "fixed", "sticky"],
+          "default": "static"
+        },
+        "float": {
+          "type": "string",
+          "enum": ["none", "left", "right"],
+          "default": "none"
+        },
+        "clear": {
+          "type": "string",
+          "enum": ["none", "left", "right", "both"],
+          "default": "none"
+        }
+      },
+      "required": ["x", "y", "width", "height"],
+      "description": "组件布局属性"
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "visible": { "$ref": "../fields/common-fields.schema.json#/$defs/visible" },
+        "disabled": { "$ref": "../fields/common-fields.schema.json#/$defs/disabled" },
+        "readonly": { "$ref": "../fields/component-fields.schema.json#/$defs/readonly" },
+        "className": { "$ref": "../fields/component-fields.schema.json#/$defs/className" },
+        "style": { "$ref": "../fields/component-fields.schema.json#/$defs/style" },
+        "theme": {
+          "type": "string",
+          "description": "组件主题"
+        }
+      },
+      "description": "组件外观属性"
+    },
+    "behavior": {
+      "type": "object",
+      "properties": {
+        "required": { "$ref": "../fields/component-fields.schema.json#/$defs/required" },
+        "placeholder": { "$ref": "../fields/component-fields.schema.json#/$defs/placeholder" },
+        "defaultValue": { "$ref": "../fields/component-fields.schema.json#/$defs/defaultValue" },
+        "autoFocus": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否自动获得焦点"
+        },
+        "autoComplete": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否启用自动完成"
+        },
+        "tabIndex": {
+          "type": "integer",
+          "minimum": -1,
+          "description": "Tab键顺序索引"
+        }
+      },
+      "description": "组件行为属性"
+    },
+    "properties": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]*$": true
+      },
+      "description": "组件特定属性"
+    },
+    "dataBinding": {
+      "type": "object",
+      "properties": {
+        "dataSourceId": { "$ref": "../fields/component-fields.schema.json#/$defs/dataSourceId" },
+        "bindingField": { "$ref": "../fields/component-fields.schema.json#/$defs/bindingField" },
+        "valueField": {
+          "type": "string",
+          "description": "值字段名"
+        },
+        "labelField": {
+          "type": "string",
+          "description": "标签字段名"
+        },
+        "filter": {
+          "type": "object",
+          "description": "数据过滤条件"
+        },
+        "sort": {
+          "type": "object",
+          "properties": {
+            "field": { "type": "string" },
+            "direction": { "type": "string", "enum": ["asc", "desc"] }
+          },
+          "description": "数据排序"
+        }
+      },
+      "description": "数据绑定配置"
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "rules": { "$ref": "../fields/component-fields.schema.json#/$defs/validationRules" },
+        "validateOn": {
+          "type": "string",
+          "enum": ["change", "blur", "submit"],
+          "default": "blur",
+          "description": "验证触发时机"
+        },
+        "showError": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否显示错误信息"
+        },
+        "errorPosition": {
+          "type": "string",
+          "enum": ["top", "bottom", "left", "right", "tooltip"],
+          "default": "bottom",
+          "description": "错误信息显示位置"
+        }
+      },
+      "description": "验证配置"
+    },
+    "events": {
+      "$ref": "../fields/component-fields.schema.json#/$defs/events"
+    },
+    "children": {
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      },
+      "description": "子组件列表"
+    },
+    "order": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/order"
+    },
+    "parentId": {
+      "$ref": "../fields/component-fields.schema.json#/$defs/parentId"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "description": "组件元数据"
+    }
+  },
+  "required": ["id", "name", "type", "layout"],
+  "additionalProperties": false
+}

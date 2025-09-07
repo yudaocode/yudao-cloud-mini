@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/strategic-design.schemas/fields/subdomain-fields.schema.json",
+  "title": "子域字段定义",
+  "description": "子域相关字段定义",
+  "$defs": {
+    "subdomainId": {
+      "type": "string",
+      "pattern": "^subdomain_[a-zA-Z0-9_]+$",
+      "description": "子域ID"
+    },
+    "subdomainType": {
+      "type": "string",
+      "enum": ["CORE", "SUPPORTING", "GENERIC"],
+      "description": "子域类型：CORE(核心域)、SUPPORTING(支撑域)、GENERIC(通用域)"
+    },
+    "businessValue": {
+      "type": "string",
+      "enum": ["HIGH", "MEDIUM", "LOW"],
+      "description": "业务价值"
+    },
+    "complexityLevel": {
+      "type": "string",
+      "enum": ["HIGH", "MEDIUM", "LOW"],
+      "description": "复杂度等级"
+    },
+    "strategicImportance": {
+      "type": "string",
+      "enum": ["CRITICAL", "IMPORTANT", "NICE_TO_HAVE"],
+      "description": "战略重要性"
+    },
+    "evolutionStage": {
+      "type": "string",
+      "enum": ["GENESIS", "CUSTOM_BUILT", "PRODUCT", "COMMODITY"],
+      "description": "演进阶段"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "description": "能力列表"
+    }
+  }
+}

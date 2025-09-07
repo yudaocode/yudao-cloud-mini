@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/api-definition/operations/read/api-specification-read.schema.json",
+  "title": "API规范查询操作",
+  "description": "查询API规范的操作模式 - 支持多种查询条件和过滤",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "精确匹配API规范ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "按名称模糊查询"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "按版本号查询"
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "按标签查询"
+        },
+        "project": {
+          "type": "string",
+          "description": "按项目查询"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "按创建者查询"
+        }
+      },
+      "minProperties": 1,
+      "description": "查询条件"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "includeDeprecated": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含已废弃的API"
+        },
+        "fields": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "返回字段列表（空表示返回全部）"
+        },
+        "sort": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string",
+              "enum": ["name", "version", "createdAt", "updatedAt"]
+            },
+            "order": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "asc"
+            }
+          }
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "page": {"type": "integer", "minimum": 1, "default": 1},
+            "pageSize": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}
+          }
+        }
+      },
+      "description": "查询选项"
+    }
+  },
+  "required": ["query"],
+  "additionalProperties": false
+}

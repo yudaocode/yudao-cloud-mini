@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/ubiquitous-language.schemas/fields/business-attribute-fields.schema.json",
+  "title": "业务属性字段定义",
+  "description": "业务属性相关字段定义",
+  "$defs": {
+    "attributeId": {
+      "type": "string",
+      "pattern": "^attr_[a-zA-Z0-9_]+$",
+      "description": "业务属性唯一标识符"
+    },
+    "dataType": {
+      "type": "string",
+      "enum": [
+        "String",
+        "Integer", 
+        "Long",
+        "Double",
+        "Boolean",
+        "BigDecimal",
+        "LocalDate",
+        "LocalDateTime",
+        "LocalTime",
+        "Enum",
+        "Custom"
+      ],
+      "description": "数据类型"
+    },
+    "customType": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "自定义类型名称（当dataType为Custom时使用）"
+    },
+    "unit": {
+      "type": "string",
+      "maxLength": 20,
+      "description": "单位（如：元、个、米等）"
+    },
+    "format": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "格式（如：yyyy-MM-dd、#,##0.00等）"
+    },
+    "defaultValue": {
+      "description": "默认值"
+    },
+    "isRequired": {
+      "type": "boolean",
+      "description": "是否必填",
+      "default": false
+    },
+    "isUnique": {
+      "type": "boolean",
+      "description": "是否唯一",
+      "default": false
+    },
+    "isReadOnly": {
+      "type": "boolean",
+      "description": "是否只读",
+      "default": false
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "description": "验证规则列表"
+    },
+    "businessLogic": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "业务逻辑描述"
+    }
+  }
+}

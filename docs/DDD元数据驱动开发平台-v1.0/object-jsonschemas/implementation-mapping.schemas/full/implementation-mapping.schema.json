@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/full/implementation-mapping.schema.json",
+  "title": "实现映射定义",
+  "description": "完整的领域模型到实现技术的映射定义 - v2.0",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "模式版本",
+      "const": "2.0.0"
+    },
+    "domainId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/domainId"
+    },
+    "boundedContextId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/boundedContextId"
+    },
+    "architectureMapping": {
+      "$ref": "./architecture-mapping.schema.json"
+    },
+    "dtoMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./dto-mapping.schema.json"
+      },
+      "description": "DTO映射列表"
+    },
+    "persistenceMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./persistence-mapping.schema.json"
+      },
+      "description": "持久化映射列表"
+    },
+    "integrationMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./integration-mapping.schema.json"
+      },
+      "description": "集成映射列表"
+    },
+    "screenMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./screen-mapping.schema.json"
+      },
+      "description": "屏幕映射列表"
+    },
+    "apiMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./api-mapping.schema.json"
+      },
+      "description": "API映射列表"
+    },
+    "eventMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./event-mapping.schema.json"
+      },
+      "description": "事件映射列表"
+    },
+    "securityMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./security-mapping.schema.json"
+      },
+      "description": "安全映射列表"
+    },
+    "monitoringMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./monitoring-mapping.schema.json"
+      },
+      "description": "监控映射列表"
+    },
+    "validationStage": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/validationStage"
+    },
+    "validationRules": {
+      "$ref": "./validation-rules.schema.json"
+    }
+  },
+  "required": ["version"],
+  "additionalProperties": false
+}

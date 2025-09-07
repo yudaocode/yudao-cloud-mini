@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/operations/update/dto-update.schema.json",
+  "title": "DTO更新操作",
+  "description": "完整更新数据传输对象的操作模式 - 替换整个DTO定义",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "description": "要更新的DTO标识符"
+    },
+    "dto": {
+      "$ref": "../../full/dto.schema.json",
+      "description": "新的DTO完整定义"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "validateMapping": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证字段映射关系"
+        },
+        "preserveCompatibility": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否保持向后兼容性"
+        },
+        "updateVersion": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否自动更新版本号"
+        },
+        "migrateExisting": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否迁移现有数据"
+        }
+      },
+      "description": "更新选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "updatedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "更新者"
+        },
+        "updateReason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "更新原因"
+        },
+        "previousVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "前一版本号"
+        },
+        "breakingChanges": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "破坏性变更列表"
+        }
+      },
+      "description": "更新元数据"
+    }
+  },
+  "required": ["id", "dto"],
+  "additionalProperties": false
+}

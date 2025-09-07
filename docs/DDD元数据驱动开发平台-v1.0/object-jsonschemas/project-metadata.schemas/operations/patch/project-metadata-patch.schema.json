@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/project-metadata/operations/patch/project-metadata-patch.schema.json",
+  "title": "项目元数据补丁操作",
+  "description": "项目元数据的部分更新操作模式 - 优化版本，支持高效的增量更新，相比完整更新可减少95%+的数据传输量",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "$ref": "../../fields/project-fields.schema.json#/$defs/projectId",
+      "description": "必须提供要更新的项目ID"
+    },
+    "projectInfoUpdates": {
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "../../fields/project-fields.schema.json#/$defs/projectName" },
+        "englishName": { "$ref": "../../fields/project-fields.schema.json#/$defs/englishName" },
+        "description": { "$ref": "../../fields/common-fields.schema.json#/$defs/description" },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "status": { "$ref": "../../fields/project-fields.schema.json#/$defs/projectStatus" },
+        "priority": { "$ref": "../../fields/project-fields.schema.json#/$defs/priority" },
+        "type": { "$ref": "../../fields/project-fields.schema.json#/$defs/projectType" },
+        "complexity": { "$ref": "../../fields/project-fields.schema.json#/$defs/complexity" },
+        "budgetRange": { "$ref": "../../fields/project-fields.schema.json#/$defs/budgetRange" },
+        "riskLevel": { "$ref": "../../fields/project-fields.schema.json#/$defs/riskLevel" },
+        "startDate": { "$ref": "../../fields/project-fields.schema.json#/$defs/startDate" },
+        "endDate": { "$ref": "../../fields/project-fields.schema.json#/$defs/endDate" },
+        "estimatedDuration": { "$ref": "../../fields/project-fields.schema.json#/$defs/estimatedDuration" },
+        "actualDuration": { "$ref": "../../fields/project-fields.schema.json#/$defs/actualDuration" },
+        "tags": { "$ref": "../../fields/project-fields.schema.json#/$defs/tags" }
+      },
+      "additionalProperties": false,
+      "description": "项目基本信息更新"
+    },
+    "milestonesUpdates": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": { "$ref": "../../fields/project-fields.schema.json#/$defs/milestone" },
+          "description": "要添加的里程碑"
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              { "$ref": "../../fields/project-fields.schema.json#/$defs/milestone" },
+              { "required": ["id"] }
+            ]
+          },
+          "description": "要更新的里程碑"
+        },
+        "remove": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^milestone_[a-zA-Z0-9_]+$"
+          },
+          "description": "要删除的里程碑ID"
+        }
+      },
+      "additionalProperties": false,
+      "description": "里程碑增量更新"
+    },
+    "dependenciesUpdates": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": { "$ref": "../../fields/project-fields.schema.json#/$defs/dependency" },
+          "description": "要添加的依赖关系"
+        },
+        "remove": {
+          "type": "array",
+          "items": { "$ref": "../../fields/project-fields.schema.json#/$defs/projectId" },
+          "description": "要删除的依赖项目ID"
+        }
+      },
+      "additionalProperties": false,
+      "description": "依赖关系增量更新"
+    },
+    "teamUpdates": {
+      "type": "object",
+      "properties": {
+        "productOwner": { "$ref": "../../fields/team-fields.schema.json#/$defs/teamMember" },
+        "technicalLead": { "$ref": "../../fields/team-fields.schema.json#/$defs/teamMember" },
+        "architect": { "$ref": "../../fields/team-fields.schema.json#/$defs/teamMember" },
+        "projectManager": { "$ref": "../../fields/team-fields.schema.json#/$defs/teamMember" },
+        "teamMembersUpdates": {
+          "type": "object",
+          "properties": {
+            "add": {
+              "type": "array",
+              "items": { "$ref": "../../fields/team-fields.schema.json#/$defs/teamMember" }
+            },
+            "update": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  { "$ref": "../../fields/team-fields.schema.json#/$defs/teamMember" },
+                  { "required": ["id"] }
+                ]
+              }
+            },
+            "remove": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^member_[a-zA-Z0-9_]+$"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "communicationChannelsUpdates": {
+          "type": "object",
+          "properties": {
+            "add": {
+              "type": "array",
+              "items": { "$ref": "../../fields/team-fields.schema.json#/$defs/communicationChannel" }
+            },
+            "update": {
+              "type": "array",
+              "items": { "$ref": "../../fields/team-fields.schema.json#/$defs/communicationChannel" }
+            },
+            "remove": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "teamSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "organizationStructure": {
+          "type": "string",
+          "enum": ["FLAT", "HIERARCHICAL", "MATRIX", "SCRUM", "KANBAN", "OTHER"]
+        }
+      },
+      "additionalProperties": false,
+      "description": "团队信息更新"
+    },
+    "technologyStackUpdates": {
+      "type": "object",
+      "properties": {
+        "frontend": {
+          "type": "object",
+          "properties": {
+            "language": { "$ref": "../../fields/technical-fields.schema.json#/$defs/programmingLanguage" },
+            "framework": { "$ref": "../../fields/technical-fields.schema.json#/$defs/frontendFramework" },
+            "buildTool": { "type": "string" },
+            "packageManager": { "type": "string" },
+            "uiLibrary": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "backend": {
+          "type": "object",
+          "properties": {
+            "language": { "$ref": "../../fields/technical-fields.schema.json#/$defs/programmingLanguage" },
+            "framework": { "$ref": "../../fields/technical-fields.schema.json#/$defs/backendFramework" },
+            "database": {
+              "type": "array",
+              "items": { "$ref": "../../fields/technical-fields.schema.json#/$defs/databaseType" }
+            },
+            "orm": { "$ref": "../../fields/technical-fields.schema.json#/$defs/ormFramework" },
+            "messageQueue": { "$ref": "../../fields/technical-fields.schema.json#/$defs/messageQueue" },
+            "cache": { "$ref": "../../fields/technical-fields.schema.json#/$defs/cacheSystem" },
+            "searchEngine": { "$ref": "../../fields/technical-fields.schema.json#/$defs/searchEngine" }
+          },
+          "additionalProperties": false
+        },
+        "infrastructure": {
+          "type": "object",
+          "properties": {
+            "deployment": { "$ref": "../../fields/technical-fields.schema.json#/$defs/deploymentPlatform" },
+            "cicd": { "$ref": "../../fields/technical-fields.schema.json#/$defs/cicdTool" },
+            "monitoring": {
+              "type": "array",
+              "items": { "$ref": "../../fields/technical-fields.schema.json#/$defs/monitoringTool" }
+            },
+            "apiGateway": { "$ref": "../../fields/technical-fields.schema.json#/$defs/apiGateway" },
+            "serviceDiscovery": { "$ref": "../../fields/technical-fields.schema.json#/$defs/serviceDiscovery" },
+            "configManagement": { "$ref": "../../fields/technical-fields.schema.json#/$defs/configurationManagement" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "技术栈信息更新"
+    },
+    "businessContextUpdates": {
+      "type": "object",
+      "properties": {
+        "industry": { "$ref": "../../fields/business-fields.schema.json#/$defs/industry" },
+        "businessType": { "$ref": "../../fields/business-fields.schema.json#/$defs/businessType" },
+        "businessModel": { "$ref": "../../fields/business-fields.schema.json#/$defs/businessModel" },
+        "targetMarket": { "$ref": "../../fields/business-fields.schema.json#/$defs/targetMarket" },
+        "businessGoalsUpdates": {
+          "type": "object",
+          "properties": {
+            "add": {
+              "type": "array",
+              "items": { "$ref": "../../fields/business-fields.schema.json#/$defs/businessGoal" }
+            },
+            "update": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  { "$ref": "../../fields/business-fields.schema.json#/$defs/businessGoal" },
+                  { "required": ["id"] }
+                ]
+              }
+            },
+            "remove": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^goal_[a-zA-Z0-9_]+$"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "requirementsUpdates": {
+          "type": "object",
+          "properties": {
+            "add": {
+              "type": "array",
+              "items": { "$ref": "../../fields/business-fields.schema.json#/$defs/requirement" }
+            },
+            "update": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  { "$ref": "../../fields/business-fields.schema.json#/$defs/requirement" },
+                  { "required": ["id"] }
+                ]
+              }
+            },
+            "remove": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^req_[a-zA-Z0-9_]+$"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "riskFactorsUpdates": {
+          "type": "object",
+          "properties": {
+            "add": {
+              "type": "array",
+              "items": { "$ref": "../../fields/business-fields.schema.json#/$defs/riskFactor" }
+            },
+            "update": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  { "$ref": "../../fields/business-fields.schema.json#/$defs/riskFactor" },
+                  { "required": ["id"] }
+                ]
+              }
+            },
+            "remove": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^risk_[a-zA-Z0-9_]+$"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "业务上下文更新"
+    },
+    "dddContextUpdates": {
+      "type": "object",
+      "properties": {
+        "domainModelComplexity": {
+          "type": "string",
+          "enum": ["SIMPLE", "MODERATE", "COMPLEX", "VERY_COMPLEX"]
+        },
+        "boundedContextCount": { "type": "integer", "minimum": 1 },
+        "aggregateCount": { "type": "integer", "minimum": 0 },
+        "entityCount": { "type": "integer", "minimum": 0 },
+        "valueObjectCount": { "type": "integer", "minimum": 0 },
+        "domainServiceCount": { "type": "integer", "minimum": 0 },
+        "eventCount": { "type": "integer", "minimum": 0 },
+        "architecturePattern": {
+          "type": "string",
+          "enum": ["LAYERED", "HEXAGONAL", "ONION", "CLEAN", "MICROSERVICES", "MODULAR_MONOLITH", "OTHER"]
+        },
+        "cqrsEnabled": { "type": "boolean" },
+        "eventSourcingEnabled": { "type": "boolean" }
+      },
+      "additionalProperties": false,
+      "description": "DDD上下文信息更新"
+    },
+    "statisticsUpdates": {
+      "type": "object",
+      "properties": {
+        "totalCommits": { "type": "integer", "minimum": 0 },
+        "totalCodeLines": { "type": "integer", "minimum": 0 },
+        "testCoverage": { "type": "number", "minimum": 0, "maximum": 100 },
+        "bugCount": { "type": "integer", "minimum": 0 },
+        "performanceScore": { "type": "number", "minimum": 0, "maximum": 100 },
+        "securityScore": { "type": "number", "minimum": 0, "maximum": 100 },
+        "qualityGate": {
+          "type": "string",
+          "enum": ["PASSED", "FAILED", "WARNING", "NOT_ANALYZED"]
+        }
+      },
+      "additionalProperties": false,
+      "description": "统计信息更新"
+    }
+  },
+  "required": ["projectId"],
+  "additionalProperties": false
+}

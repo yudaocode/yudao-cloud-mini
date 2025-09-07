@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/operations/bulk/dto-bulk-operations.schema.json",
+  "title": "DTO批量操作",
+  "description": "DTO的批量创建、更新、删除操作模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "boundedContextId": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/boundedContextId",
+      "description": "操作范围的限界上下文ID"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/createOperation"
+          },
+          {
+            "$ref": "#/$defs/updateOperation"
+          },
+          {
+            "$ref": "#/$defs/deleteOperation"
+          }
+        ]
+      },
+      "description": "批量操作列表",
+      "minItems": 1,
+      "maxItems": 100
+    },
+    "transactional": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否作为事务执行（全部成功或全部失败）"
+    },
+    "validateOnly": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否仅验证而不实际执行操作"
+    }
+  },
+  "required": ["operations"],
+  "additionalProperties": false,
+  "$defs": {
+    "createOperation": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "create"
+        },
+        "data": {
+          "$ref": "../../full/data-transfer-object.schema.json"
+        }
+      },
+      "required": ["operation", "data"],
+      "additionalProperties": false
+    },
+    "updateOperation": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "update"
+        },
+        "data": {
+          "$ref": "../patch/dto-patch.schema.json"
+        }
+      },
+      "required": ["operation", "data"],
+      "additionalProperties": false
+    },
+    "deleteOperation": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "const": "delete"
+        },
+        "id": {
+          "$ref": "../../fields/common-fields.schema.json#/$defs/id"
+        }
+      },
+      "required": ["operation", "id"],
+      "additionalProperties": false
+    }
+  }
+}

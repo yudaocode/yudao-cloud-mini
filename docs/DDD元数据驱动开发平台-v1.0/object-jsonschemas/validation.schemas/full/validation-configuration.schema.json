@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/validation.schemas/full/validation-configuration.schema.json",
+  "title": "完整验证配置Schema",
+  "description": "验证配置的完整对象Schema，用于CREATE和完整读取操作",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/id"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "scope": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/scope"
+    },
+    "crossSchemaValidation": {
+      "type": "boolean",
+      "description": "是否启用跨Schema验证"
+    },
+    "businessRuleValidation": {
+      "type": "boolean",
+      "description": "是否启用业务规则验证"
+    },
+    "consistencyValidation": {
+      "type": "boolean",
+      "description": "是否启用一致性验证"
+    },
+    "settings": {
+      "$ref": "../fields/validation-configuration-fields.schema.json#/$defs/settings"
+    },
+    "notifications": {
+      "$ref": "../fields/validation-configuration-fields.schema.json#/$defs/notifications"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "createdAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/createdAt"
+    },
+    "updatedAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/updatedAt"
+    }
+  },
+  "required": [
+    "id",
+    "name", 
+    "scope",
+    "crossSchemaValidation",
+    "businessRuleValidation",
+    "consistencyValidation",
+    "settings",
+    "notifications",
+    "isActive"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "id": "validation_global_config_001",
+      "name": "全局验证配置",
+      "description": "系统全局验证配置",
+      "scope": "GLOBAL",
+      "crossSchemaValidation": true,
+      "businessRuleValidation": true,
+      "consistencyValidation": true,
+      "settings": {
+        "validateOnSave": true,
+        "validateOnImport": true,
+        "validateOnExport": false,
+        "asyncValidation": true,
+        "batchSize": 100,
+        "timeout": 300
+      },
+      "notifications": {
+        "onError": true,
+        "onWarning": false,
+        "recipients": ["admin@example.com", "qa@example.com"]
+      },
+      "isActive": true
+    }
+  ]
+}

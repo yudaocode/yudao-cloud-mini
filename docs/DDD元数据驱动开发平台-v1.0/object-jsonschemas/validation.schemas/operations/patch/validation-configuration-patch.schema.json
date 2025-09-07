@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/validation.schemas/operations/patch/validation-configuration-patch.schema.json",
+  "title": "验证配置部分更新Schema",
+  "description": "用于PATCH操作的验证配置部分更新Schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/validationType"
+    },
+    "severity": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/severity"
+    },
+    "scope": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/scope"
+    },
+    "settings": {
+      "$ref": "../../fields/validation-configuration-fields.schema.json#/$defs/settings"
+    },
+    "notifications": {
+      "$ref": "../../fields/validation-configuration-fields.schema.json#/$defs/notifications"
+    },
+    "conditions": {
+      "$ref": "../../fields/validation-configuration-fields.schema.json#/$defs/conditions"
+    },
+    "isActive": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1,
+  "examples": [
+    {
+      "isActive": false
+    },
+    {
+      "settings": {
+        "batchSize": 500,
+        "timeout": 300
+      },
+      "notifications": {
+        "enableEmail": true,
+        "recipients": ["admin@example.com"]
+      }
+    },
+    {
+      "name": "更新后的配置名称",
+      "description": "更新配置描述",
+      "severity": "WARNING"
+    }
+  ]
+}

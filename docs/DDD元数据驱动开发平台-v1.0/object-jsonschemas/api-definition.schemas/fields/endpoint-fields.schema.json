@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/api-definition/fields/endpoint-fields.schema.json",
+  "title": "API端点字段",
+  "description": "API端点相关的原子字段定义 - 支持RESTful和GraphQL模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "pattern": "^(\\/|\\/([\\/\\w\\-_~!$&'()*+,;=:@]|%[0-9a-fA-F]{2})+(\\/)?)?$",
+      "maxLength": 500,
+      "description": "API路径，支持参数占位符"
+    },
+    "method": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
+      "description": "HTTP方法"
+    },
+    "operationId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+      "minLength": 3,
+      "maxLength": 100,
+      "description": "操作唯一标识符"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 100,
+      "description": "端点简要描述"
+    },
+    "deprecated": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否已废弃"
+    },
+    "security": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "patternProperties": {
+          "^[a-zA-Z][a-zA-Z0-9_]*$": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "安全要求配置"
+    },
+    "externalDocs": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": ["url"],
+      "description": "外部文档链接"
+    }
+  },
+  "additionalProperties": false
+}

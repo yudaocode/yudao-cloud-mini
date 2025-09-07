@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/schemas/operations/bulk/business-term-bulk.schema.json",
+  "title": "业务术语批量操作",
+  "description": "业务术语批量操作Schema定义",
+  "type": "object",
+  "properties": {
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["CREATE", "UPDATE", "DELETE"]
+          },
+          "data": {
+            "oneOf": [
+              {"$ref": "../../full/business-term.schema.json"},
+              {"$ref": "../patch/business-term-patch.schema.json"}
+            ]
+          },
+          "termId": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$"
+          }
+        },
+        "required": ["type"],
+        "allOf": [
+          {
+            "if": {
+              "properties": {"type": {"const": "CREATE"}}
+            },
+            "then": {
+              "required": ["data"],
+              "properties": {
+                "data": {"$ref": "../../full/business-term.schema.json"}
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {"type": {"const": "UPDATE"}}
+            },
+            "then": {
+              "required": ["data"],
+              "properties": {
+                "data": {"$ref": "../patch/business-term-patch.schema.json"}
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {"type": {"const": "DELETE"}}
+            },
+            "then": {
+              "required": ["termId"]
+            }
+          }
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["operations"],
+  "additionalProperties": false
+}

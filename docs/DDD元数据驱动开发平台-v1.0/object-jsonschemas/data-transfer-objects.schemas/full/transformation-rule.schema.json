@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/transformation-rule.schema.json",
+  "title": "转换规则",
+  "description": "转换规则定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^tr_[a-zA-Z0-9_]+$",
+      "description": "转换规则唯一标识符"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/transformationRuleType"
+    },
+    "expression": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/expression"
+    },
+    "parameters": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/parameters"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id", "name", "description", "type", "expression"],
+  "additionalProperties": false
+}

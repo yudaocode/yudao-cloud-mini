@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/project-metadata.schemas/fields/domain-fields.schema.json",
+  "title": "领域字段定义",
+  "description": "领域相关的可复用字段定义",
+  "$defs": {
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain_[a-zA-Z0-9_]+$",
+      "description": "领域唯一标识符，格式：domain_xxx"
+    },
+    "domainName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "领域名称"
+    },
+    "domainType": {
+      "type": "string",
+      "enum": ["CORE", "SUPPORTING", "GENERIC"],
+      "description": "领域类型: CORE(核心域), SUPPORTING(支撑域), GENERIC(通用域)"
+    },
+    "domainComplexity": {
+      "type": "string",
+      "enum": ["SIMPLE", "MEDIUM", "COMPLEX", "VERY_COMPLEX"],
+      "description": "领域复杂度评估"
+    },
+    "domainPriority": {
+      "type": "string",
+      "enum": ["HIGH", "MEDIUM", "LOW"],
+      "description": "领域优先级"
+    },
+    "domainStatus": {
+      "type": "string",
+      "enum": ["PLANNED", "IN_PROGRESS", "COMPLETED", "ON_HOLD", "CANCELLED"],
+      "description": "领域当前状态"
+    },
+    "businessCapability": {
+      "type": "object",
+      "properties": {
+        "capabilityId": {
+          "type": "string",
+          "pattern": "^capability_[a-zA-Z0-9_]+$",
+          "description": "业务能力ID"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "业务能力名称"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "业务能力描述"
+        },
+        "level": {
+          "type": "string",
+          "enum": ["L1", "L2", "L3", "L4"],
+          "description": "能力层级: L1(最高层), L2, L3, L4(最低层)"
+        },
+        "maturity": {
+          "type": "string",
+          "enum": ["INITIAL", "REPEATABLE", "DEFINED", "MANAGED", "OPTIMIZING"],
+          "description": "能力成熟度"
+        }
+      },
+      "required": ["capabilityId", "name", "level"],
+      "additionalProperties": false
+    },
+    "stakeholder": {
+      "type": "object",
+      "properties": {
+        "stakeholderId": {
+          "type": "string",
+          "pattern": "^stakeholder_[a-zA-Z0-9_]+$",
+          "description": "利益相关者ID"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "利益相关者姓名"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["DOMAIN_EXPERT", "PRODUCT_OWNER", "BUSINESS_ANALYST", "ARCHITECT", "DEVELOPER", "TESTER", "USER", "SPONSOR"],
+          "description": "角色类型"
+        },
+        "influence": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"],
+          "description": "影响力级别"
+        },
+        "interest": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"],
+          "description": "关注度级别"
+        },
+        "contact": {
+          "type": "string",
+          "description": "联系方式"
+        }
+      },
+      "required": ["stakeholderId", "name", "role"],
+      "additionalProperties": false
+    },
+    "businessRule": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "pattern": "^rule_[a-zA-Z0-9_]+$",
+          "description": "业务规则ID"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "业务规则名称"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "业务规则详细描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["BUSINESS_RULE", "VALIDATION_RULE", "CALCULATION_RULE", "CONSTRAINT", "INVARIANT"],
+          "description": "规则类型"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+          "description": "规则优先级"
+        },
+        "source": {
+          "type": "string",
+          "description": "规则来源(如：法规、业务专家、用户需求等)"
+        },
+        "condition": {
+          "type": "string",
+          "description": "规则触发条件"
+        },
+        "action": {
+          "type": "string",
+          "description": "规则执行动作"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "规则示例"
+        }
+      },
+      "required": ["ruleId", "name", "type"],
+      "additionalProperties": false
+    },
+    "domainMetrics": {
+      "type": "object",
+      "properties": {
+        "boundedContextCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "限界上下文数量"
+        },
+        "aggregateCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "聚合根数量"
+        },
+        "entityCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "实体数量"
+        },
+        "valueObjectCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "值对象数量"
+        },
+        "domainServiceCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "领域服务数量"
+        },
+        "domainEventCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "领域事件数量"
+        },
+        "repositoryCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "仓储数量"
+        },
+        "factoryCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "工厂数量"
+        }
+      },
+      "description": "领域统计指标"
+    }
+  }
+}

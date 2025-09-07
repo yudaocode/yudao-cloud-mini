@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/fields/common-fields.schema.json",
+  "title": "屏幕定义通用字段",
+  "description": "所有屏幕定义模式共享的通用字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "description": "唯一标识符"
+    },
+    "name": {
+      "type": "string",
+      "description": "名称",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "description": "显示标题"
+    },
+    "description": {
+      "type": "string",
+      "description": "详细描述"
+    },
+    "version": {
+      "type": "string",
+      "description": "版本号"
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "是否激活"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain_[a-zA-Z0-9_]+$",
+      "description": "所属领域ID"
+    },
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "所属限界上下文ID"
+    },
+    "dtoId": {
+      "type": "string",
+      "pattern": "^dto_[a-zA-Z0-9_]+$",
+      "description": "关联的DTO ID"
+    },
+    "endpointId": {
+      "type": "string",
+      "description": "关联的端点ID"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "排序顺序"
+    },
+    "visible": {
+      "type": "boolean",
+      "description": "是否可见"
+    },
+    "disabled": {
+      "type": "boolean",
+      "description": "是否禁用"
+    }
+  }
+}

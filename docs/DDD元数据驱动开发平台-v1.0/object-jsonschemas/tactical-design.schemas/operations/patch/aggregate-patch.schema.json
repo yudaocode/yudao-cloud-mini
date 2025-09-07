@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/tactical-design.schemas/operations/patch/aggregate-patch.schema.json",
+  "title": "聚合部分更新Schema",
+  "description": "聚合PATCH操作的Schema定义",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "聚合名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "聚合描述"
+    },
+    "consistencyBoundary": {
+      "$ref": "../../fields/aggregate-fields.schema.json#/$defs/consistencyBoundary"
+    },
+    "businessRules": {
+      "$ref": "../../fields/aggregate-fields.schema.json#/$defs/businessRules"
+    },
+    "invariants": {
+      "$ref": "../../fields/aggregate-fields.schema.json#/$defs/invariants"
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1
+}

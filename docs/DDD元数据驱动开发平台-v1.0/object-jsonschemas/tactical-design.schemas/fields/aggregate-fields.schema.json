@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/tactical-design.schemas/fields/aggregate-fields.schema.json",
+  "title": "聚合字段定义",
+  "description": "聚合相关字段定义",
+  "$defs": {
+    "aggregateId": {
+      "type": "string",
+      "pattern": "^agg_[a-zA-Z0-9_]+$",
+      "description": "聚合ID"
+    },
+    "aggregateRoot": {
+      "type": "string",
+      "pattern": "^entity_[a-zA-Z0-9_]+$",
+      "description": "聚合根实体ID"
+    },
+    "consistencyBoundary": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "一致性边界描述"
+    },
+    "businessRules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      },
+      "description": "业务规则列表"
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      },
+      "description": "不变式列表"
+    }
+  }
+}

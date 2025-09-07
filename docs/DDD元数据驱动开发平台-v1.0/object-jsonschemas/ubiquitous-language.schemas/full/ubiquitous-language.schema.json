@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/schemas/full/ubiquitous-language.schema.json",
+  "title": "统一语言聚合根",
+  "description": "领域统一语言聚合根定义 - 重构版 v2.0",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "模式版本",
+      "const": "2.0.0"
+    },
+    "domainId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/domainId"
+    },
+    "businessTerms": {
+      "type": "array",
+      "items": {
+        "$ref": "business-term.schema.json"
+      },
+      "minItems": 1,
+      "description": "业务术语列表"
+    },
+    "businessAttributes": {
+      "type": "array",
+      "items": {
+        "$ref": "business-attribute.schema.json"
+      },
+      "description": "业务属性列表"
+    },
+    "businessRules": {
+      "type": "array",
+      "items": {
+        "$ref": "business-rule.schema.json"
+      },
+      "description": "业务规则列表"
+    },
+    "termRelationships": {
+      "type": "array",
+      "items": {
+        "$ref": "term-relationship.schema.json"
+      },
+      "description": "术语关系列表"
+    },
+    "usageStatus": {
+      "$ref": "usage-status.schema.json"
+    },
+    "createdAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/timestamp"
+    },
+    "updatedAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/timestamp"
+    }
+  },
+  "required": ["version", "businessTerms"],
+  "additionalProperties": false
+}

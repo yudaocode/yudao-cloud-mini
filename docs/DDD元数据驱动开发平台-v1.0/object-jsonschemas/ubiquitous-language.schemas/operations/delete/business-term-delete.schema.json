@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/ubiquitous-language/operations/delete/business-term-delete.schema.json",
+  "title": "业务术语删除操作",
+  "description": "删除业务术语的操作模式 - 支持软删除和依赖检查",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "description": "要删除的业务术语ID"
+          },
+          "term": {
+            "type": "string",
+            "description": "术语名称（可选，用于双重确认）"
+          }
+        },
+        "required": ["id"]
+      },
+      "minItems": 1,
+      "description": "删除目标列表"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "softDelete": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否软删除（标记为已删除而非物理删除）"
+        },
+        "checkReferences": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否检查引用关系"
+        },
+        "notifyStakeholders": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否通知相关干系人"
+        },
+        "archiveHistory": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否归档历史记录"
+        }
+      },
+      "description": "删除选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "deletedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "删除者"
+        },
+        "deleteReason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "删除原因"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3650,
+          "default": 90,
+          "description": "软删除保留天数"
+        },
+        "replacementTerm": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "替代术语（如果有）"
+        }
+      },
+      "description": "删除元数据"
+    }
+  },
+  "required": ["targets"],
+  "additionalProperties": false
+}

@@ -1,0 +1,624 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects.schema.json",
+  "title": "数据传输对象定义",
+  "description": "统一的数据传输对象定义 - 重构版 v2.0",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "模式版本",
+      "const": "2.0.0"
+    },
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "所属限界上下文ID"
+    },
+    "dataTransferObjects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dataTransferObject"
+      },
+      "description": "数据传输对象列表"
+    },
+    "dtoMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dtoMapping"
+      },
+      "description": "DTO映射列表"
+    },
+    "usageStatus": {
+      "$ref": "#/$defs/usageStatus"
+    }
+  },
+  "required": ["version", "dataTransferObjects"],
+  "additionalProperties": false,
+  "$defs": {
+    "dataTransferObject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^dto_[a-zA-Z0-9_]+$",
+          "description": "DTO唯一标识符"
+        },
+        "name": {
+          "type": "string",
+          "description": "DTO名称",
+          "minLength": 1
+        },
+        "programmingName": {
+          "type": "string",
+          "description": "编程名称",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
+        "description": {
+          "type": "string",
+          "description": "DTO详细描述"
+        },
+        "englishName": {
+          "type": "string",
+          "description": "英文名称"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["COMMAND", "QUERY", "REQUEST", "RESPONSE", "EVENT", "VIEW", "PROJECTION", "VALUE_OBJECT"],
+          "description": "DTO类型"
+        },
+        "layer": {
+          "type": "string",
+          "enum": ["CLIENT", "APPLICATION", "DOMAIN", "INFRASTRUCTURE"],
+          "description": "所在架构层"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "DTO用途描述"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dtoAttribute"
+          },
+          "description": "DTO属性列表"
+        },
+        "termReferences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$"
+          },
+          "description": "引用的术语ID列表"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationRule"
+          },
+          "description": "验证规则列表"
+        },
+        "serialization": {
+          "$ref": "#/$defs/serialization"
+        },
+        "example": {
+          "type": "object",
+          "description": "DTO示例"
+        },
+        "isImmutable": {
+          "type": "boolean",
+          "description": "是否不可变"
+        },
+        "generateBuilder": {
+          "type": "boolean",
+          "description": "是否生成构建器"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        },
+        "version": {
+          "type": "string",
+          "description": "版本号"
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "是否已废弃"
+        },
+        "replacementDtoId": {
+          "type": "string",
+          "pattern": "^dto_[a-zA-Z0-9_]+$",
+          "description": "替代DTO ID"
+        },
+        "usageStatus": {
+          "$ref": "#/$defs/usageStatus"
+        }
+      },
+      "required": ["id", "name", "programmingName", "description", "type", "layer", "attributes"],
+      "additionalProperties": false
+    },
+    "dtoAttribute": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^attr_[a-zA-Z0-9_]+$",
+          "description": "属性唯一标识符"
+        },
+        "name": {
+          "type": "string",
+          "description": "属性名称",
+          "minLength": 1
+        },
+        "programmingName": {
+          "type": "string",
+          "description": "编程名称",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
+        "description": {
+          "type": "string",
+          "description": "属性详细描述"
+        },
+        "businessAttributeId": {
+          "type": "string",
+          "pattern": "^attr_[a-zA-Z0-9_]+$",
+          "description": "引用的业务属性ID（最高优先级）"
+        },
+        "dtoAttributeId": {
+          "type": "string",
+          "pattern": "^attr_[a-zA-Z0-9_]+$",
+          "description": "引用的其他DTO属性ID（次优先级）"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "直接数据类型定义（最低优先级）"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "description": "是否必填"
+        },
+        "defaultValue": {
+          "description": "默认值"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "验证规则列表"
+        },
+        "unit": {
+          "type": "string",
+          "description": "单位"
+        },
+        "format": {
+          "type": "string",
+          "description": "格式"
+        },
+        "constraints": {
+          "$ref": "#/$defs/constraints"
+        },
+        "isUnique": {
+          "type": "boolean",
+          "description": "是否唯一"
+        },
+        "isReadOnly": {
+          "type": "boolean",
+          "description": "是否只读"
+        },
+        "businessLogic": {
+          "type": "string",
+          "description": "业务逻辑描述"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "示例值列表"
+        },
+        "isCollection": {
+          "type": "boolean",
+          "description": "是否是集合类型"
+        },
+        "collectionType": {
+          "type": "string",
+          "enum": ["LIST", "SET", "MAP", "ARRAY"],
+          "description": "集合类型"
+        },
+        "mapKeyType": {
+          "type": "string",
+          "description": "Map键类型"
+        },
+        "mapValueType": {
+          "type": "string",
+          "description": "Map值类型"
+        },
+        "nestedType": {
+          "type": "string",
+          "description": "嵌套类型名称"
+        },
+        "nestedDtoId": {
+          "type": "string",
+          "pattern": "^dto_[a-zA-Z0-9_]+$",
+          "description": "嵌套DTO ID"
+        },
+        "nestedEntityId": {
+          "type": "string",
+          "pattern": "^entity_[a-zA-Z0-9_]+$",
+          "description": "嵌套实体ID"
+        },
+        "nestedValueObjectId": {
+          "type": "string",
+          "pattern": "^vo_[a-zA-Z0-9_]+$",
+          "description": "嵌套值对象ID"
+        },
+        "nestedAggregateId": {
+          "type": "string",
+          "pattern": "^agg_[a-zA-Z0-9_]+$",
+          "description": "嵌套聚合ID"
+        },
+        "genericTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "泛型类型参数列表"
+        },
+        "serialization": {
+          "$ref": "#/$defs/attributeSerialization"
+        },
+        "isDeprecated": {
+          "type": "boolean",
+          "description": "是否已废弃"
+        },
+        "replacementAttributeId": {
+          "type": "string",
+          "pattern": "^attr_[a-zA-Z0-9_]+$",
+          "description": "替代属性ID"
+        }
+      },
+      "required": ["id", "name", "programmingName", "description"],
+      "additionalProperties": false
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "最小长度"
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "最大长度"
+        },
+        "minValue": {
+          "description": "最小值"
+        },
+        "maxValue": {
+          "description": "最大值"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "正则表达式模式"
+        },
+        "enum": {
+          "type": "array",
+          "description": "枚举值列表"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "精度（小数位数）"
+        },
+        "scale": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "刻度"
+        }
+      },
+      "additionalProperties": false
+    },
+    "validationRule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^rule_[a-zA-Z0-9_]+$",
+          "description": "验证规则唯一标识符"
+        },
+        "name": {
+          "type": "string",
+          "description": "规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "规则描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["REQUIRED", "LENGTH", "PATTERN", "RANGE", "CUSTOM", "CROSS_FIELD", "BUSINESS_RULE"],
+          "description": "规则类型"
+        },
+        "expression": {
+          "type": "string",
+          "description": "验证表达式"
+        },
+        "message": {
+          "type": "string",
+          "description": "验证失败消息"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["ERROR", "WARNING", "INFO"],
+          "description": "严重程度"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "description", "type", "expression", "message"],
+      "additionalProperties": false
+    },
+    "serialization": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": ["JSON", "XML", "PROTOBUF", "AVRO", "NONE"],
+          "description": "序列化格式"
+        },
+        "version": {
+          "type": "string",
+          "description": "序列化版本"
+        },
+        "compatibility": {
+          "type": "string",
+          "enum": ["BACKWARD", "FORWARD", "FULL", "NONE"],
+          "description": "兼容性策略"
+        },
+        "includeNulls": {
+          "type": "boolean",
+          "description": "是否包含null值"
+        },
+        "dateFormat": {
+          "type": "string",
+          "description": "日期格式"
+        },
+        "numberFormat": {
+          "type": "string",
+          "description": "数字格式"
+        },
+        "namingStrategy": {
+          "type": "string",
+          "enum": ["CAMEL_CASE", "SNAKE_CASE", "PASCAL_CASE", "KEBAB_CASE"],
+          "description": "命名策略"
+        }
+      },
+      "required": ["format"],
+      "additionalProperties": false
+    },
+    "attributeSerialization": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "序列化名称"
+        },
+        "format": {
+          "type": "string",
+          "description": "特殊格式"
+        },
+        "ignore": {
+          "type": "boolean",
+          "description": "是否忽略序列化"
+        },
+        "includeNulls": {
+          "type": "boolean",
+          "description": "是否包含null值"
+        },
+        "customConverter": {
+          "type": "string",
+          "description": "自定义转换器类名"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dtoMapping": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^mapping_[a-zA-Z0-9_]+$",
+          "description": "映射唯一标识符"
+        },
+        "name": {
+          "type": "string",
+          "description": "映射名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "映射描述"
+        },
+        "sourceType": {
+          "type": "string",
+          "enum": ["ENTITY", "DTO", "VALUE_OBJECT"],
+          "description": "源类型"
+        },
+        "sourceId": {
+          "type": "string",
+          "description": "源ID"
+        },
+        "targetType": {
+          "type": "string",
+          "enum": ["DTO", "ENTITY", "VALUE_OBJECT"],
+          "description": "目标类型"
+        },
+        "targetId": {
+          "type": "string",
+          "description": "目标ID"
+        },
+        "mappingType": {
+          "type": "string",
+          "enum": ["ENTITY_TO_DTO", "DTO_TO_ENTITY", "DTO_TO_DTO", "VALUE_OBJECT_TO_DTO"],
+          "description": "映射类型"
+        },
+        "fieldMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fieldMapping"
+          },
+          "description": "字段映射列表"
+        },
+        "transformationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/transformationRule"
+          },
+          "description": "转换规则列表"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationRule"
+          },
+          "description": "验证规则列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "description", "sourceType", "sourceId", "targetType", "targetId", "mappingType"],
+      "additionalProperties": false
+    },
+    "fieldMapping": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^fm_[a-zA-Z0-9_]+$",
+          "description": "字段映射唯一标识符"
+        },
+        "sourceField": {
+          "type": "string",
+          "description": "源字段名"
+        },
+        "targetField": {
+          "type": "string",
+          "description": "目标字段名"
+        },
+        "mappingType": {
+          "type": "string",
+          "enum": ["DIRECT", "TRANSFORM", "CONSTANT", "EXPRESSION", "AGGREGATE", "SPLIT"],
+          "description": "映射类型"
+        },
+        "transformation": {
+          "type": "string",
+          "description": "转换逻辑"
+        },
+        "constantValue": {
+          "description": "常量值"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "description": "是否必需"
+        },
+        "defaultValue": {
+          "description": "默认值"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "字段级验证规则"
+        }
+      },
+      "required": ["id", "sourceField", "targetField", "mappingType"],
+      "additionalProperties": false
+    },
+    "transformationRule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^tr_[a-zA-Z0-9_]+$",
+          "description": "转换规则唯一标识符"
+        },
+        "name": {
+          "type": "string",
+          "description": "规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "规则描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["FORMAT", "CALCULATE", "VALIDATE", "CUSTOM", "TYPE_CONVERSION"],
+          "description": "规则类型"
+        },
+        "expression": {
+          "type": "string",
+          "description": "转换表达式"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "参数"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "description", "type", "expression"],
+      "additionalProperties": false
+    },
+    "usageStatus": {
+      "type": "object",
+      "properties": {
+        "isReferencedByStrategic": {
+          "type": "boolean",
+          "description": "是否被战略设计引用"
+        },
+        "isReferencedByTactical": {
+          "type": "boolean",
+          "description": "是否被战术设计引用"
+        },
+        "isReferencedByImplementation": {
+          "type": "boolean",
+          "description": "是否被实现映射引用"
+        },
+        "isReferencedByScreen": {
+          "type": "boolean",
+          "description": "是否被屏幕定义引用"
+        },
+        "referencedBy": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "schemaType": {
+                "type": "string",
+                "enum": ["STRATEGIC", "TACTICAL", "IMPLEMENTATION", "SCREEN"]
+              },
+              "elementId": {
+                "type": "string"
+              },
+              "elementName": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "引用详情列表"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

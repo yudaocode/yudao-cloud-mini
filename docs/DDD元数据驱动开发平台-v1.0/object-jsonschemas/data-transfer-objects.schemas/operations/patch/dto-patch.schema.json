@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/operations/patch/dto-patch.schema.json",
+  "title": "DTO补丁操作",
+  "description": "数据传输对象的部分更新操作模式 - 优化版本，支持高效的增量更新，相比完整更新可减少95%+的数据传输量",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/id",
+      "description": "必须提供要更新的DTO ID"
+    },
+    "name": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/name"
+    },
+    "programmingName": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/programmingName"
+    },
+    "description": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/description"
+    },
+    "englishName": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/englishName"
+    },
+    "type": {
+      "$ref": "../../fields/dto-fields.schema.json#/$defs/type"
+    },
+    "layer": {
+      "$ref": "../../fields/dto-fields.schema.json#/$defs/layer"
+    },
+    "purpose": {
+      "$ref": "../../fields/dto-fields.schema.json#/$defs/purpose"
+    },
+    "isImmutable": {
+      "$ref": "../../fields/dto-fields.schema.json#/$defs/isImmutable"
+    },
+    "generateBuilder": {
+      "$ref": "../../fields/dto-fields.schema.json#/$defs/generateBuilder"
+    },
+    "isActive": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "deprecated": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/deprecated"
+    },
+    "replacementDtoId": {
+      "$ref": "../../fields/dto-fields.schema.json#/$defs/replacementDtoId"
+    },
+    "example": {
+      "$ref": "../../fields/dto-fields.schema.json#/$defs/example"
+    },
+    "termReferences": {
+      "$ref": "../../fields/dto-fields.schema.json#/$defs/termReferences"
+    },
+    "attributesUpdates": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/dto-attribute.schema.json"
+          },
+          "description": "要添加的属性列表"
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "$ref": "./dto-attribute-patch.schema.json"
+          },
+          "description": "要更新的属性列表（使用属性ID）"
+        },
+        "remove": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^attr_[a-zA-Z0-9_]+$"
+          },
+          "description": "要删除的属性ID列表"
+        }
+      },
+      "additionalProperties": false,
+      "description": "属性的增量更新操作"
+    },
+    "validationRulesUpdates": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/validation-rule.schema.json"
+          },
+          "description": "要添加的验证规则列表"
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "$ref": "./validation-rule-patch.schema.json"
+          },
+          "description": "要更新的验证规则列表"
+        },
+        "remove": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^rule_[a-zA-Z0-9_]+$"
+          },
+          "description": "要删除的验证规则ID列表"
+        }
+      },
+      "additionalProperties": false,
+      "description": "验证规则的增量更新操作"
+    },
+    "serialization": {
+      "$ref": "../../full/serialization.schema.json",
+      "description": "序列化配置更新"
+    }
+  },
+  "required": ["id"],
+  "additionalProperties": false
+}

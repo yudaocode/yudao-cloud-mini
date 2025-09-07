@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/schemas/full/constraints.schema.json",
+  "title": "约束条件定义",
+  "description": "业务属性约束条件Schema定义",
+  "type": "object",
+  "properties": {
+    "minLength": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "最小长度"
+    },
+    "maxLength": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "最大长度"
+    },
+    "pattern": {
+      "type": "string",
+      "description": "正则表达式模式"
+    },
+    "minimum": {
+      "type": "number",
+      "description": "最小值"
+    },
+    "maximum": {
+      "type": "number",
+      "description": "最大值"
+    },
+    "exclusiveMinimum": {
+      "type": "boolean",
+      "description": "是否排除最小值"
+    },
+    "exclusiveMaximum": {
+      "type": "boolean",
+      "description": "是否排除最大值"
+    },
+    "enumValues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "枚举值列表"
+    },
+    "precision": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "数值精度"
+    },
+    "scale": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "数值小数位数"
+    },
+    "customValidation": {
+      "type": "string",
+      "description": "自定义验证逻辑"
+    }
+  },
+  "additionalProperties": false
+}

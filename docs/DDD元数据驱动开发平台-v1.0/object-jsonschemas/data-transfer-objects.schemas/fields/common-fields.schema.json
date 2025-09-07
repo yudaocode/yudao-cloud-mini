@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/fields/common-fields.schema.json",
+  "title": "数据传输对象通用字段",
+  "description": "所有数据传输对象模式共享的通用字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^dto_[a-zA-Z0-9_]+$",
+      "description": "DTO唯一标识符"
+    },
+    "name": {
+      "type": "string",
+      "description": "DTO名称",
+      "minLength": 1
+    },
+    "programmingName": {
+      "type": "string",
+      "description": "编程名称",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+    },
+    "description": {
+      "type": "string",
+      "description": "DTO详细描述"
+    },
+    "englishName": {
+      "type": "string",
+      "description": "英文名称"
+    },
+    "version": {
+      "type": "string",
+      "description": "版本号"
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "是否激活"
+    },
+    "deprecated": {
+      "type": "boolean",
+      "description": "是否已废弃"
+    },
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "所属限界上下文ID"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/fields/architecture-fields.schema.json",
+  "title": "架构相关字段",
+  "description": "架构映射相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "architectureMappingId": {
+      "type": "string",
+      "pattern": "^arch_mapping_[a-zA-Z0-9_]+$",
+      "description": "架构映射ID"
+    },
+    "layerId": {
+      "type": "string",
+      "pattern": "^layer_[a-zA-Z0-9_]+$",
+      "description": "架构层ID"
+    },
+    "componentId": {
+      "type": "string",
+      "pattern": "^comp_[a-zA-Z0-9_]+$",
+      "description": "组件ID"
+    },
+    "interfaceId": {
+      "type": "string",
+      "pattern": "^interface_[a-zA-Z0-9_]+$",
+      "description": "接口ID"
+    },
+    "architecturePattern": {
+      "type": "string",
+      "enum": ["COLA", "HEXAGONAL", "CLEAN", "LAYERED", "MICROSERVICE", "EVENT_DRIVEN"],
+      "description": "架构模式"
+    },
+    "componentType": {
+      "type": "string",
+      "enum": ["INTERFACE", "CLASS", "DTO", "ENUM", "ANNOTATION", "SERVICE", "REPOSITORY", "CONTROLLER", "FACADE"],
+      "description": "组件类型"
+    },
+    "packageName": {
+      "type": "string",
+      "description": "包名"
+    },
+    "className": {
+      "type": "string",
+      "description": "类名"
+    },
+    "implements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "实现的接口"
+    },
+    "extends": {
+      "type": "string",
+      "description": "继承的类"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "依赖的组件ID列表"
+    },
+    "responsibilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "职责列表"
+    }
+  }
+}

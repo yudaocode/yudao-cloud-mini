@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/api-definition/operations/create/api-specification-create.schema.json",
+  "title": "API规范创建操作",
+  "description": "创建新API规范的操作模式 - 支持完整规范定义和验证",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "specification": {
+      "$ref": "../../full/api-specification.schema.json",
+      "description": "要创建的API规范完整定义"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "validateOpenAPI": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证OpenAPI规范格式"
+        },
+        "autoGenerateExamples": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否自动生成示例"
+        },
+        "validateRefs": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证引用完整性"
+        },
+        "generateDocs": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否生成API文档"
+        }
+      },
+      "description": "创建选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "创建者"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["manual", "import", "generator", "migration"],
+          "description": "来源类型"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "创建原因"
+        },
+        "project": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "所属项目"
+        }
+      },
+      "description": "创建元数据"
+    }
+  },
+  "required": ["specification"],
+  "additionalProperties": false
+}

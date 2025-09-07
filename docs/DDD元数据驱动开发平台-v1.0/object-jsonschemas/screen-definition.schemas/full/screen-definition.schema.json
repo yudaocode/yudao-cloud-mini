@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/full/screen-definition.schema.json",
+  "title": "屏幕定义Schema",
+  "description": "完整的前端屏幕、页面、组件的定义Schema - v2.0",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema版本",
+      "const": "2.0.0"
+    },
+    "domainId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/domainId"
+    },
+    "boundedContextId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/boundedContextId"
+    },
+    "screens": {
+      "type": "array",
+      "items": {
+        "$ref": "./screen.schema.json"
+      },
+      "description": "屏幕列表"
+    },
+    "endpointMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./endpoint-mapping.schema.json"
+      },
+      "description": "端点映射列表，关联屏幕与后端端点"
+    },
+    "dtoMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./screen-dto-mapping.schema.json"
+      },
+      "description": "屏幕DTO映射列表"
+    },
+    "layouts": {
+      "type": "array",
+      "items": {
+        "$ref": "./layout.schema.json"
+      },
+      "description": "布局定义列表"
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "$ref": "./theme.schema.json"
+      },
+      "description": "主题定义列表"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "$ref": "./permission.schema.json"
+      },
+      "description": "权限定义列表"
+    },
+    "validationStage": {
+      "type": "string",
+      "enum": ["DRAFT", "STRATEGIC_COMPLETE", "IMPLEMENTATION_COMPLETE", "COMPLETE"],
+      "description": "验证阶段"
+    },
+    "validationRules": {
+      "$ref": "./validation-rules.schema.json"
+    }
+  },
+  "required": ["version"],
+  "additionalProperties": false
+}

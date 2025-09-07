@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/full/architecture-mapping.schema.json",
+  "title": "架构映射",
+  "description": "完整的架构映射定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/architecture-fields.schema.json#/$defs/architectureMappingId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "architecturePattern": {
+      "$ref": "../fields/architecture-fields.schema.json#/$defs/architecturePattern"
+    },
+    "layers": {
+      "type": "object",
+      "properties": {
+        "presentationLayer": {
+          "$ref": "./architecture-layer.schema.json"
+        },
+        "applicationLayer": {
+          "$ref": "./architecture-layer.schema.json"
+        },
+        "domainLayer": {
+          "$ref": "./architecture-layer.schema.json"
+        },
+        "infrastructureLayer": {
+          "$ref": "./architecture-layer.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "./architecture-dependency.schema.json"
+      },
+      "description": "层间依赖关系"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id", "name", "architecturePattern"],
+  "additionalProperties": false
+}

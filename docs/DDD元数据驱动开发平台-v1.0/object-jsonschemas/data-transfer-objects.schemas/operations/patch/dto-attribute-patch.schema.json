@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/operations/patch/dto-attribute-patch.schema.json",
+  "title": "DTO属性补丁操作",
+  "description": "DTO属性的部分更新操作模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/id",
+      "description": "必须提供要更新的属性ID"
+    },
+    "name": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/name"
+    },
+    "programmingName": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/programmingName"
+    },
+    "description": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/description"
+    },
+    "businessAttributeId": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/businessAttributeId"
+    },
+    "dtoAttributeId": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/dtoAttributeId"
+    },
+    "dataType": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/dataType"
+    },
+    "isRequired": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/isRequired"
+    },
+    "defaultValue": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/defaultValue"
+    },
+    "unit": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/unit"
+    },
+    "format": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/format"
+    },
+    "isUnique": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/isUnique"
+    },
+    "isReadOnly": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/isReadOnly"
+    },
+    "businessLogic": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/businessLogic"
+    },
+    "examples": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/examples"
+    },
+    "isDeprecated": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/isDeprecated"
+    },
+    "replacementAttributeId": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/replacementAttributeId"
+    },
+    "isCollection": {
+      "$ref": "../../fields/collection-fields.schema.json#/$defs/isCollection"
+    },
+    "collectionType": {
+      "$ref": "../../fields/collection-fields.schema.json#/$defs/collectionType"
+    },
+    "nestedDtoId": {
+      "$ref": "../../fields/collection-fields.schema.json#/$defs/nestedDtoId"
+    },
+    "nestedEntityId": {
+      "$ref": "../../fields/collection-fields.schema.json#/$defs/nestedEntityId"
+    },
+    "constraints": {
+      "$ref": "../../full/constraints.schema.json"
+    },
+    "serialization": {
+      "$ref": "../../full/attribute-serialization.schema.json"
+    },
+    "validationRules": {
+      "$ref": "../../fields/attribute-fields.schema.json#/$defs/validationRules"
+    }
+  },
+  "required": ["id"],
+  "additionalProperties": false
+}

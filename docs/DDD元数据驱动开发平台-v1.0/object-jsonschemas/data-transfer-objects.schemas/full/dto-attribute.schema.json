@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/dto-attribute.schema.json",
+  "title": "DTO属性",
+  "description": "DTO属性定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/id"
+    },
+    "name": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/name"
+    },
+    "programmingName": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/programmingName"
+    },
+    "description": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/description"
+    },
+    "businessAttributeId": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/businessAttributeId"
+    },
+    "dtoAttributeId": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/dtoAttributeId"
+    },
+    "dataType": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/dataType"
+    },
+    "isRequired": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/isRequired"
+    },
+    "defaultValue": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/defaultValue"
+    },
+    "validationRules": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/validationRules"
+    },
+    "unit": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/unit"
+    },
+    "format": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/format"
+    },
+    "constraints": {
+      "$ref": "./constraints.schema.json"
+    },
+    "isUnique": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/isUnique"
+    },
+    "isReadOnly": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/isReadOnly"
+    },
+    "businessLogic": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/businessLogic"
+    },
+    "examples": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/examples"
+    },
+    "isCollection": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/isCollection"
+    },
+    "collectionType": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/collectionType"
+    },
+    "mapKeyType": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/mapKeyType"
+    },
+    "mapValueType": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/mapValueType"
+    },
+    "nestedType": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/nestedType"
+    },
+    "nestedDtoId": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/nestedDtoId"
+    },
+    "nestedEntityId": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/nestedEntityId"
+    },
+    "nestedValueObjectId": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/nestedValueObjectId"
+    },
+    "nestedAggregateId": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/nestedAggregateId"
+    },
+    "genericTypes": {
+      "$ref": "../fields/collection-fields.schema.json#/$defs/genericTypes"
+    },
+    "serialization": {
+      "$ref": "./attribute-serialization.schema.json"
+    },
+    "isDeprecated": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/isDeprecated"
+    },
+    "replacementAttributeId": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/replacementAttributeId"
+    }
+  },
+  "required": ["id", "name", "programmingName", "description"],
+  "additionalProperties": false
+}

@@ -1,0 +1,245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/full/action.schema.json",
+  "title": "屏幕操作完整定义",
+  "description": "屏幕操作的完整定义模式 - 描述用户可以执行的交互操作",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^action_[a-zA-Z0-9_]+$",
+      "description": "操作唯一标识符"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "title": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/title"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["button", "link", "menu", "toolbar", "context", "hotkey", "auto"],
+      "description": "操作UI类型"
+    },
+    "actionType": {
+      "type": "string",
+      "enum": ["navigate", "submit", "reset", "delete", "export", "import", "print", "custom", "dialog", "notification"],
+      "description": "操作功能类型"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["primary", "secondary", "danger", "warning", "info", "success"],
+      "default": "secondary",
+      "description": "操作类别"
+    },
+    "trigger": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": ["click", "dblclick", "hover", "focus", "blur", "change", "submit", "keypress"],
+          "default": "click",
+          "description": "触发事件"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string" },
+              "operator": { 
+                "type": "string",
+                "enum": ["eq", "ne", "gt", "lt", "gte", "lte", "in", "nin", "contains", "exists"]
+              },
+              "value": { "description": "比较值" }
+            },
+            "required": ["field", "operator"]
+          },
+          "description": "触发条件"
+        },
+        "hotkey": {
+          "type": "string",
+          "pattern": "^(Ctrl|Alt|Shift|Meta)?\\+?[a-zA-Z0-9]$",
+          "description": "快捷键"
+        }
+      },
+      "required": ["event"],
+      "description": "触发配置"
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "icon": { "$ref": "../fields/screen-fields.schema.json#/$defs/icon" },
+        "visible": { "$ref": "../fields/common-fields.schema.json#/$defs/visible" },
+        "disabled": { "$ref": "../fields/common-fields.schema.json#/$defs/disabled" },
+        "loading": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否显示加载状态"
+        },
+        "size": {
+          "type": "string",
+          "enum": ["small", "medium", "large"],
+          "default": "medium",
+          "description": "按钮大小"
+        },
+        "shape": {
+          "type": "string",
+          "enum": ["default", "circle", "round"],
+          "default": "default",
+          "description": "按钮形状"
+        }
+      },
+      "description": "外观配置"
+    },
+    "behavior": {
+      "type": "object",
+      "properties": {
+        "targetUrl": {
+          "type": "string",
+          "format": "uri-reference",
+          "description": "目标URL（导航操作）"
+        },
+        "openType": {
+          "type": "string",
+          "enum": ["current", "new_window", "new_tab", "modal", "drawer"],
+          "default": "current",
+          "description": "打开方式"
+        },
+        "confirmMessage": {
+          "type": "string",
+          "description": "确认消息"
+        },
+        "successMessage": {
+          "type": "string",
+          "description": "成功消息"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "错误消息"
+        },
+        "loadingMessage": {
+          "type": "string",
+          "description": "加载消息"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 60000,
+          "default": 30000,
+          "description": "超时时间（毫秒）"
+        }
+      },
+      "description": "行为配置"
+    },
+    "api": {
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "description": "API端点"
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+          "default": "POST",
+          "description": "HTTP方法"
+        },
+        "headers": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z-]+$": { "type": "string" }
+          },
+          "description": "请求头"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "请求参数"
+        },
+        "dataMapping": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z][a-zA-Z0-9_.]*$": { "type": "string" }
+          },
+          "description": "数据映射"
+        }
+      },
+      "description": "API配置"
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string" },
+              "rule": { "type": "string" },
+              "message": { "type": "string" },
+              "required": { "type": "boolean" }
+            },
+            "required": ["field", "rule"]
+          },
+          "description": "验证规则"
+        },
+        "validateBefore": {
+          "type": "boolean",
+          "default": true,
+          "description": "执行前是否验证"
+        }
+      },
+      "description": "验证配置"
+    },
+    "authorization": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "所需角色"
+        },
+        "permissions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "所需权限"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string" },
+              "operator": { "type": "string" },
+              "value": { "description": "值" }
+            }
+          },
+          "description": "授权条件"
+        }
+      },
+      "description": "授权配置"
+    },
+    "order": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/order"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "description": "操作元数据"
+    }
+  },
+  "required": ["id", "name", "type", "actionType", "trigger"],
+  "additionalProperties": false
+}

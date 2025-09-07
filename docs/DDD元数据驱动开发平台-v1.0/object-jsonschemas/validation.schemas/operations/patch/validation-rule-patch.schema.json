@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/validation.schemas/operations/patch/validation-rule-patch.schema.json",
+  "title": "验证规则部分更新Schema",
+  "description": "用于PATCH操作的验证规则部分更新Schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/validationType"
+    },
+    "severity": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/severity"
+    },
+    "scope": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/scope"
+    },
+    "expression": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/expression"
+    },
+    "message": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/message"
+    },
+    "conditions": {
+      "$ref": "../../fields/validation-configuration-fields.schema.json#/$defs/conditions"
+    },
+    "parameters": {
+      "$ref": "../../fields/validation-rule-fields.schema.json#/$defs/parameters"
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "执行优先级（1-10，数字越小优先级越高）"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "执行顺序"
+    },
+    "isActive": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1,
+  "examples": [
+    {
+      "isActive": false
+    },
+    {
+      "priority": 5,
+      "order": 20
+    },
+    {
+      "expression": "$.strategicDesign.domains.length > 0",
+      "message": "必须至少定义一个领域",
+      "severity": "ERROR"
+    },
+    {
+      "parameters": {
+        "checkDepth": 3,
+        "ignoreInactive": false
+      }
+    }
+  ]
+}

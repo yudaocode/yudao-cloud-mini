@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/fields/validation-fields.schema.json",
+  "title": "验证相关字段",
+  "description": "验证和配置相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "validationStage": {
+      "type": "string",
+      "enum": ["DRAFT", "STRATEGIC_COMPLETE", "TACTICAL_COMPLETE", "DTO_COMPLETE", "COMPLETE"],
+      "description": "验证阶段"
+    },
+    "requireDomainId": {
+      "type": "boolean",
+      "description": "是否要求domainId"
+    },
+    "requireBoundedContextId": {
+      "type": "boolean",
+      "description": "是否要求boundedContextId"
+    },
+    "requireDtoReferences": {
+      "type": "boolean",
+      "description": "是否要求DTO引用"
+    },
+    "requireEntityReferences": {
+      "type": "boolean",
+      "description": "是否要求实体引用"
+    },
+    "crossReferenceValidation": {
+      "type": "boolean",
+      "description": "是否启用跨Schema引用验证"
+    },
+    "validationLevel": {
+      "type": "string",
+      "enum": ["STRICT", "MODERATE", "LENIENT"],
+      "description": "验证级别"
+    },
+    "customValidationRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "自定义验证规则"
+    },
+    "errorHandlingStrategy": {
+      "type": "string",
+      "enum": ["FAIL_FAST", "COLLECT_ALL", "CONTINUE_ON_ERROR"],
+      "description": "错误处理策略"
+    }
+  }
+}

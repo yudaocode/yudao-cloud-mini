@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/api-definition/fields/common-fields.schema.json",
+  "title": "API通用字段定义",
+  "description": "API相关的通用字段定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+      "description": "名称，支持字母、数字、下划线、连字符"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "显示标题"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "详细描述"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(v)?\\d+(\\.\\d+)*(-[a-zA-Z0-9-]+)?$",
+      "description": "版本号，如：v1.0.0, 1.2.3-beta"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 50
+      },
+      "maxItems": 20,
+      "uniqueItems": true,
+      "description": "标签列表"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否激活"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "排序顺序"
+    },
+    "visible": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否可见"
+    },
+    "deprecated": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否已弃用"
+    },
+    "experimental": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否为实验性功能"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/validation-rule.schema.json",
+  "title": "验证规则",
+  "description": "验证规则定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/ruleId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/ruleType"
+    },
+    "expression": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/expression"
+    },
+    "message": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/message"
+    },
+    "severity": {
+      "$ref": "../fields/validation-fields.schema.json#/$defs/severity"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id", "name", "description", "type", "expression", "message"],
+  "additionalProperties": false
+}

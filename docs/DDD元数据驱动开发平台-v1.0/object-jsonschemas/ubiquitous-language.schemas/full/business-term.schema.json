@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/ubiquitous-language.schemas/full/business-term.schema.json",
+  "title": "业务术语完整定义",
+  "description": "单个业务术语的完整Schema定义",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/termId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "englishName": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/englishName"
+    },
+    "programmingName": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/programmingName"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "category": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/termCategory"
+    },
+    "boundedContextId": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/boundedContextId"
+    },
+    "attributes": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/attributes"
+    },
+    "relatedTerms": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/relatedTerms"
+    },
+    "examples": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/examples"
+    },
+    "businessRules": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/businessRules"
+    },
+    "synonyms": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/synonyms"
+    },
+    "antonyms": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/antonyms"
+    },
+    "usageNotes": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/usageNotes"
+    },
+    "isCore": {
+      "$ref": "../fields/business-term-fields.schema.json#/$defs/isCore"
+    },
+    "priority": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/priority"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "createdAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/timestamp"
+    },
+    "updatedAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/timestamp"
+    }
+  },
+  "required": [
+    "id", 
+    "name", 
+    "programmingName", 
+    "description", 
+    "category"
+  ],
+  "additionalProperties": false
+}

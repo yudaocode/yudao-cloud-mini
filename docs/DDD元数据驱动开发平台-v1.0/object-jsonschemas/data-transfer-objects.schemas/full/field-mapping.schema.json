@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/field-mapping.schema.json",
+  "title": "字段映射",
+  "description": "字段映射定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^fm_[a-zA-Z0-9_]+$",
+      "description": "字段映射唯一标识符"
+    },
+    "sourceField": {
+      "type": "string",
+      "description": "源字段名"
+    },
+    "targetField": {
+      "type": "string",
+      "description": "目标字段名"
+    },
+    "mappingType": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/fieldMappingType"
+    },
+    "transformation": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/transformation"
+    },
+    "constantValue": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/constantValue"
+    },
+    "isRequired": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/isRequired"
+    },
+    "defaultValue": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/defaultValue"
+    },
+    "validationRules": {
+      "$ref": "../fields/attribute-fields.schema.json#/$defs/validationRules"
+    }
+  },
+  "required": ["id", "sourceField", "targetField", "mappingType"],
+  "additionalProperties": false
+}

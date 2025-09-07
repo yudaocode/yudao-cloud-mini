@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/project-metadata/fields/technical-fields.schema.json",
+  "title": "技术栈字段定义",
+  "description": "技术栈和基础设施相关的字段定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "programmingLanguage": {
+      "type": "string",
+      "enum": [
+        "JAVA", "JAVASCRIPT", "TYPESCRIPT", "PYTHON", "C_SHARP", "PHP", "GO", 
+        "RUST", "KOTLIN", "SWIFT", "DART", "RUBY", "SCALA", "CLOJURE", "OTHER"
+      ],
+      "description": "编程语言"
+    },
+    "frontendFramework": {
+      "type": "string",
+      "enum": [
+        "REACT", "VUE", "ANGULAR", "SVELTE", "NEXT_JS", "NUXT_JS", "VITE", 
+        "WEBPACK", "FLUTTER", "REACT_NATIVE", "IONIC", "OTHER"
+      ],
+      "description": "前端框架"
+    },
+    "backendFramework": {
+      "type": "string",
+      "enum": [
+        "SPRING_BOOT", "EXPRESS", "FASTAPI", "DJANGO", "FLASK", "ASP_NET", 
+        "LARAVEL", "RAILS", "NESTJS", "KOAK", "GIN", "ACTIX", "OTHER"
+      ],
+      "description": "后端框架"
+    },
+    "databaseType": {
+      "type": "string",
+      "enum": [
+        "MYSQL", "POSTGRESQL", "ORACLE", "SQLSERVER", "SQLITE", "MONGODB", 
+        "REDIS", "ELASTICSEARCH", "CASSANDRA", "DYNAMODB", "FIRESTORE", "OTHER"
+      ],
+      "description": "数据库类型"
+    },
+    "ormFramework": {
+      "type": "string",
+      "enum": [
+        "MYBATIS", "JPA", "HIBERNATE", "SEQUELIZE", "TYPEORM", "PRISMA", 
+        "SQLALCHEMY", "DJANGO_ORM", "ACTIVE_RECORD", "ENTITY_FRAMEWORK", "OTHER"
+      ],
+      "description": "ORM框架"
+    },
+    "deploymentPlatform": {
+      "type": "string",
+      "enum": [
+        "DOCKER", "KUBERNETES", "AWS", "AZURE", "GCP", "ALIYUN", "TENCENT_CLOUD", 
+        "HEROKU", "VERCEL", "NETLIFY", "TRADITIONAL_SERVER", "OTHER"
+      ],
+      "description": "部署平台"
+    },
+    "monitoringTool": {
+      "type": "string",
+      "enum": [
+        "PROMETHEUS", "GRAFANA", "ELASTICSEARCH", "LOGSTASH", "KIBANA", 
+        "JAEGER", "ZIPKIN", "NEW_RELIC", "DATADOG", "SENTRY", "OTHER"
+      ],
+      "description": "监控工具"
+    },
+    "cicdTool": {
+      "type": "string",
+      "enum": [
+        "JENKINS", "GITLAB_CI", "GITHUB_ACTIONS", "AZURE_DEVOPS", "BAMBOO", 
+        "TEAMCITY", "CIRCLECI", "TRAVIS_CI", "DRONE", "TEKTON", "OTHER"
+      ],
+      "description": "CI/CD工具"
+    },
+    "testingFramework": {
+      "type": "string",
+      "enum": [
+        "JUNIT", "JEST", "MOCHA", "PYTEST", "NUNIT", "PHPUNIT", "RSPEC", 
+        "CYPRESS", "SELENIUM", "PLAYWRIGHT", "TESTNG", "OTHER"
+      ],
+      "description": "测试框架"
+    },
+    "messageQueue": {
+      "type": "string",
+      "enum": [
+        "RABBITMQ", "KAFKA", "ACTIVEMQ", "REDIS_PUBSUB", "AWS_SQS", 
+        "AZURE_SERVICE_BUS", "GOOGLE_PUBSUB", "NATS", "PULSAR", "OTHER"
+      ],
+      "description": "消息队列"
+    },
+    "cacheSystem": {
+      "type": "string",
+      "enum": [
+        "REDIS", "MEMCACHED", "HAZELCAST", "EHCACHE", "CAFFEINE", 
+        "AWS_ELASTICACHE", "AZURE_CACHE", "OTHER"
+      ],
+      "description": "缓存系统"
+    },
+    "searchEngine": {
+      "type": "string",
+      "enum": [
+        "ELASTICSEARCH", "SOLR", "OPENSEARCH", "ALGOLIA", "AZURE_SEARCH", 
+        "AWS_CLOUDSEARCH", "OTHER"
+      ],
+      "description": "搜索引擎"
+    },
+    "apiGateway": {
+      "type": "string",
+      "enum": [
+        "KONG", "ZUUL", "SPRING_CLOUD_GATEWAY", "NGINX", "TRAEFIK", 
+        "AWS_API_GATEWAY", "AZURE_API_MANAGEMENT", "OTHER"
+      ],
+      "description": "API网关"
+    },
+    "serviceDiscovery": {
+      "type": "string",
+      "enum": [
+        "EUREKA", "CONSUL", "ZOOKEEPER", "NACOS", "ETCD", "KUBERNETES_DNS", "OTHER"
+      ],
+      "description": "服务发现"
+    },
+    "configurationManagement": {
+      "type": "string",
+      "enum": [
+        "SPRING_CLOUD_CONFIG", "APOLLO", "NACOS", "CONSUL", "VAULT", 
+        "KUBERNETES_CONFIGMAP", "OTHER"
+      ],
+      "description": "配置管理"
+    },
+    "documentationTool": {
+      "type": "string",
+      "enum": [
+        "SWAGGER", "OPENAPI", "POSTMAN", "INSOMNIA", "GITBOOK", "CONFLUENCE", 
+        "NOTION", "MARKDOWN", "OTHER"
+      ],
+      "description": "文档工具"
+    },
+    "versionControl": {
+      "type": "string",
+      "enum": ["GIT", "SVN", "MERCURIAL", "PERFORCE", "OTHER"],
+      "description": "版本控制系统"
+    },
+    "codeRepository": {
+      "type": "string",
+      "enum": [
+        "GITHUB", "GITLAB", "BITBUCKET", "AZURE_REPOS", "CODECOMMIT", 
+        "GITEE", "CODING", "OTHER"
+      ],
+      "description": "代码仓库"
+    },
+    "projectManagementTool": {
+      "type": "string",
+      "enum": [
+        "JIRA", "AZURE_BOARDS", "GITHUB_PROJECTS", "TRELLO", "ASANA", 
+        "MONDAY", "CLICKUP", "LINEAR", "OTHER"
+      ],
+      "description": "项目管理工具"
+    },
+    "designTool": {
+      "type": "string",
+      "enum": [
+        "FIGMA", "SKETCH", "ADOBE_XD", "PRINCIPLE", "INVISION", "AXURE", 
+        "BALSAMIQ", "DRAW_IO", "OTHER"
+      ],
+      "description": "设计工具"
+    }
+  }
+}

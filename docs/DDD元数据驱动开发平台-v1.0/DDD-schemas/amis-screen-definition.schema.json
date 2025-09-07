@@ -1,0 +1,718 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/amis-screen-definition.schema.json",
+  "title": "amis屏幕定义Schema - 基于DDD模型",
+  "description": "利用amis自身Schema和DDD模型，简化屏幕定义和验证 - v2.0",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema版本",
+      "const": "2.0.0"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain_[a-zA-Z0-9_]+$",
+      "description": "所属领域ID（可选，在战略设计完成后必填）"
+    },
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "所属限界上下文ID（可选，在战略设计完成后必填）"
+    },
+    "screens": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/amisScreen"
+      },
+      "description": "amis屏幕列表"
+    },
+    "modelMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/modelMapping"
+      },
+      "description": "DDD模型到amis组件的映射配置"
+    },
+    "amisConfig": {
+      "$ref": "#/$defs/amisGlobalConfig"
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/screenTemplate"
+      },
+      "description": "屏幕模板列表"
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/screenTheme"
+      },
+      "description": "屏幕主题列表"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/screenPermission"
+      },
+      "description": "屏幕权限配置"
+    },
+    "validationStage": {
+      "type": "string",
+      "enum": ["DRAFT", "STRATEGIC_COMPLETE", "SCREEN_DEFINED", "COMPLETE"],
+      "description": "验证阶段：DRAFT(草稿)、STRATEGIC_COMPLETE(战略设计完成)、SCREEN_DEFINED(屏幕定义完成)、COMPLETE(完整)"
+    },
+    "validationRules": {
+      "type": "object",
+      "properties": {
+        "requireDomainId": {
+          "type": "boolean",
+          "description": "是否要求domainId（在STRATEGIC_COMPLETE阶段后为true）"
+        },
+        "requireBoundedContextId": {
+          "type": "boolean",
+          "description": "是否要求boundedContextId（在STRATEGIC_COMPLETE阶段后为true）"
+        },
+        "requireScreenReferences": {
+          "type": "boolean",
+          "description": "是否要求屏幕引用（在SCREEN_DEFINED阶段后为true）"
+        },
+        "crossReferenceValidation": {
+          "type": "boolean",
+          "description": "是否启用跨Schema引用验证"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["version"],
+  "additionalProperties": false,
+  "$defs": {
+    "amisScreen": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^screen_[a-zA-Z0-9_]+$",
+          "description": "屏幕唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "屏幕名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "屏幕描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["LIST", "DETAIL", "FORM", "DASHBOARD", "WIZARD", "MODAL", "CRUD", "MASTER_DETAIL", "WORKFLOW"],
+          "description": "屏幕类型"
+        },
+        "route": {
+          "type": "string",
+          "description": "路由路径"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "所需权限列表"
+        },
+        "amisPage": {
+          "$ref": "#/$defs/amisPageConfig"
+        },
+        "modelBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/modelBinding"
+          },
+          "description": "DDD模型绑定配置"
+        },
+        "layout": {
+          "$ref": "#/$defs/screenLayout"
+        },
+        "responsive": {
+          "$ref": "#/$defs/responsiveConfig"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "type", "route", "amisPage"],
+      "additionalProperties": false
+    },
+    "amisPageConfig": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["page", "dialog", "drawer", "wizard"],
+          "description": "页面类型"
+        },
+        "title": {
+          "type": "string",
+          "description": "页面标题"
+        },
+        "body": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "页面主体内容"
+        },
+        "header": {
+          "type": "object",
+          "description": "页面头部配置"
+        },
+        "aside": {
+          "type": "object",
+          "description": "页面侧边栏配置"
+        },
+        "toolbar": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "工具栏配置"
+        },
+        "footer": {
+          "type": "object",
+          "description": "页面底部配置"
+        },
+        "data": {
+          "type": "object",
+          "description": "页面数据配置"
+        },
+        "api": {
+          "type": "object",
+          "description": "API配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["type", "title"],
+      "additionalProperties": true
+    },
+    "modelBinding": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^binding_[a-zA-Z0-9_]+$",
+          "description": "绑定配置ID"
+        },
+        "modelType": {
+          "type": "string",
+          "enum": ["ENTITY", "VALUE_OBJECT", "AGGREGATE", "DTO", "SERVICE", "REPOSITORY", "BUSINESS_TERM", "BUSINESS_ATTRIBUTE"],
+          "description": "DDD模型类型"
+        },
+        "modelId": {
+          "type": "string",
+          "description": "模型ID，对应DDD模型中的ID"
+        },
+        "bindingType": {
+          "type": "string",
+          "enum": ["DATA_SOURCE", "FORM_FIELDS", "TABLE_COLUMNS", "VALIDATION", "API_ENDPOINT", "FILTER", "SORT", "PAGINATION"],
+          "description": "绑定类型"
+        },
+        "componentPath": {
+          "type": "string",
+          "description": "amis组件路径，如 'body.0.fields' 或 'columns'"
+        },
+        "mappingRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/mappingRule"
+          },
+          "description": "映射规则列表"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationRule"
+          },
+          "description": "验证规则列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "modelType", "modelId", "bindingType", "componentPath"],
+      "additionalProperties": false
+    },
+    "mappingRule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^mapping_rule_[a-zA-Z0-9_]+$",
+          "description": "映射规则ID"
+        },
+        "sourceField": {
+          "type": "string",
+          "description": "DDD模型中的源字段名"
+        },
+        "targetField": {
+          "type": "string",
+          "description": "amis组件中的目标字段名"
+        },
+        "transformation": {
+          "type": "string",
+          "enum": ["DIRECT", "FORMAT", "TRANSFORM", "CUSTOM", "ENUM_MAPPING", "DATE_FORMAT", "NUMBER_FORMAT"],
+          "description": "数据转换方式"
+        },
+        "customTransform": {
+          "type": "string",
+          "description": "自定义转换逻辑"
+        },
+        "validation": {
+          "$ref": "#/$defs/amisValidation"
+        },
+        "amisProps": {
+          "type": "object",
+          "description": "amis组件属性，直接使用amis原生属性"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "sourceField", "targetField"],
+      "additionalProperties": false
+    },
+    "validationRule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^validation_rule_[a-zA-Z0-9_]+$",
+          "description": "验证规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "验证规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "验证规则描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["REQUIRED", "PATTERN", "LENGTH", "RANGE", "CUSTOM", "BUSINESS_RULE"],
+          "description": "验证类型"
+        },
+        "expression": {
+          "type": "string",
+          "description": "验证表达式"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "错误消息"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["ERROR", "WARNING", "INFO"],
+          "description": "严重程度"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "type", "expression"],
+      "additionalProperties": false
+    },
+    "amisValidation": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "description": "是否必填"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "正则表达式"
+        },
+        "minLength": {
+          "type": "integer",
+          "description": "最小长度"
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "最大长度"
+        },
+        "min": {
+          "type": ["number", "string"],
+          "description": "最小值"
+        },
+        "max": {
+          "type": ["number", "string"],
+          "description": "最大值"
+        },
+        "custom": {
+          "type": "string",
+          "description": "自定义验证"
+        }
+      },
+      "additionalProperties": true
+    },
+    "modelMapping": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^model_mapping_[a-zA-Z0-9_]+$",
+          "description": "模型映射ID"
+        },
+        "modelType": {
+          "type": "string",
+          "enum": ["ENTITY", "VALUE_OBJECT", "AGGREGATE", "DTO", "SERVICE", "REPOSITORY", "BUSINESS_TERM", "BUSINESS_ATTRIBUTE"],
+          "description": "DDD模型类型"
+        },
+        "modelId": {
+          "type": "string",
+          "description": "模型ID"
+        },
+        "autoGeneration": {
+          "$ref": "#/$defs/autoGenerationConfig"
+        },
+        "amisDefaults": {
+          "type": "object",
+          "description": "amis组件默认配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "modelType", "modelId"],
+      "additionalProperties": false
+    },
+    "autoGenerationConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "是否启用自动生成"
+        },
+        "templates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["CRUD_FORM", "LIST_TABLE", "DETAIL_VIEW", "SEARCH_FORM", "BULK_ACTIONS", "TABLE_COLUMNS", "FILTER_FORM", "SORT_CONFIG", "PAGINATION"]
+          },
+          "description": "可用的自动生成模板"
+        },
+        "defaults": {
+          "type": "object",
+          "description": "默认配置"
+        },
+        "customTemplates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/customTemplate"
+          },
+          "description": "自定义模板"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "customTemplate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^template_[a-zA-Z0-9_]+$",
+          "description": "模板ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "模板名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "模板描述"
+        },
+        "template": {
+          "type": "object",
+          "description": "模板内容"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "模板变量"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "template"],
+      "additionalProperties": false
+    },
+    "screenTemplate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^screen_template_[a-zA-Z0-9_]+$",
+          "description": "屏幕模板ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "模板名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "模板描述"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["CRUD", "DASHBOARD", "WORKFLOW", "REPORT", "SETTINGS", "CUSTOM"],
+          "description": "模板分类"
+        },
+        "template": {
+          "$ref": "#/$defs/amisScreen"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/templateVariable"
+          },
+          "description": "模板变量"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "category", "template"],
+      "additionalProperties": false
+    },
+    "templateVariable": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^var_[a-zA-Z0-9_]+$",
+          "description": "变量ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "变量名称"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["STRING", "NUMBER", "BOOLEAN", "OBJECT", "ARRAY"],
+          "description": "变量类型"
+        },
+        "defaultValue": {
+          "type": ["string", "number", "boolean", "object", "array"],
+          "description": "默认值"
+        },
+        "description": {
+          "type": "string",
+          "description": "变量描述"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "description": "是否必需"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "type"],
+      "additionalProperties": false
+    },
+    "screenTheme": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^theme_[a-zA-Z0-9_]+$",
+          "description": "主题ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "主题名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "主题描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["LIGHT", "DARK", "CUSTOM"],
+          "description": "主题类型"
+        },
+        "config": {
+          "type": "object",
+          "description": "主题配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "type"],
+      "additionalProperties": false
+    },
+    "screenPermission": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^permission_[a-zA-Z0-9_]+$",
+          "description": "权限ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "权限名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "权限描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["READ", "WRITE", "DELETE", "ADMIN"],
+          "description": "权限类型"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "角色列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "name", "type"],
+      "additionalProperties": false
+    },
+    "screenLayout": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^layout_[a-zA-Z0-9_]+$",
+          "description": "布局ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SINGLE_COLUMN", "TWO_COLUMN", "THREE_COLUMN", "GRID", "CUSTOM"],
+          "description": "布局类型"
+        },
+        "config": {
+          "type": "object",
+          "description": "布局配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id", "type"],
+      "additionalProperties": false
+    },
+    "responsiveConfig": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^responsive_[a-zA-Z0-9_]+$",
+          "description": "响应式配置ID"
+        },
+        "breakpoints": {
+          "type": "object",
+          "properties": {
+            "xs": {
+              "type": "integer",
+              "description": "超小屏幕断点"
+            },
+            "sm": {
+              "type": "integer",
+              "description": "小屏幕断点"
+            },
+            "md": {
+              "type": "integer",
+              "description": "中等屏幕断点"
+            },
+            "lg": {
+              "type": "integer",
+              "description": "大屏幕断点"
+            },
+            "xl": {
+              "type": "integer",
+              "description": "超大屏幕断点"
+            }
+          },
+          "description": "断点配置"
+        },
+        "config": {
+          "type": "object",
+          "description": "响应式配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id"],
+      "additionalProperties": false
+    },
+    "amisGlobalConfig": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^global_config_[a-zA-Z0-9_]+$",
+          "description": "全局配置ID"
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["cxd", "ang", "antd"],
+          "description": "主题"
+        },
+        "locale": {
+          "type": "string",
+          "description": "语言"
+        },
+        "api": {
+          "type": "object",
+          "description": "API配置"
+        },
+        "fetcher": {
+          "type": "object",
+          "description": "fetcher配置"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["id"],
+      "additionalProperties": true
+    }
+  }
+}

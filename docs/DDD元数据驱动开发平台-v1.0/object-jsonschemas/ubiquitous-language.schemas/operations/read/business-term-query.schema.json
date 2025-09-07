@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/ubiquitous-language/operations/read/business-term-query.schema.json",
+  "title": "业务术语查询操作",
+  "description": "查询业务术语的操作模式 - 支持语义搜索和上下文过滤",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "精确匹配术语ID"
+        },
+        "term": {
+          "type": "string",
+          "description": "按术语名称查询"
+        },
+        "domain": {
+          "type": "string",
+          "description": "按领域查询"
+        },
+        "context": {
+          "type": "string",
+          "description": "按上下文查询"
+        },
+        "category": {
+          "type": "string",
+          "description": "按分类查询"
+        },
+        "synonyms": {
+          "type": "string",
+          "description": "按同义词查询"
+        },
+        "semantic": {
+          "type": "string",
+          "description": "语义搜索"
+        }
+      },
+      "minProperties": 1,
+      "description": "查询条件"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "includeDefinition": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否包含定义"
+        },
+        "includeSynonyms": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否包含同义词"
+        },
+        "includeRelated": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含相关术语"
+        },
+        "includeUsage": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含使用情况"
+        }
+      },
+      "description": "查询选项"
+    }
+  },
+  "required": ["query"],
+  "additionalProperties": false
+}

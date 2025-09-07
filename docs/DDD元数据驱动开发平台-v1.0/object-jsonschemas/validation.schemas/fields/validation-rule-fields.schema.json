@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/validation.schemas/fields/validation-rule-fields.schema.json",
+  "title": "验证规则字段定义",
+  "description": "验证规则相关字段的Schema定义",
+  "type": "object",
+  "$defs": {
+    "parameters": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]*$": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "boolean" },
+            { "type": "object" },
+            { "type": "array" }
+          ]
+        }
+      },
+      "description": "验证规则参数"
+    },
+    "thresholds": {
+      "type": "object",
+      "properties": {
+        "critical": {
+          "type": "number",
+          "description": "严重阈值"
+        },
+        "warning": {
+          "type": "number",
+          "description": "警告阈值"
+        },
+        "good": {
+          "type": "number",
+          "description": "良好阈值"
+        }
+      },
+      "required": ["critical", "warning", "good"],
+      "additionalProperties": false
+    },
+    "alertTrigger": {
+      "type": "object",
+      "properties": {
+        "condition": {
+          "type": "string",
+          "description": "触发条件表达式"
+        },
+        "threshold": {
+          "type": "number",
+          "description": "触发阈值"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["GT", "GTE", "LT", "LTE", "EQ", "NEQ"],
+          "description": "比较操作符"
+        }
+      },
+      "required": ["condition", "operator"],
+      "additionalProperties": false
+    },
+    "alertRecipient": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["EMAIL", "WEBHOOK", "SLACK", "SMS"],
+          "description": "接收者类型"
+        },
+        "address": {
+          "type": "string",
+          "description": "接收地址（邮箱、URL、手机号等）"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活"
+        }
+      },
+      "required": ["type", "address"],
+      "additionalProperties": false
+    },
+    "thresholdAction": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ALERT", "BLOCK", "LOG", "ESCALATE"],
+          "description": "动作类型"
+        },
+        "configuration": {
+          "type": "object",
+          "description": "动作配置"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    }
+  }
+}

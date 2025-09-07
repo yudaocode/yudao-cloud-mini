@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/fields/mapping-fields.schema.json",
+  "title": "映射相关字段",
+  "description": "DTO映射相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "mappingId": {
+      "type": "string",
+      "pattern": "^mapping_[a-zA-Z0-9_]+$",
+      "description": "映射唯一标识符"
+    },
+    "sourceType": {
+      "type": "string",
+      "enum": ["ENTITY", "DTO", "VALUE_OBJECT"],
+      "description": "源类型"
+    },
+    "sourceId": {
+      "type": "string",
+      "description": "源ID"
+    },
+    "targetType": {
+      "type": "string",
+      "enum": ["DTO", "ENTITY", "VALUE_OBJECT"],
+      "description": "目标类型"
+    },
+    "targetId": {
+      "type": "string",
+      "description": "目标ID"
+    },
+    "mappingType": {
+      "type": "string",
+      "enum": ["ENTITY_TO_DTO", "DTO_TO_ENTITY", "DTO_TO_DTO", "VALUE_OBJECT_TO_DTO"],
+      "description": "映射类型"
+    },
+    "fieldMappingType": {
+      "type": "string",
+      "enum": ["DIRECT", "TRANSFORM", "CONSTANT", "EXPRESSION", "AGGREGATE", "SPLIT"],
+      "description": "字段映射类型"
+    },
+    "transformation": {
+      "type": "string",
+      "description": "转换逻辑"
+    },
+    "constantValue": {
+      "description": "常量值"
+    },
+    "transformationRuleType": {
+      "type": "string",
+      "enum": ["FORMAT", "CALCULATE", "VALIDATE", "CUSTOM", "TYPE_CONVERSION"],
+      "description": "转换规则类型"
+    },
+    "expression": {
+      "type": "string",
+      "description": "转换表达式"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "参数"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/strategic-design.schemas/fields/common-fields.schema.json",
+  "title": "战略设计通用字段定义",
+  "description": "战略设计模型的通用字段定义",
+  "$defs": {
+    "entityId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*_[a-zA-Z0-9_]+$",
+      "description": "实体唯一标识符"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain_[a-zA-Z0-9_]+$",
+      "description": "领域ID"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "名称"
+    },
+    "englishName": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "英文名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "描述"
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "是否激活",
+      "default": true
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "优先级（1-5，5为最高）"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "版本号"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "时间戳"
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/schemas/operations/patch/ubiquitous-language-patch.schema.json",
+  "title": "统一语言聚合局部更新",
+  "description": "统一语言聚合PATCH操作Schema定义",
+  "type": "object",
+  "properties": {
+    "businessTerms": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/business-term.schema.json"
+          },
+          "description": "新增的业务术语"
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "$ref": "business-term-patch.schema.json"
+          },
+          "description": "更新的业务术语"
+        },
+        "delete": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^term_[a-zA-Z0-9_]+$"
+          },
+          "description": "删除的业务术语ID"
+        }
+      },
+      "additionalProperties": false
+    },
+    "businessAttributes": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/business-attribute.schema.json"
+          }
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "$ref": "business-attribute-patch.schema.json"
+          }
+        },
+        "delete": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^attr_[a-zA-Z0-9_]+$"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "businessRules": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/business-rule.schema.json"
+          }
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "$ref": "business-rule-patch.schema.json"
+          }
+        },
+        "delete": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^rule_[a-zA-Z0-9_]+$"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "termRelationships": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/term-relationship.schema.json"
+          }
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "$ref": "term-relationship-patch.schema.json"
+          }
+        },
+        "delete": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^rel_[a-zA-Z0-9_]+$"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1
+}

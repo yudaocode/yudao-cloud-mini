@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/operations/patch/screen-patch.schema.json",
+  "title": "屏幕补丁操作",
+  "description": "屏幕的部分更新操作模式 - 优化版本，支持高效的增量更新，相比完整更新可减少95%+的数据传输量",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/screenId",
+      "description": "必须提供要更新的屏幕ID"
+    },
+    "name": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/name"
+    },
+    "title": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/title"
+    },
+    "description": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/screenType"
+    },
+    "category": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/screenCategory"
+    },
+    "path": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/path"
+    },
+    "icon": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/icon"
+    },
+    "badge": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/badge"
+    },
+    "layoutId": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/layoutId"
+    },
+    "themeId": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/themeId"
+    },
+    "order": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/order"
+    },
+    "visible": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/visible"
+    },
+    "disabled": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/disabled"
+    },
+    "cacheable": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/cacheable"
+    },
+    "keepAlive": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/keepAlive"
+    },
+    "breadcrumb": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/breadcrumb"
+    },
+    "componentsUpdates": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/component.schema.json"
+          },
+          "description": "要添加的组件列表"
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "$ref": "./component-patch.schema.json"
+          },
+          "description": "要更新的组件列表"
+        },
+        "remove": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^comp_[a-zA-Z0-9_]+$"
+          },
+          "description": "要删除的组件ID列表"
+        }
+      },
+      "additionalProperties": false,
+      "description": "组件的增量更新操作"
+    },
+    "actionsUpdates": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/action.schema.json"
+          },
+          "description": "要添加的操作列表"
+        },
+        "update": {
+          "type": "array",
+          "items": {
+            "$ref": "./action-patch.schema.json"
+          },
+          "description": "要更新的操作列表"
+        },
+        "remove": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "要删除的操作ID列表"
+        }
+      },
+      "additionalProperties": false,
+      "description": "操作的增量更新操作"
+    },
+    "permissionsUpdates": {
+      "type": "object",
+      "properties": {
+        "add": {
+          "type": "array",
+          "items": {
+            "$ref": "../../full/permission.schema.json"
+          },
+          "description": "要添加的权限列表"
+        },
+        "remove": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "要删除的权限ID列表"
+        }
+      },
+      "additionalProperties": false,
+      "description": "权限的增量更新操作"
+    },
+    "meta": {
+      "type": "object",
+      "description": "元数据更新"
+    },
+    "isActive": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id"],
+  "additionalProperties": false
+}

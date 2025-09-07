@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/fields/component-fields.schema.json",
+  "title": "组件相关字段",
+  "description": "UI组件相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "componentId": {
+      "type": "string",
+      "pattern": "^comp_[a-zA-Z0-9_]+$",
+      "description": "组件ID"
+    },
+    "componentType": {
+      "type": "string",
+      "enum": ["INPUT", "SELECT", "CHECKBOX", "RADIO", "BUTTON", "TABLE", "FORM", "CARD", "TABS", "TREE", "CUSTOM"],
+      "description": "组件类型"
+    },
+    "componentLibrary": {
+      "type": "string",
+      "enum": ["ANTD", "ELEMENT", "NAIVE", "VUETIFY", "MATERIAL", "BOOTSTRAP", "CUSTOM"],
+      "description": "组件库"
+    },
+    "htmlTag": {
+      "type": "string",
+      "description": "HTML标签"
+    },
+    "className": {
+      "type": "string",
+      "description": "CSS类名"
+    },
+    "style": {
+      "type": "object",
+      "description": "内联样式"
+    },
+    "attributes": {
+      "type": "object",
+      "description": "HTML属性"
+    },
+    "props": {
+      "type": "object",
+      "description": "组件属性"
+    },
+    "events": {
+      "type": "object",
+      "description": "事件处理器"
+    },
+    "slots": {
+      "type": "object",
+      "description": "插槽内容"
+    },
+    "validation": {
+      "type": "object",
+      "description": "验证规则"
+    },
+    "dataSource": {
+      "type": "string",
+      "description": "数据源"
+    },
+    "bindingField": {
+      "type": "string",
+      "description": "绑定字段"
+    },
+    "defaultValue": {
+      "description": "默认值"
+    },
+    "placeholder": {
+      "type": "string",
+      "description": "占位符文本"
+    },
+    "required": {
+      "type": "boolean",
+      "description": "是否必填"
+    },
+    "readonly": {
+      "type": "boolean",
+      "description": "是否只读"
+    }
+  }
+}

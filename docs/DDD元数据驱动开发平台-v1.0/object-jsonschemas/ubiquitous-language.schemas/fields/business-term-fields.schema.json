@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/ubiquitous-language.schemas/fields/business-term-fields.schema.json",
+  "title": "业务术语字段定义",
+  "description": "业务术语相关字段定义",
+  "$defs": {
+    "termId": {
+      "type": "string",
+      "pattern": "^term_[a-zA-Z0-9_]+$",
+      "description": "术语唯一标识符"
+    },
+    "termCategory": {
+      "type": "string",
+      "enum": [
+        "DOMAIN_ENTITY",
+        "BUSINESS_CONCEPT", 
+        "BUSINESS_PROCESS",
+        "BUSINESS_RULE",
+        "BUSINESS_EVENT",
+        "BUSINESS_VALUE"
+      ],
+      "description": "术语分类"
+    },
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "所属限界上下文ID"
+    },
+    "synonyms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "description": "同义词列表"
+    },
+    "antonyms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "description": "反义词列表"
+    },
+    "usageNotes": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "使用说明"
+    },
+    "isCore": {
+      "type": "boolean",
+      "description": "是否为核心术语",
+      "default": false
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^attr_[a-zA-Z0-9_]+$"
+      },
+      "description": "关联的业务属性ID列表"
+    },
+    "relatedTerms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^term_[a-zA-Z0-9_]+$"
+      },
+      "description": "相关术语ID列表"
+    },
+    "businessRules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^rule_[a-zA-Z0-9_]+$"
+      },
+      "description": "相关业务规则ID列表"
+    }
+  }
+}

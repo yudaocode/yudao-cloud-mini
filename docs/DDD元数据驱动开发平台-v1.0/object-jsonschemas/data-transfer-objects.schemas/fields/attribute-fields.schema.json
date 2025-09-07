@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/fields/attribute-fields.schema.json",
+  "title": "DTO属性字段",
+  "description": "DTO属性的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^attr_[a-zA-Z0-9_]+$",
+      "description": "属性唯一标识符"
+    },
+    "name": {
+      "type": "string",
+      "description": "属性名称",
+      "minLength": 1
+    },
+    "programmingName": {
+      "type": "string",
+      "description": "编程名称",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+    },
+    "description": {
+      "type": "string",
+      "description": "属性详细描述"
+    },
+    "businessAttributeId": {
+      "type": "string",
+      "pattern": "^attr_[a-zA-Z0-9_]+$",
+      "description": "引用的业务属性ID（最高优先级）"
+    },
+    "dtoAttributeId": {
+      "type": "string",
+      "pattern": "^attr_[a-zA-Z0-9_]+$",
+      "description": "引用的其他DTO属性ID（次优先级）"
+    },
+    "dataType": {
+      "type": "string",
+      "description": "直接数据类型定义（最低优先级）"
+    },
+    "isRequired": {
+      "type": "boolean",
+      "description": "是否必填"
+    },
+    "defaultValue": {
+      "description": "默认值"
+    },
+    "unit": {
+      "type": "string",
+      "description": "单位"
+    },
+    "format": {
+      "type": "string",
+      "description": "格式"
+    },
+    "isUnique": {
+      "type": "boolean",
+      "description": "是否唯一"
+    },
+    "isReadOnly": {
+      "type": "boolean",
+      "description": "是否只读"
+    },
+    "businessLogic": {
+      "type": "string",
+      "description": "业务逻辑描述"
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "示例值列表"
+    },
+    "isDeprecated": {
+      "type": "boolean",
+      "description": "是否已废弃"
+    },
+    "replacementAttributeId": {
+      "type": "string",
+      "pattern": "^attr_[a-zA-Z0-9_]+$",
+      "description": "替代属性ID"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "验证规则列表"
+    }
+  }
+}

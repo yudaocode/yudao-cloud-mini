@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/full/screen.schema.json",
+  "title": "屏幕定义",
+  "description": "完整的屏幕定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/screenId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "title": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/title"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/screenType"
+    },
+    "category": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/screenCategory"
+    },
+    "path": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/path"
+    },
+    "icon": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/icon"
+    },
+    "badge": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/badge"
+    },
+    "parentScreenId": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/parentScreenId"
+    },
+    "layoutId": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/layoutId"
+    },
+    "themeId": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/themeId"
+    },
+    "order": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/order"
+    },
+    "visible": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/visible"
+    },
+    "disabled": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/disabled"
+    },
+    "cacheable": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/cacheable"
+    },
+    "keepAlive": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/keepAlive"
+    },
+    "breadcrumb": {
+      "$ref": "../fields/screen-fields.schema.json#/$defs/breadcrumb"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "./component.schema.json"
+      },
+      "description": "组件列表"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "./action.schema.json"
+      },
+      "description": "操作列表"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "$ref": "./permission.schema.json"
+      },
+      "description": "权限要求"
+    },
+    "meta": {
+      "type": "object",
+      "description": "元数据"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id", "name", "type", "category"],
+  "additionalProperties": false
+}

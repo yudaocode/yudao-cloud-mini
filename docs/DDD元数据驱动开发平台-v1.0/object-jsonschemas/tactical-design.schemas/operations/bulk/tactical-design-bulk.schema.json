@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/tactical-design/operations/bulk/tactical-design-bulk.schema.json",
+  "title": "战术设计批量操作",
+  "description": "战术设计元素的批量操作模式 - 支持批量创建、更新聚合、实体、值对象等",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "operation": {
+      "type": "string",
+      "enum": ["create", "update", "delete", "patch"],
+      "description": "批量操作类型"
+    },
+    "designs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "战术设计元素标识符（更新和删除时需要）"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["aggregate", "entity", "value-object", "domain-service", "repository", "factory"],
+            "description": "战术设计元素类型"
+          },
+          "data": {
+            "description": "操作数据（创建和更新时的完整定义，补丁时的变更内容）"
+          }
+        },
+        "required": ["type", "data"],
+        "if": {
+          "properties": {
+            "operation": {"enum": ["update", "delete", "patch"]}
+          }
+        },
+        "then": {
+          "required": ["id"]
+        }
+      },
+      "minItems": 1,
+      "maxItems": 200,
+      "description": "批量操作的战术设计元素列表"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "transactional": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否事务性执行（全部成功或全部失败）"
+        },
+        "validateInvariants": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证业务不变式"
+        },
+        "generateCode": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否自动生成代码"
+        },
+        "validateAggregates": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证聚合边界"
+        },
+        "preserveRelationships": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否保持关系完整性"
+        }
+      },
+      "description": "批量操作选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "initiatedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "操作发起者"
+        },
+        "boundedContext": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "所属界限上下文"
+        },
+        "aggregate": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "所属聚合（如适用）"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "批量操作原因"
+        },
+        "codeGeneration": {
+          "type": "object",
+          "properties": {
+            "language": {
+              "type": "string",
+              "enum": ["java", "csharp", "typescript", "python"]
+            },
+            "framework": {
+              "type": "string"
+            },
+            "outputPath": {
+              "type": "string"
+            }
+          },
+          "description": "代码生成配置"
+        }
+      },
+      "description": "批量操作元数据"
+    }
+  },
+  "required": ["operation", "designs"],
+  "additionalProperties": false
+}

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/validation.schemas/fields/validation-configuration-fields.schema.json",
+  "title": "验证配置字段定义",
+  "description": "验证配置相关字段的Schema定义",
+  "type": "object",
+  "$defs": {
+    "settings": {
+      "type": "object",
+      "properties": {
+        "validateOnSave": {
+          "type": "boolean",
+          "description": "保存时验证"
+        },
+        "validateOnImport": {
+          "type": "boolean",
+          "description": "导入时验证"
+        },
+        "validateOnExport": {
+          "type": "boolean",
+          "description": "导出时验证"
+        },
+        "asyncValidation": {
+          "type": "boolean",
+          "description": "异步验证"
+        },
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "批处理大小"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600,
+          "description": "验证超时（秒）"
+        }
+      },
+      "required": ["validateOnSave", "validateOnImport", "validateOnExport", "asyncValidation"],
+      "additionalProperties": false
+    },
+    "notifications": {
+      "type": "object",
+      "properties": {
+        "onError": {
+          "type": "boolean",
+          "description": "错误时通知"
+        },
+        "onWarning": {
+          "type": "boolean",
+          "description": "警告时通知"
+        },
+        "recipients": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "email"
+          },
+          "description": "通知接收者邮箱列表"
+        }
+      },
+      "required": ["onError", "onWarning", "recipients"],
+      "additionalProperties": false
+    },
+    "conditions": {
+      "type": "object",
+      "properties": {
+        "timeRange": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "string",
+              "format": "time"
+            },
+            "end": {
+              "type": "string",
+              "format": "time"
+            }
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "依赖的其他规则ID"
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["ON_CREATE", "ON_UPDATE", "ON_DELETE", "ON_IMPORT", "ON_EXPORT"]
+          },
+          "description": "触发事件"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/ubiquitous-language/operations/delete/business-attribute-delete.schema.json",
+  "title": "业务属性删除操作",
+  "description": "删除业务属性的操作模式 - 支持依赖检查和级联删除",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "description": "要删除的业务属性ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "属性名称（可选，用于双重确认）"
+          }
+        },
+        "required": ["id"]
+      },
+      "minItems": 1,
+      "description": "删除目标列表"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "softDelete": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否软删除（标记为已删除而非物理删除）"
+        },
+        "checkDependencies": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否检查依赖关系"
+        },
+        "cascadeDelete": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否级联删除相关约束"
+        },
+        "force": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否强制删除（忽略依赖检查）"
+        }
+      },
+      "description": "删除选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "deletedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "删除者"
+        },
+        "deleteReason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "删除原因"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3650,
+          "default": 90,
+          "description": "软删除保留天数"
+        },
+        "affectedEntities": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "受影响的实体列表"
+        }
+      },
+      "description": "删除元数据"
+    }
+  },
+  "required": ["targets"],
+  "additionalProperties": false
+}

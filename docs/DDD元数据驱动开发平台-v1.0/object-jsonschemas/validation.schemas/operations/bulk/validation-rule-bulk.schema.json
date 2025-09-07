@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/validation.schemas/operations/bulk/validation-rule-bulk.schema.json",
+  "title": "验证规则批量操作Schema",
+  "description": "验证规则的批量操作Schema，支持批量创建、更新、删除操作",
+  "type": "object",
+  "properties": {
+    "operation": {
+      "type": "string",
+      "enum": ["CREATE", "UPDATE", "DELETE", "ACTIVATE", "DEACTIVATE", "REORDER"],
+      "description": "批量操作类型"
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "../../full/validation-rule.schema.json"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "../../fields/common-fields.schema.json#/$defs/ruleId"
+              },
+              "updates": {
+                "$ref": "../patch/validation-rule-patch.schema.json"
+              }
+            },
+            "required": ["id"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "../../fields/common-fields.schema.json#/$defs/ruleId"
+              },
+              "order": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "新的执行顺序"
+              }
+            },
+            "required": ["id"]
+          }
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 1000,
+      "description": "批量操作的数据数组"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "continueOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "遇到错误时是否继续执行"
+        },
+        "validateOnly": {
+          "type": "boolean",
+          "default": false,
+          "description": "仅验证不执行实际操作"
+        },
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 50,
+          "description": "批处理大小"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 3600,
+          "default": 300,
+          "description": "操作超时时间（秒）"
+        },
+        "preserveOrder": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否保持执行顺序"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "请求标识符"
+        },
+        "source": {
+          "type": "string",
+          "description": "操作来源"
+        },
+        "reason": {
+          "type": "string",
+          "description": "操作原因"
+        },
+        "configurationId": {
+          "$ref": "../../fields/common-fields.schema.json#/$defs/configId",
+          "description": "关联的验证配置ID"
+        }
+      }
+    }
+  },
+  "required": ["operation", "data"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "operation": "CREATE",
+      "data": [
+        {
+          "id": "validation_rule_bulk_001",
+          "name": "批量创建规则1",
+          "type": "BUSINESS_RULE",
+          "severity": "ERROR",
+          "scope": "DOMAIN",
+          "expression": "$.domains.length > 0",
+          "message": "至少需要一个领域定义",
+          "isActive": true
+        }
+      ],
+      "options": {
+        "continueOnError": true,
+        "batchSize": 10
+      }
+    },
+    {
+      "operation": "REORDER",
+      "data": [
+        {
+          "id": "validation_rule_001",
+          "order": 10
+        },
+        {
+          "id": "validation_rule_002",
+          "order": 20
+        }
+      ],
+      "options": {
+        "preserveOrder": true
+      }
+    },
+    {
+      "operation": "DELETE",
+      "data": [
+        {
+          "id": "validation_rule_003"
+        }
+      ],
+      "metadata": {
+        "requestId": "bulk_rule_delete_20240101",
+        "reason": "清理过期规则",
+        "configurationId": "validation_config_001"
+      }
+    }
+  ]
+}

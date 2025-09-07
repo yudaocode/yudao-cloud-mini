@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/strategic-design.schemas/full/subdomain.schema.json",
+  "title": "子域完整定义",
+  "description": "单个子域的完整Schema定义",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/subdomain-fields.schema.json#/$defs/subdomainId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "englishName": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/englishName"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../fields/subdomain-fields.schema.json#/$defs/subdomainType"
+    },
+    "businessValue": {
+      "$ref": "../fields/subdomain-fields.schema.json#/$defs/businessValue"
+    },
+    "complexityLevel": {
+      "$ref": "../fields/subdomain-fields.schema.json#/$defs/complexityLevel"
+    },
+    "strategicImportance": {
+      "$ref": "../fields/subdomain-fields.schema.json#/$defs/strategicImportance"
+    },
+    "evolutionStage": {
+      "$ref": "../fields/subdomain-fields.schema.json#/$defs/evolutionStage"
+    },
+    "capabilities": {
+      "$ref": "../fields/subdomain-fields.schema.json#/$defs/capabilities"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "priority": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/priority"
+    }
+  },
+  "required": ["id", "name", "description", "type", "businessValue", "complexityLevel"],
+  "additionalProperties": false
+}

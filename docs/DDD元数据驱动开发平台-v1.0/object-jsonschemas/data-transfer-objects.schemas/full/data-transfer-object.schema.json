@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/data-transfer-object.schema.json",
+  "title": "数据传输对象",
+  "description": "完整的数据传输对象定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/id"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "programmingName": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/programmingName"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "englishName": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/englishName"
+    },
+    "type": {
+      "$ref": "../fields/dto-fields.schema.json#/$defs/type"
+    },
+    "layer": {
+      "$ref": "../fields/dto-fields.schema.json#/$defs/layer"
+    },
+    "purpose": {
+      "$ref": "../fields/dto-fields.schema.json#/$defs/purpose"
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "./dto-attribute.schema.json"
+      },
+      "description": "DTO属性列表"
+    },
+    "termReferences": {
+      "$ref": "../fields/dto-fields.schema.json#/$defs/termReferences"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "$ref": "./validation-rule.schema.json"
+      },
+      "description": "验证规则列表"
+    },
+    "serialization": {
+      "$ref": "./serialization.schema.json"
+    },
+    "example": {
+      "$ref": "../fields/dto-fields.schema.json#/$defs/example"
+    },
+    "isImmutable": {
+      "$ref": "../fields/dto-fields.schema.json#/$defs/isImmutable"
+    },
+    "generateBuilder": {
+      "$ref": "../fields/dto-fields.schema.json#/$defs/generateBuilder"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "version": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/version"
+    },
+    "deprecated": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/deprecated"
+    },
+    "replacementDtoId": {
+      "$ref": "../fields/dto-fields.schema.json#/$defs/replacementDtoId"
+    },
+    "usageStatus": {
+      "$ref": "./usage-status.schema.json"
+    }
+  },
+  "required": ["id", "name", "programmingName", "description", "type", "layer", "attributes"],
+  "additionalProperties": false
+}

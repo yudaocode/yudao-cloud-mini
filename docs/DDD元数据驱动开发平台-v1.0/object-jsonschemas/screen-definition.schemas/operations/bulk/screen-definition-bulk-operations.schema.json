@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/operations/bulk/screen-definition-bulk-operations.schema.json",
+  "title": "屏幕定义批量操作",
+  "description": "屏幕定义的批量操作模式 - 支持一次性处理多个屏幕的高效批量更新",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "operationType": {
+            "type": "string",
+            "enum": ["create", "update", "delete", "patch"],
+            "description": "操作类型"
+          },
+          "screenId": {
+            "$ref": "../../fields/screen-fields.schema.json#/$defs/screenId",
+            "description": "目标屏幕ID"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "$ref": "../../full/screen-definition.schema.json",
+                "description": "完整屏幕定义（用于create和update操作）"
+              },
+              {
+                "$ref": "../patch/screen-patch.schema.json",
+                "description": "屏幕补丁数据（用于patch操作）"
+              },
+              {
+                "type": "null",
+                "description": "删除操作不需要数据"
+              }
+            ]
+          },
+          "conditions": {
+            "type": "object",
+            "properties": {
+              "ifExists": {
+                "type": "boolean",
+                "description": "仅在屏幕存在时执行操作"
+              },
+              "ifNotExists": {
+                "type": "boolean",
+                "description": "仅在屏幕不存在时执行操作"
+              },
+              "version": {
+                "type": "string",
+                "description": "预期的版本号（乐观锁）"
+              }
+            }
+          }
+        },
+        "required": ["operationType", "screenId"],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 100,
+      "description": "批量操作列表，最多支持100个操作"
+    },
+    "transactional": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否作为事务执行（全部成功或全部回滚）"
+    },
+    "continueOnError": {
+      "type": "boolean",
+      "default": false,
+      "description": "遇到错误时是否继续执行后续操作"
+    },
+    "batchSize": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "default": 10,
+      "description": "批处理大小"
+    },
+    "timeout": {
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 300000,
+      "default": 30000,
+      "description": "超时时间（毫秒）"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "batchId": {
+          "type": "string",
+          "description": "批次ID"
+        },
+        "description": {
+          "type": "string",
+          "description": "批量操作描述"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "标签"
+        }
+      },
+      "description": "批量操作元数据"
+    }
+  },
+  "required": ["operations"],
+  "additionalProperties": false
+}

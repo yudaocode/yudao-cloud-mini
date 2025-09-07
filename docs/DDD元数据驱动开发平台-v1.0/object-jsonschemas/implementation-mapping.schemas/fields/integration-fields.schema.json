@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/fields/integration-fields.schema.json",
+  "title": "集成相关字段",
+  "description": "系统集成相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "integrationMappingId": {
+      "type": "string",
+      "pattern": "^integration_mapping_[a-zA-Z0-9_]+$",
+      "description": "集成映射ID"
+    },
+    "integrationType": {
+      "type": "string",
+      "enum": ["REST_API", "GRAPHQL", "GRPC", "MESSAGE_QUEUE", "DATABASE", "FILE", "WEBSERVICE"],
+      "description": "集成类型"
+    },
+    "communicationPattern": {
+      "type": "string",
+      "enum": ["SYNCHRONOUS", "ASYNCHRONOUS", "REQUEST_RESPONSE", "PUBLISH_SUBSCRIBE", "POINT_TO_POINT"],
+      "description": "通信模式"
+    },
+    "messageFormat": {
+      "type": "string",
+      "enum": ["JSON", "XML", "PROTOBUF", "AVRO", "CSV", "BINARY"],
+      "description": "消息格式"
+    },
+    "protocol": {
+      "type": "string",
+      "enum": ["HTTP", "HTTPS", "TCP", "UDP", "AMQP", "MQTT", "KAFKA"],
+      "description": "协议"
+    },
+    "endpoint": {
+      "type": "string",
+      "description": "端点地址"
+    },
+    "timeout": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "超时时间（毫秒）"
+    },
+    "retryStrategy": {
+      "type": "string",
+      "enum": ["NONE", "FIXED", "EXPONENTIAL", "LINEAR"],
+      "description": "重试策略"
+    },
+    "circuitBreakerEnabled": {
+      "type": "boolean",
+      "description": "是否启用熔断器"
+    },
+    "authenticationMethod": {
+      "type": "string",
+      "enum": ["NONE", "BASIC", "BEARER", "OAUTH2", "API_KEY", "CERTIFICATE"],
+      "description": "认证方法"
+    }
+  }
+}

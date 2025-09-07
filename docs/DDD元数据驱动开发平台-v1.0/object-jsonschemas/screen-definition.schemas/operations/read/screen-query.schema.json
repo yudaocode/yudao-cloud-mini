@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/operations/read/screen-query.schema.json",
+  "title": "界面定义查询操作",
+  "description": "查询界面定义的操作模式 - 支持按类型、模块、权限等查询",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "精确匹配界面ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "按名称模糊查询"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["page", "dialog", "component", "layout"],
+          "description": "按界面类型查询"
+        },
+        "module": {
+          "type": "string",
+          "description": "按模块查询"
+        },
+        "category": {
+          "type": "string",
+          "description": "按分类查询"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "按权限查询"
+        },
+        "hasDataSource": {
+          "type": "boolean",
+          "description": "是否包含数据源"
+        }
+      },
+      "minProperties": 1,
+      "description": "查询条件"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "includeLayout": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否包含布局信息"
+        },
+        "includeDataBinding": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含数据绑定"
+        },
+        "includePermissions": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含权限信息"
+        },
+        "renderMode": {
+          "type": "string",
+          "enum": ["preview", "edit", "runtime"],
+          "default": "preview",
+          "description": "渲染模式"
+        }
+      },
+      "description": "查询选项"
+    }
+  },
+  "required": ["query"],
+  "additionalProperties": false
+}

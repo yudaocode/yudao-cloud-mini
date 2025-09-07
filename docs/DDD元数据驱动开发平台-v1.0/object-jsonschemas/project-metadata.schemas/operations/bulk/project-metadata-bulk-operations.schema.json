@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/project-metadata/operations/bulk/project-metadata-bulk-operations.schema.json",
+  "title": "项目元数据批量操作",
+  "description": "项目元数据的批量操作模式 - 支持一次性处理多个项目的高效批量更新",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "operationType": {
+            "type": "string",
+            "enum": ["create", "update", "delete", "patch", "archive", "restore"],
+            "description": "操作类型"
+          },
+          "projectId": {
+            "$ref": "../../fields/project-fields.schema.json#/$defs/projectId",
+            "description": "目标项目ID"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "$ref": "../../full/project-metadata.schema.json",
+                "description": "完整项目元数据（用于create和update操作）"
+              },
+              {
+                "$ref": "../patch/project-metadata-patch.schema.json",
+                "description": "项目补丁数据（用于patch操作）"
+              },
+              {
+                "type": "null",
+                "description": "删除、归档、恢复操作不需要数据"
+              }
+            ]
+          },
+          "conditions": {
+            "type": "object",
+            "properties": {
+              "ifExists": {
+                "type": "boolean",
+                "description": "仅在项目存在时执行操作"
+              },
+              "ifNotExists": {
+                "type": "boolean",
+                "description": "仅在项目不存在时执行操作"
+              },
+              "version": {
+                "type": "string",
+                "description": "预期的版本号（乐观锁）"
+              },
+              "status": {
+                "$ref": "../../fields/project-fields.schema.json#/$defs/projectStatus",
+                "description": "预期的项目状态"
+              },
+              "lastModifiedBefore": {
+                "type": "string",
+                "format": "date-time",
+                "description": "最后修改时间早于此时间"
+              },
+              "lastModifiedAfter": {
+                "type": "string",
+                "format": "date-time",
+                "description": "最后修改时间晚于此时间"
+              }
+            },
+            "description": "操作条件"
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "operationId": {
+                "type": "string",
+                "description": "操作ID"
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 500,
+                "description": "操作原因"
+              },
+              "operator": {
+                "type": "string",
+                "maxLength": 50,
+                "description": "操作者"
+              },
+              "priority": {
+                "type": "string",
+                "enum": ["LOW", "MEDIUM", "HIGH", "URGENT"],
+                "default": "MEDIUM",
+                "description": "操作优先级"
+              }
+            },
+            "description": "操作元数据"
+          }
+        },
+        "required": ["operationType", "projectId"],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 50,
+      "description": "批量操作列表，最多支持50个操作"
+    },
+    "executionOptions": {
+      "type": "object",
+      "properties": {
+        "transactional": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否作为事务执行（全部成功或全部回滚）"
+        },
+        "continueOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "遇到错误时是否继续执行后续操作"
+        },
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 5,
+          "description": "批处理大小"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 5000,
+          "maximum": 600000,
+          "default": 60000,
+          "description": "超时时间（毫秒）"
+        },
+        "retryAttempts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 3,
+          "description": "重试次数"
+        },
+        "parallelExecution": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否并行执行（仅在非事务模式下有效）"
+        },
+        "maxConcurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3,
+          "description": "最大并发数"
+        }
+      },
+      "description": "执行选项"
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "skipValidation": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否跳过验证"
+        },
+        "strictMode": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用严格模式"
+        },
+        "validateBeforeExecution": {
+          "type": "boolean",
+          "default": true,
+          "description": "执行前是否验证所有操作"
+        },
+        "customValidationRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string" },
+              "rule": { "type": "string" },
+              "message": { "type": "string" }
+            },
+            "required": ["field", "rule"]
+          },
+          "description": "自定义验证规则"
+        }
+      },
+      "description": "验证配置"
+    },
+    "notification": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否启用通知"
+        },
+        "onSuccess": {
+          "type": "boolean",
+          "default": true,
+          "description": "成功时是否通知"
+        },
+        "onError": {
+          "type": "boolean",
+          "default": true,
+          "description": "失败时是否通知"
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["EMAIL", "SLACK", "WEBHOOK", "SMS"]
+          },
+          "description": "通知渠道"
+        },
+        "recipients": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "通知接收者"
+        }
+      },
+      "description": "通知配置"
+    },
+    "audit": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用审计"
+        },
+        "logLevel": {
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARN", "ERROR"],
+          "default": "INFO",
+          "description": "日志级别"
+        },
+        "includeDataChanges": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否包含数据变更"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365,
+          "default": 90,
+          "description": "审计日志保留天数"
+        }
+      },
+      "description": "审计配置"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "batchId": {
+          "type": "string",
+          "pattern": "^batch_[a-zA-Z0-9_]+$",
+          "description": "批次ID"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "批量操作描述"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "maxItems": 10,
+          "description": "标签"
+        },
+        "createdBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "创建者"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "scheduledAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "计划执行时间"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["DEV", "TEST", "STAGING", "PROD"],
+          "description": "执行环境"
+        }
+      },
+      "description": "批量操作元数据"
+    }
+  },
+  "required": ["operations"],
+  "additionalProperties": false
+}

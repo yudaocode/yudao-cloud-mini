@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/strategic-design.schemas/full/strategic-design.schema.json",
+  "title": "战略设计完整定义",
+  "description": "完整的战略设计Schema定义",
+  "type": "object",
+  "properties": {
+    "version": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/version"
+    },
+    "domainId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/domainId"
+    },
+    "boundedContexts": {
+      "type": "array",
+      "items": {
+        "$ref": "./bounded-context.schema.json"
+      },
+      "minItems": 1,
+      "description": "限界上下文列表"
+    },
+    "subdomains": {
+      "type": "array",
+      "items": {
+        "$ref": "./subdomain.schema.json"
+      },
+      "description": "子域列表"
+    },
+    "contextMappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^mapping_[a-zA-Z0-9_]+$"
+          },
+          "sourceContextId": {
+            "$ref": "../fields/bounded-context-fields.schema.json#/$defs/boundedContextId"
+          },
+          "targetContextId": {
+            "$ref": "../fields/bounded-context-fields.schema.json#/$defs/boundedContextId"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": ["CUSTOMER_SUPPLIER", "CONFORMIST", "ANTI_CORRUPTION_LAYER", "OPEN_HOST_SERVICE", "PUBLISHED_LANGUAGE", "SHARED_KERNEL", "PARTNERSHIP"]
+          },
+          "description": {
+            "$ref": "../fields/common-fields.schema.json#/$defs/description"
+          }
+        },
+        "required": ["id", "sourceContextId", "targetContextId", "relationship"]
+      },
+      "description": "上下文映射列表"
+    }
+  },
+  "required": ["version", "boundedContexts"],
+  "additionalProperties": false
+}

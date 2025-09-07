@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/fields/persistence-fields.schema.json",
+  "title": "持久化相关字段",
+  "description": "持久化映射相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "persistenceMappingId": {
+      "type": "string",
+      "pattern": "^persistence_mapping_[a-zA-Z0-9_]+$",
+      "description": "持久化映射ID"
+    },
+    "storageType": {
+      "type": "string",
+      "enum": ["RELATIONAL", "NOSQL", "FILE", "CACHE", "MEMORY"],
+      "description": "存储类型"
+    },
+    "databaseType": {
+      "type": "string",
+      "enum": ["MYSQL", "POSTGRESQL", "ORACLE", "MONGODB", "REDIS", "ELASTICSEARCH"],
+      "description": "数据库类型"
+    },
+    "tableName": {
+      "type": "string",
+      "description": "表名"
+    },
+    "collectionName": {
+      "type": "string",
+      "description": "集合名"
+    },
+    "indexName": {
+      "type": "string",
+      "description": "索引名"
+    },
+    "partitionStrategy": {
+      "type": "string",
+      "enum": ["NONE", "RANGE", "HASH", "LIST"],
+      "description": "分区策略"
+    },
+    "cachingStrategy": {
+      "type": "string",
+      "enum": ["NONE", "READ_THROUGH", "WRITE_THROUGH", "WRITE_BEHIND", "CACHE_ASIDE"],
+      "description": "缓存策略"
+    },
+    "transactionBoundary": {
+      "type": "string",
+      "enum": ["NONE", "METHOD", "CLASS", "AGGREGATE"],
+      "description": "事务边界"
+    },
+    "consistencyLevel": {
+      "type": "string",
+      "enum": ["STRONG", "EVENTUAL", "WEAK"],
+      "description": "一致性级别"
+    }
+  }
+}

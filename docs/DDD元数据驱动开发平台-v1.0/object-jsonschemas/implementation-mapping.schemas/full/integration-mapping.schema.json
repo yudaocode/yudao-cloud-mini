@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/full/integration-mapping.schema.json",
+  "title": "集成映射",
+  "description": "集成映射定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/integrationMappingId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "boundedContextId": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/boundedContextId"
+    },
+    "integrationType": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/integrationType"
+    },
+    "communicationPattern": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/communicationPattern"
+    },
+    "messageFormat": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/messageFormat"
+    },
+    "protocol": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/protocol"
+    },
+    "endpoint": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/endpoint"
+    },
+    "timeout": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/timeout"
+    },
+    "retryStrategy": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/retryStrategy"
+    },
+    "circuitBreakerEnabled": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/circuitBreakerEnabled"
+    },
+    "authenticationMethod": {
+      "$ref": "../fields/integration-fields.schema.json#/$defs/authenticationMethod"
+    },
+    "requestMapping": {
+      "$ref": "./message-mapping.schema.json",
+      "description": "请求消息映射"
+    },
+    "responseMapping": {
+      "$ref": "./message-mapping.schema.json",
+      "description": "响应消息映射"
+    },
+    "errorHandling": {
+      "$ref": "./error-handling.schema.json",
+      "description": "错误处理配置"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id", "name", "integrationType", "communicationPattern"],
+  "additionalProperties": false
+}

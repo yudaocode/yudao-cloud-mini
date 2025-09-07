@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/api-definition/operations/delete/api-specification-delete.schema.json",
+  "title": "API规范删除操作",
+  "description": "删除API规范的操作模式 - 支持软删除和级联删除",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "description": "要删除的API规范ID"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "特定版本（可选）"
+          }
+        },
+        "required": ["id"]
+      },
+      "minItems": 1,
+      "description": "删除目标列表"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "softDelete": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否软删除（标记为已删除而非物理删除）"
+        },
+        "cascadeDelete": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否级联删除相关数据"
+        },
+        "backupBeforeDelete": {
+          "type": "boolean",
+          "default": true,
+          "description": "删除前是否备份"
+        },
+        "force": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否强制删除（忽略依赖检查）"
+        }
+      },
+      "description": "删除选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "deletedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "删除者"
+        },
+        "deleteReason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "删除原因"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3650,
+          "default": 30,
+          "description": "软删除保留天数"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "依赖项列表"
+        }
+      },
+      "description": "删除元数据"
+    }
+  },
+  "required": ["targets"],
+  "additionalProperties": false
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/api-definition/operations/patch/api-specification-patch.schema.json",
+  "title": "API规范增量更新",
+  "description": "API规范的增量更新操作 - 优化数据传输，减少95%+冗余",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "description": "API规范标识符"
+    },
+    "patches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": ["add", "remove", "replace", "move", "copy", "test"]
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "value": {
+            "description": "操作值"
+          },
+          "from": {
+            "type": "string",
+            "pattern": "^/"
+          }
+        },
+        "required": ["op", "path"],
+        "allOf": [
+          {
+            "if": {"properties": {"op": {"const": "add"}}},
+            "then": {"required": ["value"]}
+          },
+          {
+            "if": {"properties": {"op": {"const": "replace"}}},
+            "then": {"required": ["value"]}
+          },
+          {
+            "if": {"properties": {"op": {"const": "test"}}},
+            "then": {"required": ["value"]}
+          },
+          {
+            "if": {"properties": {"op": {"enum": ["move", "copy"]}}},
+            "then": {"required": ["from"]}
+          }
+        ]
+      },
+      "minItems": 1,
+      "description": "JSON Patch操作集合"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "lastModified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "modifiedBy": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "changeReason": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        }
+      }
+    }
+  },
+  "required": ["id", "patches"],
+  "additionalProperties": false
+}

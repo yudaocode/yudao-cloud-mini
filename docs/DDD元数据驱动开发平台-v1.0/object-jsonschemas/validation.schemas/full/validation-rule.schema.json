@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/validation.schemas/full/validation-rule.schema.json",
+  "title": "完整验证规则Schema",
+  "description": "验证规则的完整对象Schema，用于CREATE和完整读取操作",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/ruleId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/validationType"
+    },
+    "severity": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/severity"
+    },
+    "scope": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/scope"
+    },
+    "expression": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/expression"
+    },
+    "message": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/message"
+    },
+    "conditions": {
+      "$ref": "../fields/validation-configuration-fields.schema.json#/$defs/conditions"
+    },
+    "parameters": {
+      "$ref": "../fields/validation-rule-fields.schema.json#/$defs/parameters"
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "执行优先级（1-10，数字越小优先级越高）"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "执行顺序"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "createdAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/createdAt"
+    },
+    "updatedAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/updatedAt"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "type",
+    "severity",
+    "scope",
+    "expression",
+    "message",
+    "isActive"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "id": "validation_rule_domain_consistency_001",
+      "name": "领域一致性检查",
+      "description": "检查领域模型与战术设计的一致性",
+      "type": "CONSISTENCY",
+      "severity": "ERROR",
+      "scope": "DOMAIN",
+      "expression": "$.strategicDesign.domains[*].id in $.tacticalDesign.domains[*].id",
+      "message": "战术设计中缺少对应的领域定义：{missingDomains}",
+      "conditions": {
+        "triggers": ["ON_CREATE", "ON_UPDATE"]
+      },
+      "parameters": {
+        "checkDepth": 2,
+        "ignoreInactive": true
+      },
+      "priority": 1,
+      "order": 10,
+      "isActive": true
+    }
+  ]
+}

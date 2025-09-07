@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/fields/serialization-fields.schema.json",
+  "title": "序列化相关字段",
+  "description": "序列化相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "format": {
+      "type": "string",
+      "enum": ["JSON", "XML", "PROTOBUF", "AVRO", "NONE"],
+      "description": "序列化格式"
+    },
+    "compatibility": {
+      "type": "string",
+      "enum": ["BACKWARD", "FORWARD", "FULL", "NONE"],
+      "description": "兼容性策略"
+    },
+    "includeNulls": {
+      "type": "boolean",
+      "description": "是否包含null值"
+    },
+    "dateFormat": {
+      "type": "string",
+      "description": "日期格式"
+    },
+    "numberFormat": {
+      "type": "string",
+      "description": "数字格式"
+    },
+    "namingStrategy": {
+      "type": "string",
+      "enum": ["CAMEL_CASE", "SNAKE_CASE", "PASCAL_CASE", "KEBAB_CASE"],
+      "description": "命名策略"
+    },
+    "serializationName": {
+      "type": "string",
+      "description": "序列化名称"
+    },
+    "ignore": {
+      "type": "boolean",
+      "description": "是否忽略序列化"
+    },
+    "customConverter": {
+      "type": "string",
+      "description": "自定义转换器类名"
+    }
+  }
+}

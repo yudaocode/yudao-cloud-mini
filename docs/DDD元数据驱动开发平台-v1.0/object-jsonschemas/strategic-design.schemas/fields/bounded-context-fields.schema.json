@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/strategic-design.schemas/fields/bounded-context-fields.schema.json",
+  "title": "限界上下文字段定义",
+  "description": "限界上下文相关字段定义",
+  "$defs": {
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "限界上下文ID"
+    },
+    "contextType": {
+      "type": "string",
+      "enum": ["CORE", "SUPPORTING", "GENERIC"],
+      "description": "上下文类型：CORE(核心域)、SUPPORTING(支撑域)、GENERIC(通用域)"
+    },
+    "teamOwnership": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "团队归属"
+    },
+    "businessCapabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "description": "业务能力列表"
+    },
+    "technicalConstraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      },
+      "description": "技术约束列表"
+    },
+    "integrationPatterns": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["API", "EVENT", "SHARED_DATABASE", "FILE_TRANSFER", "RPC"]
+      },
+      "description": "集成模式"
+    }
+  }
+}

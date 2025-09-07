@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/operations/patch/action-patch.schema.json",
+  "title": "操作补丁操作",
+  "description": "屏幕操作的部分更新操作模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^action_[a-zA-Z0-9_]+$",
+      "description": "必须提供要更新的操作ID"
+    },
+    "name": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/name"
+    },
+    "title": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/title"
+    },
+    "description": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["button", "link", "menu", "toolbar", "context", "hotkey", "auto"],
+      "description": "操作类型"
+    },
+    "actionType": {
+      "type": "string",
+      "enum": ["navigate", "submit", "reset", "delete", "export", "import", "print", "custom"],
+      "description": "操作功能类型"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": ["click", "dblclick", "hover", "focus", "blur", "change", "submit", "keypress"],
+      "description": "触发方式"
+    },
+    "icon": {
+      "$ref": "../../fields/screen-fields.schema.json#/$defs/icon"
+    },
+    "visible": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/visible"
+    },
+    "disabled": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/disabled"
+    },
+    "order": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/order"
+    },
+    "targetUrl": {
+      "type": "string",
+      "format": "uri-reference",
+      "description": "目标URL（导航操作）"
+    },
+    "confirmMessage": {
+      "type": "string",
+      "description": "确认消息"
+    },
+    "successMessage": {
+      "type": "string",
+      "description": "成功消息"
+    },
+    "errorMessage": {
+      "type": "string",
+      "description": "错误消息"
+    },
+    "apiEndpoint": {
+      "type": "string",
+      "description": "API端点"
+    },
+    "method": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+      "description": "HTTP方法"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "操作参数"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string" },
+          "rule": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      },
+      "description": "验证规则"
+    }
+  },
+  "required": ["id"],
+  "additionalProperties": false
+}

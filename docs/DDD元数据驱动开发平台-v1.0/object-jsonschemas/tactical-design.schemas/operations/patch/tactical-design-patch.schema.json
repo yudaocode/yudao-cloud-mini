@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/tactical-design.schemas/operations/patch/tactical-design-patch.schema.json",
+  "title": "战术设计部分更新Schema",
+  "description": "用于PATCH操作的战术设计部分更新Schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "战术设计名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "战术设计描述"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "版本号（语义化版本）"
+    },
+    "codeGeneration": {
+      "type": "object",
+      "properties": {
+        "isEnabled": {
+          "type": "boolean",
+          "description": "是否启用代码生成"
+        },
+        "targetLanguage": {
+          "type": "string",
+          "enum": ["Java", "C#", "Python", "TypeScript", "Kotlin"],
+          "description": "目标编程语言"
+        },
+        "framework": {
+          "type": "string",
+          "description": "目标框架"
+        },
+        "templateVersion": {
+          "type": "string",
+          "description": "代码模板版本"
+        }
+      }
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "是否激活"
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1,
+  "examples": [
+    {
+      "isActive": false
+    },
+    {
+      "name": "更新后的战术设计",
+      "description": "更新的描述信息"
+    },
+    {
+      "codeGeneration": {
+        "isEnabled": true,
+        "targetLanguage": "Java",
+        "framework": "Spring Boot DDD"
+      }
+    }
+  ]
+}

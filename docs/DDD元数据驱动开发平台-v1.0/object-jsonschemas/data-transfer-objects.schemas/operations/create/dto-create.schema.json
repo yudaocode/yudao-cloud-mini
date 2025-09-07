@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/operations/create/dto-create.schema.json",
+  "title": "DTO创建操作",
+  "description": "创建新数据传输对象的操作模式 - 支持请求/响应DTO创建",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "dto": {
+      "$ref": "../../full/dto.schema.json",
+      "description": "要创建的DTO完整定义"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "validateMapping": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证字段映射"
+        },
+        "generateSerialization": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否生成序列化代码"
+        },
+        "checkDuplicates": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否检查重复定义"
+        },
+        "autoInferTypes": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否自动推断类型"
+        }
+      },
+      "description": "创建选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "创建者"
+        },
+        "apiContext": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "API上下文"
+        },
+        "purpose": {
+          "type": "string",
+          "enum": ["request", "response", "internal", "external"],
+          "description": "DTO用途"
+        }
+      },
+      "description": "创建元数据"
+    }
+  },
+  "required": ["dto"],
+  "additionalProperties": false
+}

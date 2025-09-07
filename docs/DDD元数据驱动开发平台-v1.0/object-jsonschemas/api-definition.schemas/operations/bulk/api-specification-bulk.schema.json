@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/api-definition/operations/bulk/api-specification-bulk.schema.json",
+  "title": "API规范批量操作",
+  "description": "API规范的批量操作模式 - 支持批量创建、更新、删除等操作",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "operation": {
+      "type": "string",
+      "enum": ["create", "update", "delete", "patch"],
+      "description": "批量操作类型"
+    },
+    "specifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "API规范标识符（更新和删除时需要）"
+          },
+          "data": {
+            "description": "操作数据（创建和更新时的完整定义，补丁时的变更内容）"
+          }
+        },
+        "required": ["data"],
+        "if": {
+          "properties": {
+            "operation": {"enum": ["update", "delete", "patch"]}
+          }
+        },
+        "then": {
+          "required": ["id"]
+        }
+      },
+      "minItems": 1,
+      "maxItems": 100,
+      "description": "批量操作的API规范列表"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "transactional": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否事务性执行（全部成功或全部失败）"
+        },
+        "validateAll": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证所有输入"
+        },
+        "continueOnError": {
+          "type": "boolean",
+          "default": false,
+          "description": "遇到错误时是否继续处理"
+        },
+        "parallelProcessing": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否并行处理"
+        },
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10,
+          "description": "批处理大小"
+        }
+      },
+      "description": "批量操作选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "initiatedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "操作发起者"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "批量操作原因"
+        },
+        "correlationId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "关联ID，用于追踪"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "normal", "high", "urgent"],
+          "default": "normal",
+          "description": "操作优先级"
+        }
+      },
+      "description": "批量操作元数据"
+    }
+  },
+  "required": ["operation", "specifications"],
+  "additionalProperties": false
+}

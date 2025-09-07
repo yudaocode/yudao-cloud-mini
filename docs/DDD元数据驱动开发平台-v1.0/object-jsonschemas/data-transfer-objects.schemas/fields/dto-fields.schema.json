@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/fields/dto-fields.schema.json",
+  "title": "DTO特定字段",
+  "description": "DTO对象特有的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "type": {
+      "type": "string",
+      "enum": ["COMMAND", "QUERY", "REQUEST", "RESPONSE", "EVENT", "VIEW", "PROJECTION", "VALUE_OBJECT"],
+      "description": "DTO类型"
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["CLIENT", "APPLICATION", "DOMAIN", "INFRASTRUCTURE"],
+      "description": "所在架构层"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "DTO用途描述"
+    },
+    "isImmutable": {
+      "type": "boolean",
+      "description": "是否不可变"
+    },
+    "generateBuilder": {
+      "type": "boolean",
+      "description": "是否生成构建器"
+    },
+    "replacementDtoId": {
+      "type": "string",
+      "pattern": "^dto_[a-zA-Z0-9_]+$",
+      "description": "替代DTO ID"
+    },
+    "termReferences": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^term_[a-zA-Z0-9_]+$"
+      },
+      "description": "引用的术语ID列表"
+    },
+    "example": {
+      "type": "object",
+      "description": "DTO示例"
+    }
+  }
+}

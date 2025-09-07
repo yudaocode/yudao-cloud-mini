@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/fields/layout-fields.schema.json",
+  "title": "布局相关字段",
+  "description": "布局和样式相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "layoutId": {
+      "type": "string",
+      "pattern": "^layout_[a-zA-Z0-9_]+$",
+      "description": "布局ID"
+    },
+    "layoutType": {
+      "type": "string",
+      "enum": ["GRID", "FLEX", "ABSOLUTE", "RELATIVE", "FIXED", "STICKY"],
+      "description": "布局类型"
+    },
+    "gridColumns": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 24,
+      "description": "网格列数"
+    },
+    "gridRows": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "网格行数"
+    },
+    "flexDirection": {
+      "type": "string",
+      "enum": ["row", "column", "row-reverse", "column-reverse"],
+      "description": "flex方向"
+    },
+    "flexWrap": {
+      "type": "string",
+      "enum": ["nowrap", "wrap", "wrap-reverse"],
+      "description": "flex换行"
+    },
+    "justifyContent": {
+      "type": "string",
+      "enum": ["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"],
+      "description": "主轴对齐"
+    },
+    "alignItems": {
+      "type": "string",
+      "enum": ["flex-start", "flex-end", "center", "baseline", "stretch"],
+      "description": "交叉轴对齐"
+    },
+    "gap": {
+      "type": "string",
+      "description": "间距"
+    },
+    "padding": {
+      "type": "string",
+      "description": "内边距"
+    },
+    "margin": {
+      "type": "string",
+      "description": "外边距"
+    },
+    "width": {
+      "type": "string",
+      "description": "宽度"
+    },
+    "height": {
+      "type": "string",
+      "description": "高度"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "description": "背景颜色"
+    },
+    "border": {
+      "type": "string",
+      "description": "边框"
+    },
+    "borderRadius": {
+      "type": "string",
+      "description": "圆角"
+    },
+    "boxShadow": {
+      "type": "string",
+      "description": "阴影"
+    }
+  }
+}

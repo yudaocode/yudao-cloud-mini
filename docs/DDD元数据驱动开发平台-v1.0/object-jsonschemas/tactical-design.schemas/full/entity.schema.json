@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/tactical-design.schemas/full/entity.schema.json",
+  "title": "实体完整Schema",
+  "description": "领域实体的完整Schema定义",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^entity_[a-zA-Z0-9_]+$",
+      "description": "实体ID"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "实体名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "实体描述"
+    },
+    "aggregateId": {
+      "type": "string",
+      "pattern": "^aggregate_[a-zA-Z0-9_]+$",
+      "description": "所属聚合ID"
+    },
+    "isAggregateRoot": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否为聚合根"
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "../fields/entity-fields.schema.json#/$defs/attribute"
+      },
+      "description": "实体属性列表"
+    },
+    "businessRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "业务规则列表"
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "不变量列表"
+    },
+    "domainEvents": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^event_[a-zA-Z0-9_]+$"
+      },
+      "description": "相关领域事件ID列表"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否激活"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "创建时间"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "更新时间"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "aggregateId",
+    "isActive"
+  ],
+  "additionalProperties": false
+}

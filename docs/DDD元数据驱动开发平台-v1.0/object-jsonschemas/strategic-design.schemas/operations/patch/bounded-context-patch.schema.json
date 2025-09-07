@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/strategic-design.schemas/operations/patch/bounded-context-patch.schema.json",
+  "title": "限界上下文部分更新Schema",
+  "description": "限界上下文PATCH操作的Schema定义",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/name"
+    },
+    "englishName": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/englishName"
+    },
+    "description": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../../fields/bounded-context-fields.schema.json#/$defs/contextType"
+    },
+    "teamOwnership": {
+      "$ref": "../../fields/bounded-context-fields.schema.json#/$defs/teamOwnership"
+    },
+    "businessCapabilities": {
+      "$ref": "../../fields/bounded-context-fields.schema.json#/$defs/businessCapabilities"
+    },
+    "technicalConstraints": {
+      "$ref": "../../fields/bounded-context-fields.schema.json#/$defs/technicalConstraints"
+    },
+    "integrationPatterns": {
+      "$ref": "../../fields/bounded-context-fields.schema.json#/$defs/integrationPatterns"
+    },
+    "isActive": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "priority": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/priority"
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1
+}

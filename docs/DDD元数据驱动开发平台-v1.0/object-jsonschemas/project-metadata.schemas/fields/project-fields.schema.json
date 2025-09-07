@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/project-metadata/fields/project-fields.schema.json",
+  "title": "项目基础字段定义",
+  "description": "项目相关的基础字段定义模式 - 包含项目标识、状态、优先级等核心字段",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "projectId": {
+      "type": "string",
+      "pattern": "^proj_[a-zA-Z0-9_-]+$",
+      "minLength": 6,
+      "maxLength": 55,
+      "description": "项目唯一标识符，格式：proj_项目代码"
+    },
+    "projectName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "项目名称"
+    },
+    "englishName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_\\s-]+$",
+      "maxLength": 100,
+      "description": "项目英文名称"
+    },
+    "projectStatus": {
+      "type": "string",
+      "enum": ["DRAFT", "PLANNING", "IN_PROGRESS", "REVIEW", "TESTING", "APPROVED", "DEPLOYED", "MAINTENANCE", "ARCHIVED"],
+      "description": "项目状态"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL", "URGENT"],
+      "description": "项目优先级"
+    },
+    "complexity": {
+      "type": "string",
+      "enum": ["SIMPLE", "MEDIUM", "COMPLEX", "VERY_COMPLEX"],
+      "description": "项目复杂度"
+    },
+    "projectType": {
+      "type": "string",
+      "enum": ["NEW_DEVELOPMENT", "ENHANCEMENT", "MIGRATION", "INTEGRATION", "MAINTENANCE", "RESEARCH"],
+      "description": "项目类型"
+    },
+    "budgetRange": {
+      "type": "string",
+      "enum": ["UNDER_10K", "10K_50K", "50K_100K", "100K_500K", "500K_1M", "OVER_1M"],
+      "description": "预算范围"
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "VERY_HIGH"],
+      "description": "风险等级"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date",
+      "description": "项目开始日期"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date",
+      "description": "项目结束日期"
+    },
+    "estimatedDuration": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3650,
+      "description": "预估工期（天）"
+    },
+    "actualDuration": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "实际工期（天）"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 50
+      },
+      "maxItems": 20,
+      "uniqueItems": true,
+      "description": "项目标签"
+    },
+    "milestone": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^milestone_[a-zA-Z0-9_]+$"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "IN_PROGRESS", "COMPLETED", "DELAYED", "CANCELLED"]
+        },
+        "progress": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": ["id", "name", "dueDate", "status"],
+      "description": "项目里程碑定义"
+    },
+    "dependencyType": {
+      "type": "string",
+      "enum": ["BLOCKS", "BLOCKED_BY", "RELATED_TO", "DUPLICATES", "IS_DUPLICATED_BY"],
+      "description": "依赖类型"
+    },
+    "dependency": {
+      "type": "object",
+      "properties": {
+        "type": { "$ref": "#/$defs/dependencyType" },
+        "targetProjectId": { "$ref": "#/$defs/projectId" },
+        "description": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": ["type", "targetProjectId"],
+      "description": "项目依赖关系"
+    }
+  }
+}

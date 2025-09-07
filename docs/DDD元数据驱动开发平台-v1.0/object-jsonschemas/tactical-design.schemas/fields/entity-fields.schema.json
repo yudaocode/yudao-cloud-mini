@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/tactical-design/fields/entity-fields.schema.json",
+  "title": "实体字段",
+  "description": "DDD实体相关的原子字段定义 - 包含标识符、生命周期和行为",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "entityId": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*$",
+      "minLength": 3,
+      "maxLength": 50,
+      "description": "实体唯一标识符"
+    },
+    "identityFields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9]*$"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "标识字段列表"
+    },
+    "mutable": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否可变"
+    },
+    "lifecycle": {
+      "type": "string",
+      "enum": ["transient", "persistent", "detached", "removed"],
+      "description": "实体生命周期状态"
+    },
+    "aggregateRoot": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否为聚合根"
+    },
+    "businessMethods": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "methodName": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9]*$"
+          },
+          "businessRule": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "sideEffects": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["methodName"]
+      },
+      "description": "业务方法定义"
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "expression": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warning", "info"]
+          }
+        },
+        "required": ["rule"]
+      },
+      "description": "不变式约束"
+    }
+  },
+  "additionalProperties": false
+}

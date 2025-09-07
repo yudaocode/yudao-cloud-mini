@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/tactical-design.schemas/full/value-object.schema.json",
+  "title": "值对象完整Schema",
+  "description": "领域值对象的完整Schema定义",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^vo_[a-zA-Z0-9_]+$",
+      "description": "值对象ID"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "值对象名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "值对象描述"
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "../fields/value-object-fields.schema.json#/$defs/attribute"
+      },
+      "description": "值对象属性列表"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "验证规则列表"
+    },
+    "businessLogic": {
+      "type": "string",
+      "description": "业务逻辑描述"
+    },
+    "isImmutable": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否不可变"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否激活"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "创建时间"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "更新时间"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "isImmutable",
+    "isActive"
+  ],
+  "additionalProperties": false
+}

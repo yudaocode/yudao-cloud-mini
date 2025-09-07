@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/ubiquitous-language.schemas/fields/common-fields.schema.json",
+  "title": "通用字段定义",
+  "description": "DDD元数据模型的通用字段定义",
+  "$defs": {
+    "entityId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*_[a-zA-Z0-9_]+$",
+      "description": "实体唯一标识符，格式：{prefix}_{name}"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain_[a-zA-Z0-9_]+$",
+      "description": "领域ID"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "名称"
+    },
+    "englishName": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "英文名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "描述"
+    },
+    "programmingName": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*$",
+      "description": "编程名称，遵循帕斯卡命名规范"
+    },
+    "camelCaseName": {
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9]*$",
+      "description": "驼峰命名"
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "是否激活",
+      "default": true
+    },
+    "priority": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "优先级（1-5，5为最高）"
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "description": "示例列表"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "时间戳"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "版本号"
+    }
+  }
+}

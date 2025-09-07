@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/dto-mapping.schema.json",
+  "title": "DTO映射",
+  "description": "DTO映射定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/mappingId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "sourceType": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/sourceType"
+    },
+    "sourceId": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/sourceId"
+    },
+    "targetType": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/targetType"
+    },
+    "targetId": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/targetId"
+    },
+    "mappingType": {
+      "$ref": "../fields/mapping-fields.schema.json#/$defs/mappingType"
+    },
+    "fieldMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./field-mapping.schema.json"
+      },
+      "description": "字段映射列表"
+    },
+    "transformationRules": {
+      "type": "array",
+      "items": {
+        "$ref": "./transformation-rule.schema.json"
+      },
+      "description": "转换规则列表"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "$ref": "./validation-rule.schema.json"
+      },
+      "description": "验证规则列表"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    }
+  },
+  "required": ["id", "name", "description", "sourceType", "sourceId", "targetType", "targetId", "mappingType"],
+  "additionalProperties": false
+}

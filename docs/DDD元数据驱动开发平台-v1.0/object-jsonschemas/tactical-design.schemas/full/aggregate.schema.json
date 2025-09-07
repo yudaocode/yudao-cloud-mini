@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/object-jsonschemas/tactical-design.schemas/full/aggregate.schema.json",
+  "title": "聚合完整定义",
+  "description": "单个聚合的完整Schema定义",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/aggregate-fields.schema.json#/$defs/aggregateId"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "聚合名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "聚合描述"
+    },
+    "aggregateRoot": {
+      "$ref": "../fields/aggregate-fields.schema.json#/$defs/aggregateRoot"
+    },
+    "consistencyBoundary": {
+      "$ref": "../fields/aggregate-fields.schema.json#/$defs/consistencyBoundary"
+    },
+    "businessRules": {
+      "$ref": "../fields/aggregate-fields.schema.json#/$defs/businessRules"
+    },
+    "invariants": {
+      "$ref": "../fields/aggregate-fields.schema.json#/$defs/invariants"
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^entity_[a-zA-Z0-9_]+$"
+      },
+      "description": "聚合内实体ID列表"
+    },
+    "valueObjects": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^vo_[a-zA-Z0-9_]+$"
+      },
+      "description": "聚合内值对象ID列表"
+    }
+  },
+  "required": ["id", "name", "description", "aggregateRoot"],
+  "additionalProperties": false
+}

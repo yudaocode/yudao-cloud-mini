@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/tactical-design.schemas/full/tactical-design.schema.json",
+  "title": "战术设计完整Schema",
+  "description": "战术设计的完整对象Schema，用于CREATE和完整读取操作",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^tactical_design_[a-zA-Z0-9_]+$",
+      "description": "战术设计ID"
+    },
+    "projectId": {
+      "type": "string",
+      "pattern": "^project_[a-zA-Z0-9_]+$",
+      "description": "项目ID"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain_[a-zA-Z0-9_]+$",
+      "description": "领域ID"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "战术设计名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "战术设计描述"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "版本号（语义化版本）"
+    },
+    "aggregates": {
+      "type": "array",
+      "items": {
+        "$ref": "aggregate.schema.json"
+      },
+      "description": "聚合列表"
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "$ref": "entity.schema.json"
+      },
+      "description": "实体列表"
+    },
+    "valueObjects": {
+      "type": "array",
+      "items": {
+        "$ref": "value-object.schema.json"
+      },
+      "description": "值对象列表"
+    },
+    "domainServices": {
+      "type": "array",
+      "items": {
+        "$ref": "domain-service.schema.json"
+      },
+      "description": "领域服务列表"
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "$ref": "repository.schema.json"
+      },
+      "description": "仓储列表"
+    },
+    "factories": {
+      "type": "array",
+      "items": {
+        "$ref": "factory.schema.json"
+      },
+      "description": "工厂列表"
+    },
+    "domainEvents": {
+      "type": "array",
+      "items": {
+        "$ref": "domain-event.schema.json"
+      },
+      "description": "领域事件列表"
+    },
+    "enumerations": {
+      "type": "array",
+      "items": {
+        "$ref": "enumeration.schema.json"
+      },
+      "description": "枚举列表"
+    },
+    "validationServices": {
+      "type": "array",
+      "items": {
+        "$ref": "validation-service.schema.json"
+      },
+      "description": "验证服务列表"
+    },
+    "designPatterns": {
+      "type": "array",
+      "items": {
+        "$ref": "design-pattern.schema.json"
+      },
+      "description": "设计模式列表"
+    },
+    "codeGeneration": {
+      "type": "object",
+      "properties": {
+        "isEnabled": {
+          "type": "boolean",
+          "description": "是否启用代码生成"
+        },
+        "targetLanguage": {
+          "type": "string",
+          "enum": ["Java", "C#", "Python", "TypeScript", "Kotlin"],
+          "description": "目标编程语言"
+        },
+        "framework": {
+          "type": "string",
+          "description": "目标框架"
+        },
+        "templateVersion": {
+          "type": "string",
+          "description": "代码模板版本"
+        }
+      }
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否激活"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "创建时间"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "更新时间"
+    }
+  },
+  "required": [
+    "id",
+    "projectId", 
+    "domainId",
+    "name",
+    "version",
+    "isActive"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "id": "tactical_design_ecommerce_001",
+      "projectId": "project_ecommerce_platform",
+      "domainId": "domain_order_management",
+      "name": "订单管理战术设计",
+      "description": "电商平台订单管理领域的战术设计",
+      "version": "1.0.0",
+      "aggregates": [],
+      "entities": [],
+      "valueObjects": [],
+      "domainServices": [],
+      "repositories": [],
+      "factories": [],
+      "domainEvents": [],
+      "enumerations": [],
+      "validationServices": [],
+      "designPatterns": [],
+      "codeGeneration": {
+        "isEnabled": true,
+        "targetLanguage": "Java",
+        "framework": "Spring Boot",
+        "templateVersion": "2.0.0"
+      },
+      "isActive": true
+    }
+  ]
+}

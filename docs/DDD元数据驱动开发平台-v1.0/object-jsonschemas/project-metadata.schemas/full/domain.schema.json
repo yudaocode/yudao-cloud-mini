@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/project-metadata.schemas/full/domain.schema.json",
+  "title": "业务领域定义",
+  "description": "DDD业务领域的完整定义Schema",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "domainId": {
+      "$ref": "../fields/domain-fields.schema.json#/$defs/domainId"
+    },
+    "name": {
+      "$ref": "../fields/domain-fields.schema.json#/$defs/domainName"
+    },
+    "englishName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+      "maxLength": 100,
+      "description": "领域英文名称"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../fields/domain-fields.schema.json#/$defs/domainType",
+      "default": "CORE",
+      "description": "领域类型（默认为核心域，可后续调整）"
+    },
+    "priority": {
+      "$ref": "../fields/domain-fields.schema.json#/$defs/domainPriority",
+      "default": "MEDIUM",
+      "description": "领域优先级（默认中等，可后续评估调整）"
+    },
+    "complexity": {
+      "$ref": "../fields/domain-fields.schema.json#/$defs/domainComplexity",
+      "default": "MEDIUM",
+      "description": "领域复杂度（默认中等，随理解深入调整）"
+    },
+    "status": {
+      "$ref": "../fields/domain-fields.schema.json#/$defs/domainStatus",
+      "default": "PLANNED",
+      "description": "领域状态（默认计划中）"
+    },
+    "boundedContexts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^context_[a-zA-Z0-9_]+$"
+      },
+      "description": "所属限界上下文ID列表（可选，随架构细化逐步添加）"
+    },
+    "subdomains": {
+      "type": "array",
+      "items": {
+        "$ref": "../../strategic-design.schemas/full/subdomain.schema.json"
+      },
+      "description": "子域列表（可选，领域细分时添加）"
+    },
+    "businessCapabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "../fields/domain-fields.schema.json#/$defs/businessCapability"
+      },
+      "description": "业务能力列表（可选，能力识别后添加）"
+    },
+    "stakeholders": {
+      "type": "array",
+      "items": {
+        "$ref": "../fields/domain-fields.schema.json#/$defs/stakeholder"
+      },
+      "description": "利益相关者列表（可选，团队协作时完善）"
+    },
+    "businessRules": {
+      "type": "array",
+      "items": {
+        "$ref": "../fields/domain-fields.schema.json#/$defs/businessRule"
+      },
+      "description": "业务规则列表（可选，规则梳理后添加）"
+    },
+    "metrics": {
+      "$ref": "../fields/domain-fields.schema.json#/$defs/domainMetrics",
+      "description": "领域指标统计（可选，架构成熟后统计）"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "创建时间"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "更新时间"
+    },
+    "createdBy": {
+      "type": "string",
+      "description": "创建者"
+    },
+    "updatedBy": {
+      "type": "string",
+      "description": "更新者"
+    }
+  },
+  "required": ["domainId", "name"],
+  "additionalProperties": false
+}

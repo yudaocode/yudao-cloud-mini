@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/data-transfer-objects/full/serialization.schema.json",
+  "title": "序列化配置",
+  "description": "序列化配置定义模式",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "format": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/format"
+    },
+    "version": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/version"
+    },
+    "compatibility": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/compatibility"
+    },
+    "includeNulls": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/includeNulls"
+    },
+    "dateFormat": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/dateFormat"
+    },
+    "numberFormat": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/numberFormat"
+    },
+    "namingStrategy": {
+      "$ref": "../fields/serialization-fields.schema.json#/$defs/namingStrategy"
+    }
+  },
+  "required": ["format"],
+  "additionalProperties": false
+}

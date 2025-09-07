@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/fields/screen-fields.schema.json",
+  "title": "屏幕相关字段",
+  "description": "屏幕定义相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "screenId": {
+      "type": "string",
+      "pattern": "^screen_[a-zA-Z0-9_]+$",
+      "description": "屏幕ID"
+    },
+    "screenType": {
+      "type": "string",
+      "enum": ["PAGE", "DIALOG", "DRAWER", "MODAL", "POPOVER", "TOAST", "COMPONENT"],
+      "description": "屏幕类型"
+    },
+    "screenCategory": {
+      "type": "string",
+      "enum": ["LIST", "FORM", "DETAIL", "DASHBOARD", "REPORT", "CUSTOM"],
+      "description": "屏幕分类"
+    },
+    "path": {
+      "type": "string",
+      "description": "路由路径"
+    },
+    "icon": {
+      "type": "string",
+      "description": "图标"
+    },
+    "badge": {
+      "type": "string",
+      "description": "徽章文本"
+    },
+    "redirectTo": {
+      "type": "string",
+      "description": "重定向到的路径"
+    },
+    "parentScreenId": {
+      "type": "string",
+      "pattern": "^screen_[a-zA-Z0-9_]+$",
+      "description": "父屏幕ID"
+    },
+    "layoutId": {
+      "type": "string",
+      "pattern": "^layout_[a-zA-Z0-9_]+$",
+      "description": "使用的布局ID"
+    },
+    "themeId": {
+      "type": "string",
+      "pattern": "^theme_[a-zA-Z0-9_]+$",
+      "description": "使用的主题ID"
+    },
+    "cacheable": {
+      "type": "boolean",
+      "description": "是否可缓存"
+    },
+    "keepAlive": {
+      "type": "boolean",
+      "description": "是否保持活跃状态"
+    },
+    "breadcrumb": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "面包屑导航"
+    }
+  }
+}

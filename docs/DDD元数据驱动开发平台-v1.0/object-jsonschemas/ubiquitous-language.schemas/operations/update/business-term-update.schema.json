@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/ubiquitous-language/operations/update/business-term-update.schema.json",
+  "title": "业务术语更新操作",
+  "description": "完整更新业务术语的操作模式 - 支持定义、同义词和上下文更新",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "description": "要更新的业务术语ID"
+    },
+    "term": {
+      "$ref": "../../full/business-term.schema.json",
+      "description": "新的业务术语完整定义"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "validateUniqueness": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证术语唯一性"
+        },
+        "preserveHistory": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否保留变更历史"
+        },
+        "updateReferences": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否更新引用此术语的地方"
+        },
+        "notifyStakeholders": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否通知相关干系人"
+        }
+      },
+      "description": "更新选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "updatedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "更新者"
+        },
+        "updateReason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "更新原因"
+        },
+        "previousDefinition": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "前一版本定义"
+        },
+        "semanticChanges": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "语义变更列表"
+        }
+      },
+      "description": "更新元数据"
+    }
+  },
+  "required": ["id", "term"],
+  "additionalProperties": false
+}

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/operations/patch/component-patch.schema.json",
+  "title": "组件补丁操作",
+  "description": "组件的部分更新操作模式 - 针对单个组件的高效增量更新",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/componentId",
+      "description": "必须提供要更新的组件ID"
+    },
+    "name": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/name"
+    },
+    "title": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/title"
+    },
+    "description": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/description"
+    },
+    "type": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/componentType"
+    },
+    "subtype": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/componentSubtype"
+    },
+    "category": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/componentCategory"
+    },
+    "x": {
+      "$ref": "../../fields/layout-fields.schema.json#/$defs/coordinate"
+    },
+    "y": {
+      "$ref": "../../fields/layout-fields.schema.json#/$defs/coordinate"
+    },
+    "width": {
+      "$ref": "../../fields/layout-fields.schema.json#/$defs/dimension"
+    },
+    "height": {
+      "$ref": "../../fields/layout-fields.schema.json#/$defs/dimension"
+    },
+    "zIndex": {
+      "$ref": "../../fields/layout-fields.schema.json#/$defs/zIndex"
+    },
+    "visible": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/visible"
+    },
+    "disabled": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/disabled"
+    },
+    "readonly": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/readonly"
+    },
+    "required": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/required"
+    },
+    "placeholder": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/placeholder"
+    },
+    "defaultValue": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/defaultValue"
+    },
+    "className": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/className"
+    },
+    "style": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/style"
+    },
+    "propertiesUpdates": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]*$": true
+      },
+      "description": "组件属性的增量更新"
+    },
+    "dataSourceId": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/dataSourceId"
+    },
+    "bindingField": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/bindingField"
+    },
+    "validationRules": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/validationRules"
+    },
+    "events": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/events"
+    },
+    "order": {
+      "$ref": "../../fields/common-fields.schema.json#/$defs/order"
+    },
+    "parentId": {
+      "$ref": "../../fields/component-fields.schema.json#/$defs/parentId"
+    }
+  },
+  "required": ["id"],
+  "additionalProperties": false
+}

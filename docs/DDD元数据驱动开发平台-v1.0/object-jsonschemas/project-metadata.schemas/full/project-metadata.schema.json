@@ -1,0 +1,404 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/project-metadata/full/project-metadata.schema.json",
+  "title": "项目元数据完整定义",
+  "description": "DDD项目元数据的完整定义模式 - 包含项目信息、团队、技术栈、业务上下文等",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "const": "2.0.0",
+      "description": "Schema版本号"
+    },
+    "projectId": {
+      "$ref": "../fields/project-fields.schema.json#/$defs/projectId"
+    },
+    "projectInfo": {
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "../fields/project-fields.schema.json#/$defs/projectName" },
+        "englishName": { "$ref": "../fields/project-fields.schema.json#/$defs/englishName" },
+        "description": { "$ref": "../fields/common-fields.schema.json#/$defs/description" },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "项目版本号"
+        },
+        "status": { "$ref": "../fields/project-fields.schema.json#/$defs/projectStatus" },
+        "priority": { "$ref": "../fields/project-fields.schema.json#/$defs/priority" },
+        "type": { "$ref": "../fields/project-fields.schema.json#/$defs/projectType" },
+        "complexity": { "$ref": "../fields/project-fields.schema.json#/$defs/complexity" },
+        "budgetRange": { "$ref": "../fields/project-fields.schema.json#/$defs/budgetRange" },
+        "riskLevel": { "$ref": "../fields/project-fields.schema.json#/$defs/riskLevel" },
+        "startDate": { "$ref": "../fields/project-fields.schema.json#/$defs/startDate" },
+        "endDate": { "$ref": "../fields/project-fields.schema.json#/$defs/endDate" },
+        "estimatedDuration": { "$ref": "../fields/project-fields.schema.json#/$defs/estimatedDuration" },
+        "actualDuration": { "$ref": "../fields/project-fields.schema.json#/$defs/actualDuration" },
+        "tags": { "$ref": "../fields/project-fields.schema.json#/$defs/tags" },
+        "milestones": {
+          "type": "array",
+          "items": { "$ref": "../fields/project-fields.schema.json#/$defs/milestone" },
+          "description": "项目里程碑列表"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "../fields/project-fields.schema.json#/$defs/dependency" },
+          "description": "项目依赖关系"
+        }
+      },
+      "required": ["name", "status", "priority", "type"],
+      "description": "项目基本信息"
+    },
+    "teamInfo": {
+      "type": "object",
+      "properties": {
+        "productOwner": {
+          "allOf": [
+            { "$ref": "../fields/team-fields.schema.json#/$defs/teamMember" },
+            {
+              "properties": {
+                "role": { "const": "PRODUCT_OWNER" }
+              }
+            }
+          ],
+          "description": "产品负责人"
+        },
+        "technicalLead": {
+          "allOf": [
+            { "$ref": "../fields/team-fields.schema.json#/$defs/teamMember" },
+            {
+              "properties": {
+                "role": { "const": "TECHNICAL_LEAD" }
+              }
+            }
+          ],
+          "description": "技术负责人"
+        },
+        "architect": {
+          "allOf": [
+            { "$ref": "../fields/team-fields.schema.json#/$defs/teamMember" },
+            {
+              "properties": {
+                "role": { "const": "ARCHITECT" }
+              }
+            }
+          ],
+          "description": "架构师"
+        },
+        "projectManager": {
+          "allOf": [
+            { "$ref": "../fields/team-fields.schema.json#/$defs/teamMember" },
+            {
+              "properties": {
+                "role": { "const": "PROJECT_MANAGER" }
+              }
+            }
+          ],
+          "description": "项目经理"
+        },
+        "teamMembers": {
+          "type": "array",
+          "items": { "$ref": "../fields/team-fields.schema.json#/$defs/teamMember" },
+          "description": "团队成员列表"
+        },
+        "communicationChannels": {
+          "type": "array",
+          "items": { "$ref": "../fields/team-fields.schema.json#/$defs/communicationChannel" },
+          "description": "团队沟通渠道"
+        },
+        "teamSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "团队规模"
+        },
+        "organizationStructure": {
+          "type": "string",
+          "enum": ["FLAT", "HIERARCHICAL", "MATRIX", "SCRUM", "KANBAN", "OTHER"],
+          "description": "组织结构"
+        }
+      },
+      "required": ["teamMembers"],
+      "description": "团队信息"
+    },
+    "technologyStack": {
+      "type": "object",
+      "properties": {
+        "frontend": {
+          "type": "object",
+          "properties": {
+            "language": { "$ref": "../fields/technical-fields.schema.json#/$defs/programmingLanguage" },
+            "framework": { "$ref": "../fields/technical-fields.schema.json#/$defs/frontendFramework" },
+            "buildTool": {
+              "type": "string",
+              "enum": ["WEBPACK", "VITE", "ROLLUP", "PARCEL", "ESBUILD", "OTHER"]
+            },
+            "packageManager": {
+              "type": "string",
+              "enum": ["NPM", "YARN", "PNPM", "OTHER"]
+            },
+            "uiLibrary": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["ANTD", "ELEMENT_UI", "MATERIAL_UI", "BOOTSTRAP", "TAILWIND", "OTHER"]
+              }
+            }
+          },
+          "description": "前端技术栈"
+        },
+        "backend": {
+          "type": "object",
+          "properties": {
+            "language": { "$ref": "../fields/technical-fields.schema.json#/$defs/programmingLanguage" },
+            "framework": { "$ref": "../fields/technical-fields.schema.json#/$defs/backendFramework" },
+            "database": {
+              "type": "array",
+              "items": { "$ref": "../fields/technical-fields.schema.json#/$defs/databaseType" }
+            },
+            "orm": { "$ref": "../fields/technical-fields.schema.json#/$defs/ormFramework" },
+            "messageQueue": { "$ref": "../fields/technical-fields.schema.json#/$defs/messageQueue" },
+            "cache": { "$ref": "../fields/technical-fields.schema.json#/$defs/cacheSystem" },
+            "searchEngine": { "$ref": "../fields/technical-fields.schema.json#/$defs/searchEngine" }
+          },
+          "description": "后端技术栈"
+        },
+        "infrastructure": {
+          "type": "object",
+          "properties": {
+            "deployment": { "$ref": "../fields/technical-fields.schema.json#/$defs/deploymentPlatform" },
+            "cicd": { "$ref": "../fields/technical-fields.schema.json#/$defs/cicdTool" },
+            "monitoring": {
+              "type": "array",
+              "items": { "$ref": "../fields/technical-fields.schema.json#/$defs/monitoringTool" }
+            },
+            "apiGateway": { "$ref": "../fields/technical-fields.schema.json#/$defs/apiGateway" },
+            "serviceDiscovery": { "$ref": "../fields/technical-fields.schema.json#/$defs/serviceDiscovery" },
+            "configManagement": { "$ref": "../fields/technical-fields.schema.json#/$defs/configurationManagement" }
+          },
+          "description": "基础设施"
+        },
+        "testing": {
+          "type": "object",
+          "properties": {
+            "unitTesting": { "$ref": "../fields/technical-fields.schema.json#/$defs/testingFramework" },
+            "integrationTesting": { "$ref": "../fields/technical-fields.schema.json#/$defs/testingFramework" },
+            "e2eTesting": { "$ref": "../fields/technical-fields.schema.json#/$defs/testingFramework" },
+            "performanceTesting": {
+              "type": "string",
+              "enum": ["JMETER", "K6", "GATLING", "LOCUST", "ARTILLERY", "OTHER"]
+            },
+            "coverageTarget": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "测试覆盖率目标"
+            }
+          },
+          "description": "测试技术栈"
+        },
+        "tools": {
+          "type": "object",
+          "properties": {
+            "versionControl": { "$ref": "../fields/technical-fields.schema.json#/$defs/versionControl" },
+            "codeRepository": { "$ref": "../fields/technical-fields.schema.json#/$defs/codeRepository" },
+            "projectManagement": { "$ref": "../fields/technical-fields.schema.json#/$defs/projectManagementTool" },
+            "documentation": { "$ref": "../fields/technical-fields.schema.json#/$defs/documentationTool" },
+            "design": { "$ref": "../fields/technical-fields.schema.json#/$defs/designTool" },
+            "codeQuality": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["SONARQUBE", "ESLINT", "PRETTIER", "CHECKSTYLE", "SPOTBUGS", "OTHER"]
+              }
+            }
+          },
+          "description": "开发工具"
+        }
+      },
+      "description": "技术栈信息"
+    },
+    "businessContext": {
+      "type": "object",
+      "properties": {
+        "industry": { "$ref": "../fields/business-fields.schema.json#/$defs/industry" },
+        "businessType": { "$ref": "../fields/business-fields.schema.json#/$defs/businessType" },
+        "businessModel": { "$ref": "../fields/business-fields.schema.json#/$defs/businessModel" },
+        "targetMarket": { "$ref": "../fields/business-fields.schema.json#/$defs/targetMarket" },
+        "targetUsers": {
+          "type": "array",
+          "items": { "$ref": "../fields/business-fields.schema.json#/$defs/userGroup" },
+          "description": "目标用户群体"
+        },
+        "businessGoals": {
+          "type": "array",
+          "items": { "$ref": "../fields/business-fields.schema.json#/$defs/businessGoal" },
+          "description": "业务目标"
+        },
+        "requirements": {
+          "type": "array",
+          "items": { "$ref": "../fields/business-fields.schema.json#/$defs/requirement" },
+          "description": "业务需求"
+        },
+        "riskFactors": {
+          "type": "array",
+          "items": { "$ref": "../fields/business-fields.schema.json#/$defs/riskFactor" },
+          "description": "风险因素"
+        },
+        "complianceRequirements": {
+          "type": "array",
+          "items": { "$ref": "../fields/business-fields.schema.json#/$defs/complianceRequirement" },
+          "description": "合规要求"
+        }
+      },
+      "description": "业务上下文"
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "$ref": "./domain.schema.json"
+      },
+      "description": "项目包含的业务领域列表（可选，随着架构演进逐步添加）"
+    },
+    "dddContext": {
+      "type": "object",
+      "properties": {
+        "domainModelComplexity": {
+          "type": "string",
+          "enum": ["SIMPLE", "MODERATE", "COMPLEX", "VERY_COMPLEX"],
+          "description": "领域模型复杂度"
+        },
+        "boundedContextCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "限界上下文数量"
+        },
+        "aggregateCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "聚合根数量"
+        },
+        "entityCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "实体数量"
+        },
+        "valueObjectCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "值对象数量"
+        },
+        "domainServiceCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "领域服务数量"
+        },
+        "eventCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "领域事件数量"
+        },
+        "architecturePattern": {
+          "type": "string",
+          "enum": ["LAYERED", "HEXAGONAL", "ONION", "CLEAN", "MICROSERVICES", "MODULAR_MONOLITH", "OTHER"],
+          "description": "架构模式"
+        },
+        "cqrsEnabled": {
+          "type": "boolean",
+          "description": "是否启用CQRS"
+        },
+        "eventSourcingEnabled": {
+          "type": "boolean",
+          "description": "是否启用事件溯源"
+        }
+      },
+      "description": "DDD上下文信息"
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "更新时间"
+        },
+        "lastModifiedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "最后修改人"
+        },
+        "totalCommits": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "总提交数"
+        },
+        "totalCodeLines": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "总代码行数"
+        },
+        "testCoverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "测试覆盖率"
+        },
+        "bugCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "缺陷数量"
+        },
+        "performanceScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "性能评分"
+        },
+        "securityScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "安全评分"
+        },
+        "qualityGate": {
+          "type": "string",
+          "enum": ["PASSED", "FAILED", "WARNING", "NOT_ANALYZED"],
+          "description": "质量门禁状态"
+        }
+      },
+      "description": "项目统计信息"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "const": "2.0.0"
+        },
+        "generatedBy": {
+          "type": "string",
+          "description": "生成工具"
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "生成时间"
+        },
+        "checksum": {
+          "type": "string",
+          "description": "数据校验和"
+        }
+      },
+      "description": "元数据信息"
+    }
+  },
+  "required": ["version", "projectId", "projectInfo", "teamInfo"],
+  "additionalProperties": false
+}

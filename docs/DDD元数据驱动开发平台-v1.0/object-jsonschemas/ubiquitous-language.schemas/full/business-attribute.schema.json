@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/1.0/schemas/full/business-attribute.schema.json",
+  "title": "业务属性完整定义",
+  "description": "单个业务属性的完整Schema定义",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/attributeId"
+    },
+    "name": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+    },
+    "programmingName": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/camelCaseName"
+    },
+    "description": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+    },
+    "dataType": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/dataType"
+    },
+    "customType": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/customType"
+    },
+    "unit": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/unit"
+    },
+    "format": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/format"
+    },
+    "constraints": {
+      "$ref": "constraints.schema.json"
+    },
+    "defaultValue": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/defaultValue"
+    },
+    "isRequired": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/isRequired"
+    },
+    "isUnique": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/isUnique"
+    },
+    "isReadOnly": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/isReadOnly"
+    },
+    "validationRules": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/validationRules"
+    },
+    "businessLogic": {
+      "$ref": "../fields/business-attribute-fields.schema.json#/$defs/businessLogic"
+    },
+    "examples": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/examples"
+    },
+    "isActive": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    },
+    "createdAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/timestamp"
+    },
+    "updatedAt": {
+      "$ref": "../fields/common-fields.schema.json#/$defs/timestamp"
+    }
+  },
+  "required": [
+    "id", 
+    "name", 
+    "programmingName", 
+    "description", 
+    "dataType"
+  ],
+  "additionalProperties": false
+}

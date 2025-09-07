@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/api-definition/fields/parameter-fields.schema.json",
+  "title": "API参数字段",
+  "description": "API参数相关的原子字段定义 - 支持路径、查询、头部和体参数",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "parameterName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+      "minLength": 1,
+      "maxLength": 50,
+      "description": "参数名称"
+    },
+    "parameterIn": {
+      "type": "string",
+      "enum": ["query", "header", "path", "cookie", "formData", "body"],
+      "description": "参数位置"
+    },
+    "parameterType": {
+      "type": "string",
+      "enum": ["string", "number", "integer", "boolean", "array", "object", "file"],
+      "description": "参数类型"
+    },
+    "required": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否必需"
+    },
+    "defaultValue": {
+      "description": "默认值"
+    },
+    "format": {
+      "type": "string",
+      "enum": ["date", "date-time", "email", "uri", "uuid", "binary", "byte", "password"],
+      "description": "参数格式"
+    },
+    "minimum": {
+      "type": "number",
+      "description": "最小值"
+    },
+    "maximum": {
+      "type": "number",
+      "description": "最大值"
+    },
+    "minLength": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "最小长度"
+    },
+    "maxLength": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "最大长度"
+    },
+    "pattern": {
+      "type": "string",
+      "description": "正则表达式模式"
+    },
+    "enumValues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "description": "枚举值"
+    },
+    "allowEmptyValue": {
+      "type": "boolean",
+      "default": false,
+      "description": "是否允许空值"
+    },
+    "collectionFormat": {
+      "type": "string",
+      "enum": ["csv", "ssv", "tsv", "pipes", "multi"],
+      "description": "集合格式"
+    }
+  },
+  "additionalProperties": false
+}

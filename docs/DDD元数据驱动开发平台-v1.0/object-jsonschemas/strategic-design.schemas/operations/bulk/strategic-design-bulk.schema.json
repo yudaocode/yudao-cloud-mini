@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/strategic-design/operations/bulk/strategic-design-bulk.schema.json",
+  "title": "战略设计批量操作",
+  "description": "战略设计元素的批量操作模式 - 支持批量创建、更新界限上下文等",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "operation": {
+      "type": "string",
+      "enum": ["create", "update", "delete", "patch"],
+      "description": "批量操作类型"
+    },
+    "designs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "战略设计元素标识符（更新和删除时需要）"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["bounded-context", "domain", "subdomain", "context-map"],
+            "description": "战略设计元素类型"
+          },
+          "data": {
+            "description": "操作数据（创建和更新时的完整定义，补丁时的变更内容）"
+          }
+        },
+        "required": ["type", "data"],
+        "if": {
+          "properties": {
+            "operation": {"enum": ["update", "delete", "patch"]}
+          }
+        },
+        "then": {
+          "required": ["id"]
+        }
+      },
+      "minItems": 1,
+      "maxItems": 50,
+      "description": "批量操作的战略设计元素列表"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "transactional": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否事务性执行（全部成功或全部失败）"
+        },
+        "validateDependencies": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证依赖关系"
+        },
+        "autoResolveConflicts": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否自动解决冲突"
+        },
+        "generateMapping": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否自动生成上下文映射"
+        }
+      },
+      "description": "批量操作选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "initiatedBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "操作发起者"
+        },
+        "project": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "所属项目"
+        },
+        "phase": {
+          "type": "string",
+          "enum": ["analysis", "design", "implementation", "refactoring"],
+          "description": "项目阶段"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "批量操作原因"
+        }
+      },
+      "description": "批量操作元数据"
+    }
+  },
+  "required": ["operation", "designs"],
+  "additionalProperties": false
+}

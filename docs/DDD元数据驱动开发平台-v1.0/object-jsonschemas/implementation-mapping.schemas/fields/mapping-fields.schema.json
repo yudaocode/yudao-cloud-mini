@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/implementation-mapping/fields/mapping-fields.schema.json",
+  "title": "映射相关字段",
+  "description": "各种映射类型相关的字段定义",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "mappingId": {
+      "type": "string",
+      "description": "映射唯一标识符"
+    },
+    "mappingType": {
+      "type": "string",
+      "enum": ["DTO", "PERSISTENCE", "INTEGRATION", "SCREEN", "API", "EVENT", "SECURITY", "MONITORING"],
+      "description": "映射类型"
+    },
+    "sourceType": {
+      "type": "string",
+      "description": "源类型"
+    },
+    "sourceId": {
+      "type": "string",
+      "description": "源ID"
+    },
+    "targetType": {
+      "type": "string",
+      "description": "目标类型"
+    },
+    "targetId": {
+      "type": "string",
+      "description": "目标ID"
+    },
+    "mappingStrategy": {
+      "type": "string",
+      "enum": ["DIRECT", "TRANSFORM", "AGGREGATE", "SPLIT", "CUSTOM"],
+      "description": "映射策略"
+    },
+    "transformationRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "转换规则列表"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "验证规则列表"
+    },
+    "configurationProperties": {
+      "type": "object",
+      "description": "配置属性"
+    },
+    "customAttributes": {
+      "type": "object",
+      "description": "自定义属性"
+    }
+  }
+}

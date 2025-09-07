@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/ubiquitous-language/operations/create/business-term-create.schema.json",
+  "title": "业务术语创建操作",
+  "description": "创建新业务术语的操作模式 - 支持批量创建和验证",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "term": {
+      "$ref": "../../full/business-term.schema.json",
+      "description": "要创建的业务术语完整定义"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "validateUniqueness": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证术语唯一性"
+        },
+        "autoGenerateId": {
+          "type": "boolean", 
+          "default": true,
+          "description": "是否自动生成ID"
+        },
+        "checkConflicts": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否检查冲突"
+        },
+        "validateContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否验证上下文"
+        }
+      },
+      "description": "创建选项"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdBy": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "创建者"
+        },
+        "source": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "来源"
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "创建原因"
+        }
+      },
+      "description": "创建元数据"
+    }
+  },
+  "required": ["term"],
+  "additionalProperties": false
+}

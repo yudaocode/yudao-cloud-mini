@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/project-metadata/fields/business-fields.schema.json",
+  "title": "业务字段定义",
+  "description": "业务相关的字段定义模式 - 包含行业、业务类型、目标等",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "industry": {
+      "type": "string",
+      "enum": [
+        "E_COMMERCE", "FINANCE", "HEALTHCARE", "EDUCATION", "MANUFACTURING", 
+        "LOGISTICS", "ENTERTAINMENT", "GOVERNMENT", "REAL_ESTATE", "AUTOMOTIVE", 
+        "TELECOMMUNICATIONS", "ENERGY", "AGRICULTURE", "MEDIA", "TRAVEL", 
+        "RETAIL", "CONSULTING", "NON_PROFIT", "OTHER"
+      ],
+      "description": "所属行业"
+    },
+    "businessType": {
+      "type": "string",
+      "enum": ["B2B", "B2C", "B2B2C", "C2C", "INTERNAL", "SAAS", "PAAS", "IAAS", "OTHER"],
+      "description": "业务类型"
+    },
+    "businessModel": {
+      "type": "string",
+      "enum": [
+        "SUBSCRIPTION", "FREEMIUM", "MARKETPLACE", "ADVERTISING", "TRANSACTION", 
+        "LICENSING", "CONSULTING", "PRODUCT_SALES", "SERVICE", "OTHER"
+      ],
+      "description": "商业模式"
+    },
+    "targetMarket": {
+      "type": "string",
+      "enum": ["LOCAL", "REGIONAL", "NATIONAL", "INTERNATIONAL", "GLOBAL"],
+      "description": "目标市场范围"
+    },
+    "userGroup": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "用户群体名称"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "用户群体描述"
+        },
+        "size": {
+          "type": "string",
+          "enum": ["SMALL", "MEDIUM", "LARGE", "VERY_LARGE"],
+          "description": "群体规模"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH"],
+          "description": "优先级"
+        }
+      },
+      "required": ["name", "description"],
+      "description": "目标用户群体"
+    },
+    "businessGoal": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^goal_[a-zA-Z0-9_]+$",
+          "description": "目标ID"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "目标标题"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "目标描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "REVENUE", "COST_REDUCTION", "EFFICIENCY", "CUSTOMER_SATISFACTION", 
+            "MARKET_SHARE", "USER_GROWTH", "QUALITY", "COMPLIANCE", "INNOVATION", "OTHER"
+          ],
+          "description": "目标类型"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+          "description": "优先级"
+        },
+        "measurable": {
+          "type": "boolean",
+          "description": "是否可量化"
+        },
+        "targetValue": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "目标值"
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date",
+          "description": "截止日期"
+        },
+        "owner": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "负责人"
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "maxItems": 10,
+          "description": "衡量指标"
+        }
+      },
+      "required": ["id", "title", "description", "type", "priority"],
+      "description": "业务目标"
+    },
+    "requirement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^req_[a-zA-Z0-9_]+$",
+          "description": "需求ID"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "需求标题"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "需求描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["FUNCTIONAL", "NON_FUNCTIONAL", "BUSINESS", "TECHNICAL", "CONSTRAINT"],
+          "description": "需求类型"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["MUST_HAVE", "SHOULD_HAVE", "COULD_HAVE", "WONT_HAVE"],
+          "description": "优先级（MoSCoW）"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["DRAFT", "REVIEW", "APPROVED", "IN_PROGRESS", "TESTING", "DONE", "CANCELLED"],
+          "description": "需求状态"
+        },
+        "effort": {
+          "type": "string",
+          "enum": ["XS", "S", "M", "L", "XL", "XXL"],
+          "description": "工作量评估"
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "description": "验收标准"
+        },
+        "source": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "需求来源"
+        },
+        "stakeholder": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "利益相关者"
+        }
+      },
+      "required": ["id", "title", "description", "type", "priority"],
+      "description": "业务需求"
+    },
+    "riskFactor": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^risk_[a-zA-Z0-9_]+$",
+          "description": "风险ID"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "风险标题"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "风险描述"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "TECHNICAL", "BUSINESS", "OPERATIONAL", "FINANCIAL", "LEGAL", 
+            "COMPLIANCE", "SECURITY", "PERFORMANCE", "RESOURCE", "TIMELINE", "OTHER"
+          ],
+          "description": "风险类别"
+        },
+        "probability": {
+          "type": "string",
+          "enum": ["VERY_LOW", "LOW", "MEDIUM", "HIGH", "VERY_HIGH"],
+          "description": "发生概率"
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["NEGLIGIBLE", "MINOR", "MODERATE", "MAJOR", "CATASTROPHIC"],
+          "description": "影响程度"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+          "description": "严重程度"
+        },
+        "mitigation": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "缓解措施"
+        },
+        "contingency": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "应急计划"
+        },
+        "owner": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "负责人"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["IDENTIFIED", "ANALYZING", "MITIGATED", "MONITORING", "OCCURRED", "CLOSED"],
+          "description": "风险状态"
+        }
+      },
+      "required": ["id", "title", "description", "category", "probability", "impact"],
+      "description": "风险因素"
+    },
+    "complianceRequirement": {
+      "type": "object",
+      "properties": {
+        "standard": {
+          "type": "string",
+          "enum": [
+            "ISO_27001", "SOC2", "GDPR", "HIPAA", "PCI_DSS", "SOX", 
+            "COBIT", "ITIL", "CMMI", "OWASP", "NIST", "OTHER"
+          ],
+          "description": "合规标准"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "合规要求描述"
+        },
+        "mandatory": {
+          "type": "boolean",
+          "description": "是否强制要求"
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date",
+          "description": "合规截止日期"
+        }
+      },
+      "required": ["standard", "description", "mandatory"],
+      "description": "合规要求"
+    }
+  }
+}

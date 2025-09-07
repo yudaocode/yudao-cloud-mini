@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/tactical-design/fields/value-object-fields.schema.json",
+  "title": "值对象字段",
+  "description": "DDD值对象相关的原子字段定义 - 不可变且无标识符",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "valueObjectId": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*$",
+      "minLength": 3,
+      "maxLength": 50,
+      "description": "值对象类型标识符"
+    },
+    "immutable": {
+      "type": "boolean",
+      "default": true,
+      "const": true,
+      "description": "值对象必须是不可变的"
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9]*$"
+          },
+          "type": {
+            "type": "string"
+          },
+          "validation": {
+            "type": "object",
+            "properties": {
+              "required": {"type": "boolean"},
+              "pattern": {"type": "string"},
+              "minLength": {"type": "integer"},
+              "maxLength": {"type": "integer"},
+              "minimum": {"type": "number"},
+              "maximum": {"type": "number"}
+            }
+          }
+        },
+        "required": ["name", "type"]
+      },
+      "minItems": 1,
+      "description": "值对象属性列表"
+    },
+    "equalityMembers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z][a-zA-Z0-9]*$"
+      },
+      "description": "参与等值比较的成员"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "expression": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": ["rule"]
+      },
+      "description": "验证规则"
+    },
+    "factory": {
+      "type": "object",
+      "properties": {
+        "createMethod": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9]*$"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "required": {"type": "boolean"}
+            },
+            "required": ["name", "type"]
+          }
+        }
+      },
+      "description": "工厂方法定义"
+    }
+  },
+  "additionalProperties": false
+}

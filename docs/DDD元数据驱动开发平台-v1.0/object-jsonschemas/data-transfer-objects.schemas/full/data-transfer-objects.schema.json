@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "object-jsonschemas/data-transfer-objects.schemas/full/data-transfer-objects.schema.json",
+  "title": "数据传输对象管理完整Schema",
+  "description": "数据传输对象管理的完整对象Schema，用于CREATE和完整读取操作（聚合根）",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^dto_management_[a-zA-Z0-9_]+$",
+      "description": "DTO管理ID"
+    },
+    "projectId": {
+      "type": "string",
+      "pattern": "^project_[a-zA-Z0-9_]+$",
+      "description": "项目ID"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain_[a-zA-Z0-9_]+$",
+      "description": "领域ID"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "DTO管理名称"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "DTO管理描述"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "版本号（语义化版本）"
+    },
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^context_[a-zA-Z0-9_]+$",
+      "description": "限界上下文ID"
+    },
+    "dataTransferObjects": {
+      "type": "array",
+      "items": {
+        "$ref": "./data-transfer-object.schema.json"
+      },
+      "description": "数据传输对象列表"
+    },
+    "dtoMappings": {
+      "type": "array",
+      "items": {
+        "$ref": "./dto-mapping.schema.json"
+      },
+      "description": "DTO映射列表"
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "$ref": "./validation-rule.schema.json"
+      },
+      "description": "验证规则列表"
+    },
+    "serializations": {
+      "type": "array",
+      "items": {
+        "$ref": "./serialization.schema.json"
+      },
+      "description": "序列化配置列表"
+    },
+    "codeGeneration": {
+      "type": "object",
+      "properties": {
+        "isEnabled": {
+          "type": "boolean",
+          "description": "是否启用代码生成"
+        },
+        "targetFormats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["JSON", "XML", "Protobuf", "Avro", "GraphQL"]
+          },
+          "description": "目标格式列表"
+        },
+        "validationLevel": {
+          "type": "string",
+          "enum": ["NONE", "BASIC", "STRICT"],
+          "description": "验证级别"
+        }
+      }
+    },
+    "usageStatus": {
+      "$ref": "./usage-status.schema.json"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否激活"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "创建时间"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "更新时间"
+    }
+  },
+  "required": [
+    "id",
+    "projectId",
+    "domainId",
+    "name",
+    "version",
+    "dataTransferObjects",
+    "isActive"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "id": "dto_management_ecommerce_001",
+      "projectId": "project_ecommerce_platform",
+      "domainId": "domain_order_management",
+      "name": "订单管理DTO",
+      "description": "电商平台订单管理领域的DTO定义",
+      "version": "1.0.0",
+      "boundedContextId": "context_order_processing",
+      "dataTransferObjects": [],
+      "dtoMappings": [],
+      "validationRules": [],
+      "serializations": [],
+      "codeGeneration": {
+        "isEnabled": true,
+        "targetFormats": ["JSON", "XML"],
+        "validationLevel": "STRICT"
+      },
+      "isActive": true
+    }
+  ]
+}
