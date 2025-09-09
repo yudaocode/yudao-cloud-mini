@@ -1,11 +1,12 @@
 {
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "object-jsonschemas/tactical-design.schemas/full/entity.schema.json",
-  "title": "实体完整Schema",
-  "description": "领域实体的完整Schema定义",
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/ddd-metamodel/3.0/tactical-design/entity.schema.json",
+  "title": "实体完整定义",
+  "description": "领域实体的完整Schema定义 - v3.0 增强版",
+  "version": "3.0.0",
   "type": "object",
   "properties": {
-    "id": {
+    "entityId": {
       "type": "string",
       "pattern": "^entity_[a-zA-Z0-9_]+$",
       "description": "实体ID"
@@ -23,64 +24,895 @@
     },
     "aggregateId": {
       "type": "string",
-      "pattern": "^aggregate_[a-zA-Z0-9_]+$",
+      "pattern": "^agg_[a-zA-Z0-9_]+$",
       "description": "所属聚合ID"
     },
-    "isAggregateRoot": {
-      "type": "boolean",
-      "default": false,
-      "description": "是否为聚合根"
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "所属限界上下文ID"
+    },
+    "entityType": {
+      "type": "string",
+      "enum": ["AGGREGATE_ROOT", "CHILD_ENTITY", "REFERENCE_ENTITY"],
+      "description": "实体类型"
+    },
+    "identity": {
+      "$ref": "#/$defs/identityDefinition",
+      "description": "标识定义"
     },
     "attributes": {
       "type": "array",
       "items": {
-        "$ref": "../fields/entity-fields.schema.json#/$defs/attribute"
+        "$ref": "#/$defs/attributeDefinition"
       },
-      "description": "实体属性列表"
+      "description": "实体属性定义列表"
+    },
+    "behaviors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/behaviorDefinition"
+      },
+      "description": "实体行为定义列表"
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entityRelationship"
+      },
+      "description": "实体关系定义列表"
     },
     "businessRules": {
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "pattern": "^rule_[a-zA-Z0-9_]+$"
       },
-      "description": "业务规则列表"
+      "description": "业务规则ID列表"
     },
     "invariants": {
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "#/$defs/entityInvariant"
       },
-      "description": "不变量列表"
+      "description": "实体不变式定义列表"
     },
     "domainEvents": {
       "type": "array",
       "items": {
-        "type": "string",
-        "pattern": "^event_[a-zA-Z0-9_]+$"
+        "$ref": "#/$defs/domainEventDefinition"
       },
-      "description": "相关领域事件ID列表"
+      "description": "实体产生的领域事件定义列表"
     },
-    "isActive": {
-      "type": "boolean",
-      "default": true,
-      "description": "是否激活"
+    "specifications": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^spec_[a-zA-Z0-9_]+$"
+      },
+      "description": "应用的规约ID列表"
     },
-    "createdAt": {
+    "lifeCycle": {
+      "$ref": "#/$defs/entityLifeCycle",
+      "description": "实体生命周期定义"
+    },
+    "versionStrategy": {
       "type": "string",
-      "format": "date-time",
-      "description": "创建时间"
+      "enum": ["NONE", "OPTIMISTIC_LOCKING", "TIMESTAMP", "VERSION_NUMBER"],
+      "description": "版本控制策略"
     },
-    "updatedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "更新时间"
+    "cacheStrategy": {
+      "$ref": "#/$defs/cacheStrategy",
+      "description": "缓存策略"
+    },
+    "securityConstraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/securityConstraint"
+      },
+      "description": "安全约束"
+    },
+    "performanceProfile": {
+      "$ref": "#/$defs/performanceProfile",
+      "description": "性能概况"
+    },
+    "auditConfiguration": {
+      "$ref": "#/$defs/auditConfiguration",
+      "description": "审计配置"
+    },
+    "metadata": {
+      "$ref": "../../../root.schema.json#/$defs/metadata",
+      "description": "元数据信息"
     }
   },
-  "required": [
-    "id",
-    "name",
-    "aggregateId",
-    "isActive"
-  ],
-  "additionalProperties": false
+  "required": ["entityId", "name", "aggregateId", "boundedContextId", "entityType", "identity"],
+  "additionalProperties": false,
+  "$defs": {
+    "identityDefinition": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["NATURAL", "SURROGATE", "COMPOSITE"],
+          "description": "标识类型"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identityAttribute"
+          },
+          "description": "标识属性列表"
+        },
+        "generationStrategy": {
+          "type": "string",
+          "enum": ["AUTO", "UUID", "SEQUENCE", "ASSIGNED", "COMPOSITE"],
+          "description": "生成策略"
+        },
+        "uniquenessScope": {
+          "type": "string",
+          "enum": ["GLOBAL", "BOUNDED_CONTEXT", "AGGREGATE"],
+          "description": "唯一性范围"
+        },
+        "immutable": {
+          "type": "boolean",
+          "description": "标识是否不可变",
+          "default": true
+        }
+      },
+      "required": ["type", "attributes"],
+      "additionalProperties": false
+    },
+    "identityAttribute": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "属性名称"
+        },
+        "type": {
+          "type": "string",
+          "description": "数据类型"
+        },
+        "isPrimary": {
+          "type": "boolean",
+          "description": "是否主标识",
+          "default": false
+        },
+        "isRequired": {
+          "type": "boolean",
+          "description": "是否必需",
+          "default": true
+        },
+        "format": {
+          "type": "string",
+          "description": "格式规则"
+        }
+      },
+      "required": ["name", "type"],
+      "additionalProperties": false
+    },
+    "attributeDefinition": {
+      "type": "object",
+      "properties": {
+        "attributeId": {
+          "type": "string",
+          "pattern": "^attr_[a-zA-Z0-9_]+$",
+          "description": "属性ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "属性名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "属性描述"
+        },
+        "type": {
+          "$ref": "#/$defs/dataType",
+          "description": "数据类型定义"
+        },
+        "constraints": {
+          "$ref": "#/$defs/attributeConstraints",
+          "description": "属性约束"
+        },
+        "businessMeaning": {
+          "type": "string",
+          "description": "业务含义"
+        },
+        "ubiquitousLanguageTermId": {
+          "type": "string",
+          "pattern": "^term_[a-zA-Z0-9_]+$",
+          "description": "关联的统一语言术语ID"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^val_[a-zA-Z0-9_]+$"
+          },
+          "description": "验证规则ID列表"
+        },
+        "calculationRules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^calc_[a-zA-Z0-9_]+$"
+          },
+          "description": "计算规则ID列表"
+        },
+        "encryptionRequired": {
+          "type": "boolean",
+          "description": "是否需要加密",
+          "default": false
+        },
+        "auditRequired": {
+          "type": "boolean",
+          "description": "是否需要审计",
+          "default": false
+        },
+        "accessLevel": {
+          "type": "string",
+          "enum": ["PUBLIC", "PROTECTED", "PRIVATE", "INTERNAL"],
+          "description": "访问级别"
+        },
+        "persistenceStrategy": {
+          "type": "string",
+          "enum": ["EAGER", "LAZY", "NEVER"],
+          "description": "持久化策略"
+        },
+        "changeTracking": {
+          "type": "boolean",
+          "description": "是否跟踪变更",
+          "default": false
+        }
+      },
+      "required": ["attributeId", "name", "type"],
+      "additionalProperties": false
+    },
+    "dataType": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["PRIMITIVE", "ENUM", "VALUE_OBJECT", "ENTITY_REFERENCE", "COLLECTION"],
+          "description": "类型类别"
+        },
+        "baseType": {
+          "type": "string",
+          "description": "基础类型"
+        },
+        "isNullable": {
+          "type": "boolean",
+          "description": "是否可空",
+          "default": false
+        },
+        "genericTypeParameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dataType"
+          },
+          "description": "泛型类型参数"
+        },
+        "enumValues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {"type": "string"},
+              "description": {"type": "string"},
+              "code": {"type": "string"},
+              "order": {"type": "integer"}
+            },
+            "required": ["value"]
+          },
+          "description": "枚举值列表"
+        },
+        "referenceTypeId": {
+          "type": "string",
+          "description": "引用类型ID"
+        },
+        "precision": {
+          "type": "integer",
+          "description": "数值精度"
+        },
+        "scale": {
+          "type": "integer",
+          "description": "数值小数位数"
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "最大长度"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "格式模式"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["DATE", "DATETIME", "TIME", "EMAIL", "URL", "PHONE", "CURRENCY"],
+          "description": "特定格式"
+        }
+      },
+      "required": ["category", "baseType"],
+      "additionalProperties": false
+    },
+    "attributeConstraints": {
+      "type": "object",
+      "properties": {
+        "isRequired": {
+          "type": "boolean",
+          "description": "是否必需",
+          "default": false
+        },
+        "isUnique": {
+          "type": "boolean",
+          "description": "是否唯一",
+          "default": false
+        },
+        "isImmutable": {
+          "type": "boolean",
+          "description": "是否不可变",
+          "default": false
+        },
+        "hasDefault": {
+          "type": "boolean",
+          "description": "是否有默认值",
+          "default": false
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "默认值"
+        },
+        "minValue": {
+          "type": "string",
+          "description": "最小值"
+        },
+        "maxValue": {
+          "type": "string",
+          "description": "最大值"
+        },
+        "allowedValues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "允许的值列表"
+        },
+        "forbiddenValues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "禁止的值列表"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "attribute": {"type": "string"},
+              "condition": {"type": "string"},
+              "constraint": {"type": "string"}
+            },
+            "required": ["attribute", "condition"]
+          },
+          "description": "依赖约束"
+        },
+        "crossFieldValidations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule": {"type": "string"},
+              "fields": {"type": "array", "items": {"type": "string"}},
+              "condition": {"type": "string"}
+            },
+            "required": ["rule", "fields"]
+          },
+          "description": "跨字段验证"
+        }
+      },
+      "additionalProperties": false
+    },
+    "behaviorDefinition": {
+      "type": "object",
+      "properties": {
+        "behaviorId": {
+          "type": "string",
+          "pattern": "^behavior_[a-zA-Z0-9_]+$",
+          "description": "行为ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "行为名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "行为描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["COMMAND", "QUERY", "FACTORY", "VALIDATOR", "CALCULATOR", "TRANSFORMER"],
+          "description": "行为类型"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["PUBLIC", "PROTECTED", "PRIVATE", "INTERNAL"],
+          "description": "可见性"
+        },
+        "isStatic": {
+          "type": "boolean",
+          "description": "是否静态方法",
+          "default": false
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/parameterDefinition"
+          },
+          "description": "参数定义列表"
+        },
+        "returnType": {
+          "$ref": "#/$defs/dataType",
+          "description": "返回类型"
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "前置条件"
+        },
+        "postconditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "后置条件"
+        },
+        "sideEffects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "副作用"
+        },
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^rule_[a-zA-Z0-9_]+$"
+          },
+          "description": "应用的业务规则ID列表"
+        },
+        "triggeredEvents": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^event_[a-zA-Z0-9_]+$"
+          },
+          "description": "触发的事件ID列表"
+        },
+        "modifiedAttributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "修改的属性列表"
+        },
+        "accessedAttributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "访问的属性列表"
+        }
+      },
+      "required": ["behaviorId", "name", "type"],
+      "additionalProperties": false
+    },
+    "parameterDefinition": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "参数名称"
+        },
+        "type": {
+          "$ref": "#/$defs/dataType",
+          "description": "参数类型"
+        },
+        "isOptional": {
+          "type": "boolean",
+          "description": "是否可选",
+          "default": false
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "默认值"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^val_[a-zA-Z0-9_]+$"
+          },
+          "description": "验证规则ID列表"
+        },
+        "description": {
+          "type": "string",
+          "description": "参数描述"
+        }
+      },
+      "required": ["name", "type"],
+      "additionalProperties": false
+    },
+    "entityRelationship": {
+      "type": "object",
+      "properties": {
+        "relationshipId": {
+          "type": "string",
+          "pattern": "^entrel_[a-zA-Z0-9_]+$",
+          "description": "实体关系ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "关系名称"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["ASSOCIATION", "AGGREGATION", "COMPOSITION", "INHERITANCE", "DEPENDENCY"],
+          "description": "关系类型"
+        },
+        "targetEntityId": {
+          "type": "string",
+          "pattern": "^entity_[a-zA-Z0-9_]+$",
+          "description": "目标实体ID"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["1:1", "1:N", "N:1", "N:N"],
+          "description": "基数关系"
+        },
+        "isOptional": {
+          "type": "boolean",
+          "description": "是否可选",
+          "default": false
+        },
+        "cascadeRules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["PERSIST", "MERGE", "REMOVE", "REFRESH", "DETACH"]
+          },
+          "description": "级联规则"
+        },
+        "fetchStrategy": {
+          "type": "string",
+          "enum": ["EAGER", "LAZY"],
+          "description": "获取策略"
+        },
+        "bidirectional": {
+          "type": "boolean",
+          "description": "是否双向关系",
+          "default": false
+        },
+        "inverseSide": {
+          "type": "string",
+          "description": "反向关系属性名"
+        }
+      },
+      "required": ["relationshipId", "name", "type", "targetEntityId", "cardinality"],
+      "additionalProperties": false
+    },
+    "entityInvariant": {
+      "type": "object",
+      "properties": {
+        "invariantId": {
+          "type": "string",
+          "pattern": "^entinv_[a-zA-Z0-9_]+$",
+          "description": "实体不变式ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "不变式名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "不变式描述"
+        },
+        "condition": {
+          "type": "string",
+          "description": "不变式条件表达式"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["ENTITY", "ATTRIBUTE", "RELATIONSHIP", "CROSS_ENTITY"],
+          "description": "作用范围"
+        },
+        "violationMessage": {
+          "type": "string",
+          "description": "违反时的错误消息"
+        },
+        "violationLevel": {
+          "type": "string",
+          "enum": ["ERROR", "WARNING", "INFO"],
+          "description": "违反时的严重级别"
+        },
+        "checkTiming": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["BEFORE_CREATE", "AFTER_CREATE", "BEFORE_UPDATE", "AFTER_UPDATE", "BEFORE_DELETE", "CONTINUOUS"]
+          },
+          "description": "检查时机"
+        },
+        "affectedAttributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "影响的属性列表"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "依赖的其他不变式ID列表"
+        }
+      },
+      "required": ["invariantId", "name", "condition", "scope"],
+      "additionalProperties": false
+    },
+    "domainEventDefinition": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "pattern": "^event_[a-zA-Z0-9_]+$",
+          "description": "领域事件ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "事件名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "事件描述"
+        },
+        "eventType": {
+          "type": "string",
+          "enum": ["CREATED", "UPDATED", "DELETED", "STATE_CHANGED", "BUSINESS_EVENT"],
+          "description": "事件类型"
+        },
+        "eventData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attributeDefinition"
+          },
+          "description": "事件数据属性"
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "触发条件"
+        },
+        "isAsync": {
+          "type": "boolean",
+          "description": "是否异步处理",
+          "default": true
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+          "description": "事件优先级"
+        },
+        "retentionPeriod": {
+          "type": "string",
+          "description": "保留期限"
+        },
+        "subscribers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "订阅者列表"
+        }
+      },
+      "required": ["eventId", "name", "eventType"],
+      "additionalProperties": false
+    },
+    "entityLifeCycle": {
+      "type": "object",
+      "properties": {
+        "states": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "state": {"type": "string"},
+              "description": {"type": "string"},
+              "isInitial": {"type": "boolean", "default": false},
+              "isFinal": {"type": "boolean", "default": false}
+            },
+            "required": ["state"]
+          },
+          "description": "状态列表"
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {"type": "string"},
+              "to": {"type": "string"},
+              "trigger": {"type": "string"},
+              "condition": {"type": "string"},
+              "action": {"type": "string"}
+            },
+            "required": ["from", "to", "trigger"]
+          },
+          "description": "状态转换列表"
+        },
+        "stateAttribute": {
+          "type": "string",
+          "description": "状态属性名"
+        }
+      },
+      "additionalProperties": false
+    },
+    "cacheStrategy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "是否启用缓存",
+          "default": false
+        },
+        "type": {
+          "type": "string",
+          "enum": ["MEMORY", "REDIS", "DATABASE", "HYBRID"],
+          "description": "缓存类型"
+        },
+        "ttl": {
+          "type": "string",
+          "description": "生存时间"
+        },
+        "keyStrategy": {
+          "type": "string",
+          "description": "键策略"
+        },
+        "evictionPolicy": {
+          "type": "string",
+          "enum": ["LRU", "LFU", "FIFO", "MANUAL"],
+          "description": "淘汰策略"
+        },
+        "warmupStrategy": {
+          "type": "string",
+          "description": "预热策略"
+        }
+      },
+      "additionalProperties": false
+    },
+    "securityConstraint": {
+      "type": "object",
+      "properties": {
+        "constraintId": {
+          "type": "string",
+          "pattern": "^secconst_[a-zA-Z0-9_]+$",
+          "description": "安全约束ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["ENCRYPTION", "ACCESS_CONTROL", "AUDIT", "DATA_MASKING", "AUTHORIZATION"],
+          "description": "约束类型"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["ENTITY", "ATTRIBUTE", "OPERATION", "RELATIONSHIP"],
+          "description": "约束范围"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "安全要求"
+        },
+        "implementation": {
+          "type": "string",
+          "description": "实现方式"
+        }
+      },
+      "required": ["constraintId", "type", "scope"],
+      "additionalProperties": false
+    },
+    "performanceProfile": {
+      "type": "object",
+      "properties": {
+        "expectedLoad": {
+          "type": "object",
+          "properties": {
+            "readsPerSecond": {"type": "integer"},
+            "writesPerSecond": {"type": "integer"},
+            "dataSize": {"type": "string"}
+          },
+          "description": "预期负载"
+        },
+        "scalabilityRequirements": {
+          "type": "object",
+          "properties": {
+            "horizontal": {"type": "boolean"},
+            "vertical": {"type": "boolean"},
+            "maxInstances": {"type": "integer"}
+          },
+          "description": "可扩展性要求"
+        },
+        "responseTimeRequirements": {
+          "type": "object",
+          "properties": {
+            "average": {"type": "string"},
+            "p95": {"type": "string"},
+            "p99": {"type": "string"}
+          },
+          "description": "响应时间要求"
+        },
+        "concurrencyProfile": {
+          "type": "object",
+          "properties": {
+            "maxConcurrentAccess": {"type": "integer"},
+            "lockingStrategy": {"type": "string"},
+            "concurrencyLevel": {"type": "string"}
+          },
+          "description": "并发概况"
+        }
+      },
+      "additionalProperties": false
+    },
+    "auditConfiguration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "是否启用审计",
+          "default": false
+        },
+        "auditLevel": {
+          "type": "string",
+          "enum": ["NONE", "BASIC", "DETAILED", "FULL"],
+          "description": "审计级别"
+        },
+        "auditedOperations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["CREATE", "READ", "UPDATE", "DELETE", "QUERY"]
+          },
+          "description": "审计的操作类型"
+        },
+        "auditedAttributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "审计的属性列表"
+        },
+        "retentionPolicy": {
+          "type": "string",
+          "description": "审计数据保留策略"
+        },
+        "compliance": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "合规要求"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
 }

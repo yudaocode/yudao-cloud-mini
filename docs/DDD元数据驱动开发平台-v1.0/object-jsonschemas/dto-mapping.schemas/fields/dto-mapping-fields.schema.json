@@ -1,0 +1,349 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.ddd-platform.com/dto-mapping/fields/dto-mapping-fields.schema.json",
+  "title": "DTO映射字段组件",
+  "description": "DTO映射系统的可复用字段组件库",
+  "type": "object",
+  "$defs": {
+    "MappingIdentifier": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "映射标识符"
+    },
+    
+    "MappingVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "映射版本（语义版本）"
+    },
+    
+    "FieldPath": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*(\\.([a-zA-Z][a-zA-Z0-9_]*|\\[[0-9]+\\]))*$",
+      "description": "字段路径（支持嵌套和数组索引）"
+    },
+    
+    "MappingType": {
+      "type": "string",
+      "enum": [
+        "DIRECT",
+        "TRANSFORM", 
+        "AGGREGATE",
+        "SPLIT",
+        "CONDITIONAL",
+        "CUSTOM",
+        "CALCULATED",
+        "LOOKUP"
+      ],
+      "description": "映射类型"
+    },
+    
+    "DataType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "INTEGER", 
+        "LONG",
+        "DOUBLE",
+        "DECIMAL",
+        "BOOLEAN",
+        "DATE",
+        "DATETIME",
+        "TIMESTAMP",
+        "UUID",
+        "JSON",
+        "BINARY",
+        "ARRAY",
+        "OBJECT"
+      ],
+      "description": "数据类型"
+    },
+    
+    "TransformFunction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "转换函数名称"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "函数参数"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["JAVASCRIPT", "JAVA", "PYTHON", "GROOVY", "SPEL"],
+          "description": "脚本语言"
+        },
+        "script": {
+          "type": "string",
+          "description": "转换脚本"
+        }
+      },
+      "required": ["name"],
+      "description": "转换函数定义"
+    },
+    
+    "ValidationRule": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["REQUIRED", "FORMAT", "RANGE", "CUSTOM"]
+        },
+        "expression": {
+          "type": "string",
+          "description": "验证表达式"
+        },
+        "message": {
+          "type": "string",
+          "description": "错误信息"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "验证参数"
+        }
+      },
+      "required": ["type"],
+      "description": "验证规则"
+    },
+    
+    "MappingStrategy": {
+      "type": "string",
+      "enum": [
+        "STRICT",
+        "LENIENT", 
+        "IGNORE_UNKNOWN",
+        "FAIL_ON_NULL",
+        "DEFAULT_VALUES"
+      ],
+      "description": "映射策略"
+    },
+    
+    "PerformanceProfile": {
+      "type": "object",
+      "properties": {
+        "cacheable": {
+          "type": "boolean",
+          "description": "是否可缓存"
+        },
+        "cacheKey": {
+          "type": "string",
+          "description": "缓存键表达式"
+        },
+        "cacheTtl": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "缓存TTL（秒）"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "超时时间（毫秒）"
+        },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "backoffMultiplier": {
+              "type": "number",
+              "minimum": 1.0
+            }
+          }
+        },
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "批处理大小"
+        }
+      },
+      "description": "性能配置"
+    },
+    
+    "SecurityConfiguration": {
+      "type": "object",
+      "properties": {
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": ["AES-256", "RSA-2048", "CHACHA20"]
+            },
+            "keyId": {
+              "type": "string"
+            }
+          }
+        },
+        "dataClassification": {
+          "type": "string",
+          "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]
+        },
+        "accessControl": {
+          "type": "object",
+          "properties": {
+            "requiredRoles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "requiredPermissions": {
+              "type": "array", 
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "auditLevel": {
+          "type": "string",
+          "enum": ["NONE", "BASIC", "DETAILED", "FULL"]
+        }
+      },
+      "description": "安全配置"
+    },
+    
+    "QualityMetrics": {
+      "type": "object",
+      "properties": {
+        "accuracy": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "映射准确性（0-1）"
+        },
+        "completeness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "完整性（0-1）"
+        },
+        "consistency": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "一致性（0-1）"
+        },
+        "performance": {
+          "type": "object",
+          "properties": {
+            "averageLatency": {
+              "type": "number",
+              "description": "平均延迟（毫秒）"
+            },
+            "throughput": {
+              "type": "number",
+              "description": "吞吐量（TPS）"
+            },
+            "errorRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "错误率（0-1）"
+            }
+          }
+        }
+      },
+      "description": "质量度量"
+    },
+    
+    "MappingMetadata": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/MappingIdentifier"
+        },
+        "version": {
+          "$ref": "#/$defs/MappingVersion"
+        },
+        "name": {
+          "type": "string",
+          "description": "映射名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "映射描述"
+        },
+        "author": {
+          "type": "string",
+          "description": "作者"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "标签"
+        },
+        "category": {
+          "type": "string",
+          "description": "分类"
+        }
+      },
+      "required": ["id", "version", "name"],
+      "description": "映射元数据"
+    },
+    
+    "FormatConfiguration": {
+      "type": "object",
+      "properties": {
+        "dateFormat": {
+          "type": "string",
+          "description": "日期格式"
+        },
+        "numberFormat": {
+          "type": "object",
+          "properties": {
+            "locale": {
+              "type": "string"
+            },
+            "precision": {
+              "type": "integer"
+            },
+            "grouping": {
+              "type": "boolean"
+            }
+          }
+        },
+        "stringFormat": {
+          "type": "object",
+          "properties": {
+            "encoding": {
+              "type": "string",
+              "enum": ["UTF-8", "UTF-16", "ASCII", "ISO-8859-1"]
+            },
+            "trim": {
+              "type": "boolean"
+            },
+            "case": {
+              "type": "string",
+              "enum": ["UPPER", "LOWER", "TITLE", "ORIGINAL"]
+            }
+          }
+        }
+      },
+      "description": "格式化配置"
+    }
+  }
+}

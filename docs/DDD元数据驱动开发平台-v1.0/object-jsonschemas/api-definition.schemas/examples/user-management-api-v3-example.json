@@ -1,0 +1,777 @@
+{
+  "apiSpecification": {
+    "metadata": {
+      "id": "user_management_api",
+      "name": "User Management API",
+      "version": "3.0.0",
+      "description": "DDD-based user management API with domain events and business rules",
+      "category": "domain_api",
+      "boundedContext": "UserManagement",
+      "subdomain": "IdentityAndAccess",
+      "owner": {
+        "team": "identity-team",
+        "contact": "identity-team@company.com",
+        "repository": "https://github.com/company/user-management-api"
+      },
+      "lifecycle": "production",
+      "tags": ["user", "identity", "authentication"],
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
+    },
+    "openApiDefinition": {
+      "openapi": "3.0.3",
+      "info": {
+        "title": "User Management API",
+        "description": "RESTful API for user management with DDD domain integration",
+        "version": "3.0.0",
+        "contact": {
+          "name": "Identity Team",
+          "email": "identity-team@company.com",
+          "url": "https://docs.company.com/apis/user-management"
+        },
+        "license": {
+          "name": "MIT",
+          "url": "https://opensource.org/licenses/MIT"
+        }
+      },
+      "servers": [
+        {
+          "url": "https://api.company.com/v3/users",
+          "description": "Production server",
+          "environment": "production"
+        },
+        {
+          "url": "https://staging-api.company.com/v3/users",
+          "description": "Staging server",
+          "environment": "staging"
+        },
+        {
+          "url": "https://dev-api.company.com/v3/users",
+          "description": "Development server",
+          "environment": "development"
+        }
+      ],
+      "paths": {
+        "/users": {
+          "post": {
+            "operationId": "createUser",
+            "summary": "Create a new user",
+            "description": "Creates a new user in the system with domain validation and business rules",
+            "tags": ["user-management"],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CreateUserCommand"
+                  },
+                  "example": {
+                    "email": "john.doe@company.com",
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "role": "USER",
+                    "department": "Engineering"
+                  }
+                }
+              }
+            },
+            "responses": {
+              "201": {
+                "description": "User created successfully",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/UserCreatedResponse"
+                    },
+                    "example": {
+                      "userId": "usr_01HGW0K7XQYM9K3T2N5R6P7Q8S",
+                      "email": "john.doe@company.com",
+                      "status": "ACTIVE",
+                      "createdAt": "2024-01-15T10:30:00Z",
+                      "events": ["UserCreated", "WelcomeEmailScheduled"]
+                    }
+                  }
+                }
+              },
+              "400": {
+                "description": "Invalid request data or business rule violation",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  }
+                }
+              },
+              "409": {
+                "description": "User already exists",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "domainMapping": {
+              "aggregate": "User",
+              "command": "CreateUserCommand",
+              "events": ["UserCreated", "WelcomeEmailScheduled"],
+              "businessRules": ["BR_UNIQUE_EMAIL", "BR_VALID_DEPARTMENT", "BR_PASSWORD_POLICY"]
+            }
+          },
+          "get": {
+            "operationId": "listUsers",
+            "summary": "List users",
+            "description": "Retrieve a paginated list of users with filtering capabilities",
+            "tags": ["user-management"],
+            "parameters": [
+              {
+                "name": "page",
+                "in": "query",
+                "description": "Page number (1-based)",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 1
+                }
+              },
+              {
+                "name": "size",
+                "in": "query",
+                "description": "Page size",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100,
+                  "default": 20
+                }
+              },
+              {
+                "name": "department",
+                "in": "query",
+                "description": "Filter by department",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              {
+                "name": "status",
+                "in": "query",
+                "description": "Filter by user status",
+                "schema": {
+                  "type": "string",
+                  "enum": ["ACTIVE", "INACTIVE", "SUSPENDED"]
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Users retrieved successfully",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/UserListResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "domainMapping": {
+              "aggregate": "User",
+              "query": "ListUsersQuery",
+              "businessRules": ["BR_ACCESS_CONTROL"]
+            }
+          }
+        },
+        "/users/{userId}": {
+          "get": {
+            "operationId": "getUserById",
+            "summary": "Get user by ID",
+            "description": "Retrieve a specific user by their unique identifier",
+            "tags": ["user-management"],
+            "parameters": [
+              {
+                "name": "userId",
+                "in": "path",
+                "required": true,
+                "description": "Unique user identifier",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^usr_[0-9A-HJKMNP-TV-Z]{26}$"
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "User found",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/UserDetailsResponse"
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "User not found",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "domainMapping": {
+              "aggregate": "User",
+              "entity": "User",
+              "query": "GetUserByIdQuery",
+              "businessRules": ["BR_ACCESS_CONTROL"]
+            }
+          },
+          "put": {
+            "operationId": "updateUser",
+            "summary": "Update user",
+            "description": "Update an existing user's information",
+            "tags": ["user-management"],
+            "parameters": [
+              {
+                "name": "userId",
+                "in": "path",
+                "required": true,
+                "description": "Unique user identifier",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^usr_[0-9A-HJKMNP-TV-Z]{26}$"
+                }
+              }
+            ],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UpdateUserCommand"
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "User updated successfully",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/UserUpdatedResponse"
+                    }
+                  }
+                }
+              },
+              "400": {
+                "description": "Invalid request data",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "User not found",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "domainMapping": {
+              "aggregate": "User",
+              "command": "UpdateUserCommand",
+              "events": ["UserUpdated", "ProfileChangedNotification"],
+              "businessRules": ["BR_UPDATE_PERMISSIONS", "BR_DEPARTMENT_VALIDATION"]
+            }
+          },
+          "delete": {
+            "operationId": "deleteUser",
+            "summary": "Delete user",
+            "description": "Soft delete a user (deactivate)",
+            "tags": ["user-management"],
+            "parameters": [
+              {
+                "name": "userId",
+                "in": "path",
+                "required": true,
+                "description": "Unique user identifier",
+                "schema": {
+                  "type": "string",
+                  "pattern": "^usr_[0-9A-HJKMNP-TV-Z]{26}$"
+                }
+              }
+            ],
+            "responses": {
+              "204": {
+                "description": "User deleted successfully"
+              },
+              "404": {
+                "description": "User not found",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  }
+                }
+              }
+            },
+            "domainMapping": {
+              "aggregate": "User",
+              "command": "DeleteUserCommand",
+              "events": ["UserDeleted", "AccessRevoked"],
+              "businessRules": ["BR_DELETE_PERMISSIONS", "BR_ACTIVE_SESSIONS_CHECK"]
+            }
+          }
+        }
+      },
+      "components": {
+        "schemas": {
+          "CreateUserCommand": {
+            "type": "object",
+            "description": "Command to create a new user",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "User's email address (unique)"
+              },
+              "firstName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50,
+                "description": "User's first name"
+              },
+              "lastName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50,
+                "description": "User's last name"
+              },
+              "role": {
+                "type": "string",
+                "enum": ["ADMIN", "MANAGER", "USER", "GUEST"],
+                "description": "User's role in the system"
+              },
+              "department": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100,
+                "description": "User's department"
+              },
+              "password": {
+                "type": "string",
+                "format": "password",
+                "minLength": 8,
+                "description": "User's password (will be hashed)"
+              }
+            },
+            "required": ["email", "firstName", "lastName", "role", "department", "password"],
+            "domainType": "command",
+            "businessRules": ["BR_UNIQUE_EMAIL", "BR_VALID_DEPARTMENT", "BR_PASSWORD_POLICY"]
+          },
+          "UpdateUserCommand": {
+            "type": "object",
+            "description": "Command to update an existing user",
+            "properties": {
+              "firstName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50,
+                "description": "User's first name"
+              },
+              "lastName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50,
+                "description": "User's last name"
+              },
+              "department": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100,
+                "description": "User's department"
+              },
+              "role": {
+                "type": "string",
+                "enum": ["ADMIN", "MANAGER", "USER", "GUEST"],
+                "description": "User's role in the system"
+              }
+            },
+            "domainType": "command",
+            "businessRules": ["BR_UPDATE_PERMISSIONS", "BR_DEPARTMENT_VALIDATION"]
+          },
+          "UserCreatedResponse": {
+            "type": "object",
+            "description": "Response after successful user creation",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "pattern": "^usr_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "Unique user identifier"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "User's email address"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["ACTIVE", "INACTIVE", "SUSPENDED"],
+                "description": "User's current status"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "User creation timestamp"
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Domain events triggered"
+              }
+            },
+            "required": ["userId", "email", "status", "createdAt"],
+            "domainType": "query_result"
+          },
+          "UserDetailsResponse": {
+            "type": "object",
+            "description": "Detailed user information",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "pattern": "^usr_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "Unique user identifier"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "User's email address"
+              },
+              "firstName": {
+                "type": "string",
+                "description": "User's first name"
+              },
+              "lastName": {
+                "type": "string",
+                "description": "User's last name"
+              },
+              "fullName": {
+                "type": "string",
+                "description": "User's full name"
+              },
+              "role": {
+                "type": "string",
+                "enum": ["ADMIN", "MANAGER", "USER", "GUEST"],
+                "description": "User's role in the system"
+              },
+              "department": {
+                "type": "string",
+                "description": "User's department"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["ACTIVE", "INACTIVE", "SUSPENDED"],
+                "description": "User's current status"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "User creation timestamp"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Last update timestamp"
+              },
+              "lastLoginAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Last login timestamp"
+              }
+            },
+            "required": ["userId", "email", "firstName", "lastName", "role", "department", "status", "createdAt"],
+            "domainType": "entity"
+          },
+          "UserListResponse": {
+            "type": "object",
+            "description": "Paginated list of users",
+            "properties": {
+              "users": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UserSummary"
+                },
+                "description": "List of user summaries"
+              },
+              "pagination": {
+                "$ref": "#/components/schemas/PaginationInfo"
+              }
+            },
+            "required": ["users", "pagination"],
+            "domainType": "query_result"
+          },
+          "UserSummary": {
+            "type": "object",
+            "description": "Summary information for a user",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "pattern": "^usr_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "Unique user identifier"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "User's email address"
+              },
+              "fullName": {
+                "type": "string",
+                "description": "User's full name"
+              },
+              "role": {
+                "type": "string",
+                "enum": ["ADMIN", "MANAGER", "USER", "GUEST"],
+                "description": "User's role in the system"
+              },
+              "department": {
+                "type": "string",
+                "description": "User's department"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["ACTIVE", "INACTIVE", "SUSPENDED"],
+                "description": "User's current status"
+              }
+            },
+            "required": ["userId", "email", "fullName", "role", "department", "status"],
+            "domainType": "value_object"
+          },
+          "UserUpdatedResponse": {
+            "type": "object",
+            "description": "Response after successful user update",
+            "properties": {
+              "userId": {
+                "type": "string",
+                "pattern": "^usr_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "Unique user identifier"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Update timestamp"
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Domain events triggered"
+              }
+            },
+            "required": ["userId", "updatedAt"],
+            "domainType": "query_result"
+          },
+          "PaginationInfo": {
+            "type": "object",
+            "description": "Pagination information",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Current page number"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Page size"
+              },
+              "totalElements": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total number of elements"
+              },
+              "totalPages": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total number of pages"
+              },
+              "hasNext": {
+                "type": "boolean",
+                "description": "Whether there is a next page"
+              },
+              "hasPrevious": {
+                "type": "boolean",
+                "description": "Whether there is a previous page"
+              }
+            },
+            "required": ["page", "size", "totalElements", "totalPages", "hasNext", "hasPrevious"],
+            "domainType": "value_object"
+          },
+          "ErrorResponse": {
+            "type": "object",
+            "description": "Error response format",
+            "properties": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "Error code"
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Error message"
+                  },
+                  "details": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "issue": {
+                          "type": "string"
+                        },
+                        "ruleViolated": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "description": "Detailed error information"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Error timestamp"
+                  },
+                  "traceId": {
+                    "type": "string",
+                    "description": "Request trace ID for debugging"
+                  }
+                },
+                "required": ["code", "message", "timestamp"]
+              }
+            },
+            "required": ["error"]
+          }
+        },
+        "securitySchemes": {
+          "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "description": "JWT Bearer token authentication"
+          }
+        }
+      },
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "tags": [
+        {
+          "name": "user-management",
+          "description": "User management operations",
+          "externalDocs": {
+            "description": "User Management Documentation",
+            "url": "https://docs.company.com/apis/user-management"
+          }
+        }
+      ]
+    },
+    "domainIntegration": {
+      "boundedContextMapping": {
+        "upstream": ["Authentication", "Authorization"],
+        "downstream": ["Notification", "Audit"],
+        "integrationPatterns": ["published_language", "open_host_service"]
+      },
+      "aggregateMapping": {
+        "User": {
+          "operations": ["createUser", "updateUser", "deleteUser", "getUserById"],
+          "events": ["UserCreated", "UserUpdated", "UserDeleted"]
+        }
+      },
+      "eventIntegration": {
+        "publishedEvents": [
+          {
+            "eventType": "UserCreated",
+            "operations": ["createUser"],
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {"type": "string"},
+                "email": {"type": "string"},
+                "department": {"type": "string"},
+                "timestamp": {"type": "string", "format": "date-time"}
+              }
+            }
+          },
+          {
+            "eventType": "UserUpdated",
+            "operations": ["updateUser"],
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userId": {"type": "string"},
+                "changes": {"type": "object"},
+                "timestamp": {"type": "string", "format": "date-time"}
+              }
+            }
+          }
+        ]
+      },
+      "businessRuleIntegration": {
+        "validationRules": [
+          {
+            "ruleId": "BR_UNIQUE_EMAIL",
+            "operations": ["createUser"],
+            "enforcement": "domain_layer"
+          },
+          {
+            "ruleId": "BR_PASSWORD_POLICY",
+            "operations": ["createUser"],
+            "enforcement": "application_layer"
+          }
+        ]
+      }
+    },
+    "versionManagement": {
+      "versioningStrategy": "url_path",
+      "supportedVersions": [
+        {
+          "version": "3.0.0",
+          "status": "current"
+        },
+        {
+          "version": "2.1.0",
+          "status": "deprecated",
+          "deprecationDate": "2024-03-01",
+          "sunsetDate": "2024-06-01"
+        }
+      ],
+      "backwardCompatibility": {
+        "policy": "strict",
+        "minSupportedVersion": "2.0.0"
+      }
+    }
+  }
+}

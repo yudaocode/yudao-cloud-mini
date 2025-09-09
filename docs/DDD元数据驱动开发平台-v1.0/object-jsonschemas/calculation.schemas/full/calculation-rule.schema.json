@@ -1,0 +1,1543 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/ddd-metamodel/3.0/calculation/calculation-rule.schema.json",
+  "title": "计算规则和公式定义",
+  "description": "DDD元数据平台中的计算规则完整定义，包括数学表达式、业务计算逻辑、公式验证和测试框架",
+  "version": "3.0.0",
+  "type": "object",
+  "properties": {
+    "calculationRules": {
+      "type": "array",
+      "description": "计算规则列表",
+      "items": {
+        "$ref": "#/$defs/calculationRule"
+      }
+    },
+    "formulaDefinitions": {
+      "type": "array",
+      "description": "公式定义列表",
+      "items": {
+        "$ref": "#/$defs/formulaDefinition"
+      }
+    },
+    "expressionParsers": {
+      "type": "array",
+      "description": "表达式解析器配置",
+      "items": {
+        "$ref": "#/$defs/expressionParser"
+      }
+    },
+    "calculationContexts": {
+      "type": "array",
+      "description": "计算上下文定义",
+      "items": {
+        "$ref": "#/$defs/calculationContext"
+      }
+    },
+    "testSuites": {
+      "type": "array",
+      "description": "计算规则测试套件",
+      "items": {
+        "$ref": "#/$defs/testSuite"
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "计算规则依赖关系",
+      "items": {
+        "$ref": "#/$defs/calculationDependency"
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "description": "与业务规则系统的集成配置",
+      "$ref": "#/$defs/businessRuleIntegration"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "calculationRule": {
+      "type": "object",
+      "properties": {
+        "calculationId": {
+          "type": "string",
+          "pattern": "^calc_[a-zA-Z0-9_]+$",
+          "description": "计算规则唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "计算规则名称"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "计算规则详细描述"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "FINANCIAL", "MATHEMATICAL", "STATISTICAL", "BUSINESS_LOGIC", 
+            "AGGREGATION", "TRANSFORMATION", "VALIDATION", "CONDITIONAL",
+            "TEMPORAL", "GEOMETRIC", "TRIGONOMETRIC", "ALGORITHMIC"
+          ],
+          "description": "计算规则类别"
+        },
+        "complexity": {
+          "type": "string",
+          "enum": ["SIMPLE", "MODERATE", "COMPLEX", "ADVANCED"],
+          "description": "计算复杂度级别"
+        },
+        "formula": {
+          "$ref": "#/$defs/formulaDefinition",
+          "description": "主计算公式"
+        },
+        "alternatives": {
+          "type": "array",
+          "description": "替代计算公式（用于不同场景）",
+          "items": {
+            "$ref": "#/$defs/alternativeFormula"
+          }
+        },
+        "inputParameters": {
+          "type": "array",
+          "description": "输入参数定义",
+          "items": {
+            "$ref": "#/$defs/inputParameter"
+          }
+        },
+        "outputDefinition": {
+          "$ref": "#/$defs/outputDefinition",
+          "description": "输出定义"
+        },
+        "preconditions": {
+          "type": "array",
+          "description": "计算前置条件",
+          "items": {
+            "$ref": "#/$defs/precondition"
+          }
+        },
+        "postconditions": {
+          "type": "array",
+          "description": "计算后置条件",
+          "items": {
+            "$ref": "#/$defs/postcondition"
+          }
+        },
+        "errorHandling": {
+          "$ref": "#/$defs/errorHandling",
+          "description": "错误处理策略"
+        },
+        "performance": {
+          "$ref": "#/$defs/performanceProfile",
+          "description": "性能配置"
+        },
+        "security": {
+          "$ref": "#/$defs/securityConstraints",
+          "description": "安全约束"
+        },
+        "testing": {
+          "$ref": "#/$defs/testConfiguration",
+          "description": "测试配置"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/lifecycleManagement",
+          "description": "生命周期管理"
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["calculationId", "name", "category", "formula", "inputParameters", "outputDefinition"],
+      "additionalProperties": false
+    },
+    "formulaDefinition": {
+      "type": "object",
+      "properties": {
+        "formulaId": {
+          "type": "string",
+          "pattern": "^formula_[a-zA-Z0-9_]+$",
+          "description": "公式唯一标识"
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "description": "数学表达式字符串"
+        },
+        "language": {
+          "type": "string",
+          "enum": [
+            "MATHEMATICAL", "JAVASCRIPT", "GROOVY", "PYTHON", 
+            "RULE_ENGINE", "SQL", "REGEX", "CUSTOM_DSL"
+          ],
+          "description": "公式语言类型"
+        },
+        "syntax": {
+          "type": "string",
+          "enum": ["INFIX", "PREFIX", "POSTFIX", "FUNCTIONAL", "DECLARATIVE"],
+          "description": "表达式语法类型"
+        },
+        "variables": {
+          "type": "array",
+          "description": "公式中使用的变量",
+          "items": {
+            "$ref": "#/$defs/formulaVariable"
+          }
+        },
+        "functions": {
+          "type": "array",
+          "description": "公式中使用的函数",
+          "items": {
+            "$ref": "#/$defs/formulaFunction"
+          }
+        },
+        "constants": {
+          "type": "object",
+          "description": "公式中使用的常量",
+          "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+              "type": ["string", "number", "boolean"]
+            }
+          }
+        },
+        "compilation": {
+          "$ref": "#/$defs/compilationSettings",
+          "description": "编译设置"
+        },
+        "optimization": {
+          "$ref": "#/$defs/optimizationSettings",
+          "description": "优化设置"
+        }
+      },
+      "required": ["formulaId", "expression", "language"],
+      "additionalProperties": false
+    },
+    "alternativeFormula": {
+      "type": "object",
+      "properties": {
+        "condition": {
+          "type": "string",
+          "description": "使用此替代公式的条件"
+        },
+        "formula": {
+          "$ref": "#/$defs/formulaDefinition",
+          "description": "替代公式定义"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "优先级（1最高，10最低）"
+        },
+        "description": {
+          "type": "string",
+          "description": "替代公式说明"
+        }
+      },
+      "required": ["condition", "formula", "priority"],
+      "additionalProperties": false
+    },
+    "inputParameter": {
+      "type": "object",
+      "properties": {
+        "parameterId": {
+          "type": "string",
+          "pattern": "^param_[a-zA-Z0-9_]+$",
+          "description": "参数唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "参数名称"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "INTEGER", "DECIMAL", "FLOAT", "DOUBLE", "BOOLEAN", 
+            "STRING", "DATE", "DATETIME", "TIME", "ARRAY", 
+            "OBJECT", "JSON", "BINARY", "CUSTOM"
+          ],
+          "description": "参数数据类型"
+        },
+        "subtype": {
+          "type": "string",
+          "description": "参数子类型（如数组元素类型）"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否必需参数"
+        },
+        "defaultValue": {
+          "description": "默认值"
+        },
+        "constraints": {
+          "$ref": "#/$defs/parameterConstraints",
+          "description": "参数约束"
+        },
+        "validationRules": {
+          "type": "array",
+          "description": "参数验证规则",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "参数描述"
+        },
+        "examples": {
+          "type": "array",
+          "description": "参数示例值",
+          "items": {}
+        }
+      },
+      "required": ["parameterId", "name", "type"],
+      "additionalProperties": false
+    },
+    "outputDefinition": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "INTEGER", "DECIMAL", "FLOAT", "DOUBLE", "BOOLEAN", 
+            "STRING", "DATE", "DATETIME", "TIME", "ARRAY", 
+            "OBJECT", "JSON", "CUSTOM"
+          ],
+          "description": "输出数据类型"
+        },
+        "subtype": {
+          "type": "string",
+          "description": "输出子类型"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50,
+          "description": "数值精度（小数位数）"
+        },
+        "scale": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "数值标度（总位数）"
+        },
+        "roundingMode": {
+          "type": "string",
+          "enum": [
+            "UP", "DOWN", "CEILING", "FLOOR", 
+            "HALF_UP", "HALF_DOWN", "HALF_EVEN", "UNNECESSARY"
+          ],
+          "description": "舍入模式"
+        },
+        "format": {
+          "type": "string",
+          "description": "输出格式化模板"
+        },
+        "unit": {
+          "type": "string",
+          "description": "输出单位"
+        },
+        "range": {
+          "$ref": "#/$defs/valueRange",
+          "description": "输出值范围"
+        },
+        "nullHandling": {
+          "type": "string",
+          "enum": ["RETURN_NULL", "THROW_EXCEPTION", "DEFAULT_VALUE", "SKIP"],
+          "description": "空值处理策略"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "输出元数据",
+          "properties": {
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "计算结果置信度"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "计算时间戳"
+            },
+            "version": {
+              "type": "string",
+              "description": "计算版本"
+            }
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "parameterConstraints": {
+      "type": "object",
+      "properties": {
+        "minimum": {
+          "type": "number",
+          "description": "最小值"
+        },
+        "maximum": {
+          "type": "number",
+          "description": "最大值"
+        },
+        "exclusiveMinimum": {
+          "type": "boolean",
+          "description": "排除最小值"
+        },
+        "exclusiveMaximum": {
+          "type": "boolean",
+          "description": "排除最大值"
+        },
+        "multipleOf": {
+          "type": "number",
+          "description": "倍数约束"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "最小长度"
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "最大长度"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "正则表达式模式"
+        },
+        "format": {
+          "type": "string",
+          "description": "格式约束"
+        },
+        "enum": {
+          "type": "array",
+          "description": "枚举值约束"
+        }
+      },
+      "additionalProperties": false
+    },
+    "valueRange": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number",
+          "description": "最小值"
+        },
+        "max": {
+          "type": "number",
+          "description": "最大值"
+        },
+        "inclusiveMin": {
+          "type": "boolean",
+          "default": true,
+          "description": "包含最小值"
+        },
+        "inclusiveMax": {
+          "type": "boolean",
+          "default": true,
+          "description": "包含最大值"
+        }
+      },
+      "additionalProperties": false
+    },
+    "formulaVariable": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "description": "变量名称"
+        },
+        "type": {
+          "type": "string",
+          "description": "变量类型"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["LOCAL", "GLOBAL", "CONTEXT", "PARAMETER"],
+          "description": "变量作用域"
+        },
+        "source": {
+          "type": "string",
+          "description": "变量数据源"
+        },
+        "transformation": {
+          "type": "string",
+          "description": "变量转换规则"
+        }
+      },
+      "required": ["name", "type", "scope"],
+      "additionalProperties": false
+    },
+    "formulaFunction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "函数名称"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "BUILT_IN", "CUSTOM", "LIBRARY", "EXTERNAL", 
+            "MATHEMATICAL", "STATISTICAL", "STRING", "DATE", 
+            "AGGREGATION", "CONDITIONAL", "LOGICAL"
+          ],
+          "description": "函数类型"
+        },
+        "signature": {
+          "type": "string",
+          "description": "函数签名"
+        },
+        "implementation": {
+          "type": "string",
+          "description": "函数实现（仅自定义函数）"
+        },
+        "library": {
+          "type": "string",
+          "description": "函数库名称"
+        },
+        "version": {
+          "type": "string",
+          "description": "函数版本"
+        }
+      },
+      "required": ["name", "type"],
+      "additionalProperties": false
+    },
+    "compilationSettings": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用编译"
+        },
+        "target": {
+          "type": "string",
+          "enum": ["BYTECODE", "NATIVE", "INTERPRETED", "JIT"],
+          "description": "编译目标"
+        },
+        "optimization": {
+          "type": "string",
+          "enum": ["NONE", "BASIC", "AGGRESSIVE"],
+          "description": "编译优化级别"
+        },
+        "caching": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否缓存编译结果"
+        }
+      },
+      "additionalProperties": false
+    },
+    "optimizationSettings": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用优化"
+        },
+        "techniques": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "CONSTANT_FOLDING", "DEAD_CODE_ELIMINATION", "COMMON_SUBEXPRESSION", 
+              "LOOP_UNROLLING", "VECTORIZATION", "MEMOIZATION"
+            ]
+          },
+          "description": "优化技术"
+        },
+        "level": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "MAXIMUM"],
+          "description": "优化级别"
+        }
+      },
+      "additionalProperties": false
+    },
+    "precondition": {
+      "type": "object",
+      "properties": {
+        "conditionId": {
+          "type": "string",
+          "description": "条件标识"
+        },
+        "expression": {
+          "type": "string",
+          "description": "条件表达式"
+        },
+        "description": {
+          "type": "string",
+          "description": "条件描述"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "条件不满足时的错误消息"
+        }
+      },
+      "required": ["conditionId", "expression"],
+      "additionalProperties": false
+    },
+    "postcondition": {
+      "type": "object",
+      "properties": {
+        "conditionId": {
+          "type": "string",
+          "description": "条件标识"
+        },
+        "expression": {
+          "type": "string",
+          "description": "条件表达式"
+        },
+        "description": {
+          "type": "string",
+          "description": "条件描述"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["LOG", "ALERT", "RETRY", "ROLLBACK", "IGNORE"],
+          "description": "条件不满足时的动作"
+        }
+      },
+      "required": ["conditionId", "expression"],
+      "additionalProperties": false
+    },
+    "errorHandling": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["THROW", "RETURN_DEFAULT", "RETRY", "ESCALATE", "LOG_AND_CONTINUE"],
+          "description": "错误处理策略"
+        },
+        "retryPolicy": {
+          "$ref": "#/$defs/retryPolicy",
+          "description": "重试策略"
+        },
+        "fallbackValue": {
+          "description": "回退值"
+        },
+        "timeouts": {
+          "$ref": "#/$defs/timeoutSettings",
+          "description": "超时设置"
+        },
+        "logging": {
+          "$ref": "#/$defs/loggingConfiguration",
+          "description": "日志配置"
+        }
+      },
+      "required": ["strategy"],
+      "additionalProperties": false
+    },
+    "retryPolicy": {
+      "type": "object",
+      "properties": {
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "最大重试次数"
+        },
+        "delay": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "重试延迟（毫秒）"
+        },
+        "backoffMultiplier": {
+          "type": "number",
+          "minimum": 1,
+          "description": "重试延迟倍数"
+        },
+        "exceptions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "触发重试的异常类型"
+        }
+      },
+      "required": ["maxAttempts"],
+      "additionalProperties": false
+    },
+    "timeoutSettings": {
+      "type": "object",
+      "properties": {
+        "execution": {
+          "type": "integer",
+          "minimum": 100,
+          "description": "执行超时（毫秒）"
+        },
+        "compilation": {
+          "type": "integer",
+          "minimum": 100,
+          "description": "编译超时（毫秒）"
+        },
+        "validation": {
+          "type": "integer",
+          "minimum": 10,
+          "description": "验证超时（毫秒）"
+        }
+      },
+      "additionalProperties": false
+    },
+    "loggingConfiguration": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR"],
+          "description": "日志级别"
+        },
+        "includeStackTrace": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含堆栈跟踪"
+        },
+        "includeParameters": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否包含参数信息"
+        },
+        "format": {
+          "type": "string",
+          "description": "日志格式"
+        }
+      },
+      "additionalProperties": false
+    },
+    "performanceProfile": {
+      "type": "object",
+      "properties": {
+        "expectedComplexity": {
+          "type": "string",
+          "enum": ["O(1)", "O(log n)", "O(n)", "O(n log n)", "O(n²)", "O(2^n)", "UNKNOWN"],
+          "description": "预期计算复杂度"
+        },
+        "maxExecutionTime": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最大执行时间（毫秒）"
+        },
+        "memoryUsage": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "VERY_HIGH"],
+          "description": "内存使用级别"
+        },
+        "cacheStrategy": {
+          "$ref": "#/$defs/cacheStrategy",
+          "description": "缓存策略"
+        },
+        "parallelization": {
+          "$ref": "#/$defs/parallelizationConfig",
+          "description": "并行化配置"
+        },
+        "monitoring": {
+          "$ref": "#/$defs/performanceMonitoring",
+          "description": "性能监控"
+        }
+      },
+      "additionalProperties": false
+    },
+    "cacheStrategy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["NONE", "MEMORY", "REDIS", "DATABASE", "DISTRIBUTED", "HYBRID"],
+          "description": "缓存类型"
+        },
+        "ttl": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "缓存生存时间（秒）"
+        },
+        "maxSize": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最大缓存大小"
+        },
+        "evictionPolicy": {
+          "type": "string",
+          "enum": ["LRU", "LFU", "FIFO", "LIFO", "RANDOM"],
+          "description": "缓存淘汰策略"
+        },
+        "keyPattern": {
+          "type": "string",
+          "description": "缓存键模式"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "parallelizationConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否启用并行化"
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["DATA_PARALLEL", "TASK_PARALLEL", "PIPELINE", "FORK_JOIN"],
+          "description": "并行化策略"
+        },
+        "threadCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "线程数量"
+        },
+        "partitionSize": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "分区大小"
+        }
+      },
+      "additionalProperties": false
+    },
+    "performanceMonitoring": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用性能监控"
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "EXECUTION_TIME", "MEMORY_USAGE", "CPU_USAGE", 
+              "CACHE_HIT_RATE", "ERROR_RATE", "THROUGHPUT"
+            ]
+          },
+          "description": "监控指标"
+        },
+        "sampling": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "采样率"
+        },
+        "alertThresholds": {
+          "type": "object",
+          "description": "告警阈值配置"
+        }
+      },
+      "additionalProperties": false
+    },
+    "securityConstraints": {
+      "type": "object",
+      "properties": {
+        "accessControl": {
+          "$ref": "#/$defs/accessControl",
+          "description": "访问控制"
+        },
+        "encryption": {
+          "$ref": "#/$defs/encryptionSettings",
+          "description": "加密设置"
+        },
+        "audit": {
+          "$ref": "#/$defs/auditConfiguration",
+          "description": "审计配置"
+        },
+        "sandboxing": {
+          "$ref": "#/$defs/sandboxConfiguration",
+          "description": "沙箱配置"
+        }
+      },
+      "additionalProperties": false
+    },
+    "accessControl": {
+      "type": "object",
+      "properties": {
+        "requiredRoles": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "所需角色"
+        },
+        "requiredPermissions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "所需权限"
+        },
+        "restrictions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "访问限制"
+        }
+      },
+      "additionalProperties": false
+    },
+    "encryptionSettings": {
+      "type": "object",
+      "properties": {
+        "encryptInput": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否加密输入"
+        },
+        "encryptOutput": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否加密输出"
+        },
+        "algorithm": {
+          "type": "string",
+          "enum": ["AES", "RSA", "DES", "3DES"],
+          "description": "加密算法"
+        },
+        "keySize": {
+          "type": "integer",
+          "enum": [128, 192, 256, 512, 1024, 2048, 4096],
+          "description": "密钥长度"
+        }
+      },
+      "additionalProperties": false
+    },
+    "auditConfiguration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用审计"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["EXECUTION", "ERROR", "ACCESS", "MODIFICATION"]
+          },
+          "description": "审计事件类型"
+        },
+        "storage": {
+          "type": "string",
+          "enum": ["DATABASE", "FILE", "EXTERNAL_SERVICE"],
+          "description": "审计日志存储方式"
+        },
+        "retention": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "审计日志保留天数"
+        }
+      },
+      "additionalProperties": false
+    },
+    "sandboxConfiguration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用沙箱"
+        },
+        "allowedOperations": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "允许的操作"
+        },
+        "blockedOperations": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "禁止的操作"
+        },
+        "resourceLimits": {
+          "type": "object",
+          "properties": {
+            "maxMemory": {
+              "type": "integer",
+              "description": "最大内存使用（字节）"
+            },
+            "maxCpuTime": {
+              "type": "integer",
+              "description": "最大CPU时间（毫秒）"
+            },
+            "maxFileSize": {
+              "type": "integer",
+              "description": "最大文件大小（字节）"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "testConfiguration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用测试"
+        },
+        "testSuites": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "关联的测试套件ID"
+        },
+        "coverage": {
+          "$ref": "#/$defs/coverageConfiguration",
+          "description": "覆盖率配置"
+        },
+        "automation": {
+          "$ref": "#/$defs/testAutomation",
+          "description": "自动化测试配置"
+        }
+      },
+      "additionalProperties": false
+    },
+    "coverageConfiguration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用覆盖率统计"
+        },
+        "target": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "目标覆盖率百分比"
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["STATEMENT", "BRANCH", "FUNCTION", "LINE"]
+          },
+          "description": "覆盖率类型"
+        }
+      },
+      "additionalProperties": false
+    },
+    "testAutomation": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否启用自动化测试"
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["ON_DEPLOY", "ON_COMMIT", "SCHEDULED", "ON_DEMAND"]
+          },
+          "description": "触发条件"
+        },
+        "schedule": {
+          "type": "string",
+          "description": "定时执行计划（Cron表达式）"
+        }
+      },
+      "additionalProperties": false
+    },
+    "lifecycleManagement": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "版本号"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["DRAFT", "ACTIVE", "DEPRECATED", "RETIRED"],
+          "description": "生命周期状态"
+        },
+        "deprecationDate": {
+          "type": "string",
+          "format": "date",
+          "description": "弃用日期"
+        },
+        "retirementDate": {
+          "type": "string",
+          "format": "date",
+          "description": "退役日期"
+        },
+        "migrationGuide": {
+          "type": "string",
+          "description": "迁移指南"
+        },
+        "changeLog": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/changeLogEntry"
+          },
+          "description": "变更日志"
+        }
+      },
+      "required": ["version", "status"],
+      "additionalProperties": false
+    },
+    "changeLogEntry": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "版本号"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "变更日期"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["FEATURE", "BUG_FIX", "IMPROVEMENT", "BREAKING_CHANGE", "DEPRECATION"],
+          "description": "变更类型"
+        },
+        "description": {
+          "type": "string",
+          "description": "变更描述"
+        },
+        "author": {
+          "type": "string",
+          "description": "变更作者"
+        }
+      },
+      "required": ["version", "date", "type", "description"],
+      "additionalProperties": false
+    },
+    "expressionParser": {
+      "type": "object",
+      "properties": {
+        "parserId": {
+          "type": "string",
+          "pattern": "^parser_[a-zA-Z0-9_]+$",
+          "description": "解析器ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "解析器名称"
+        },
+        "language": {
+          "type": "string",
+          "description": "支持的表达式语言"
+        },
+        "grammar": {
+          "type": "string",
+          "description": "语法定义（如ANTLR语法）"
+        },
+        "configuration": {
+          "type": "object",
+          "description": "解析器配置",
+          "properties": {
+            "caseSensitive": {
+              "type": "boolean",
+              "default": true,
+              "description": "是否大小写敏感"
+            },
+            "allowUndefinedVariables": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否允许未定义变量"
+            },
+            "strictMode": {
+              "type": "boolean",
+              "default": true,
+              "description": "是否启用严格模式"
+            }
+          }
+        }
+      },
+      "required": ["parserId", "name", "language"],
+      "additionalProperties": false
+    },
+    "calculationContext": {
+      "type": "object",
+      "properties": {
+        "contextId": {
+          "type": "string",
+          "pattern": "^context_[a-zA-Z0-9_]+$",
+          "description": "上下文ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "上下文名称"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["GLOBAL", "SESSION", "REQUEST", "TRANSACTION", "LOCAL"],
+          "description": "上下文作用域"
+        },
+        "variables": {
+          "type": "object",
+          "description": "上下文变量",
+          "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {}
+          }
+        },
+        "functions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contextFunction"
+          },
+          "description": "上下文函数"
+        },
+        "inheritance": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "继承的上下文ID"
+        }
+      },
+      "required": ["contextId", "name", "scope"],
+      "additionalProperties": false
+    },
+    "contextFunction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "函数名称"
+        },
+        "implementation": {
+          "type": "string",
+          "description": "函数实现"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "required": {"type": "boolean", "default": true}
+            },
+            "required": ["name", "type"]
+          },
+          "description": "函数参数"
+        },
+        "returnType": {
+          "type": "string",
+          "description": "返回类型"
+        }
+      },
+      "required": ["name", "implementation", "returnType"],
+      "additionalProperties": false
+    },
+    "testSuite": {
+      "type": "object",
+      "properties": {
+        "suiteId": {
+          "type": "string",
+          "pattern": "^suite_[a-zA-Z0-9_]+$",
+          "description": "测试套件ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "测试套件名称"
+        },
+        "calculationRuleId": {
+          "type": "string",
+          "description": "关联的计算规则ID"
+        },
+        "testCases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/testCase"
+          },
+          "description": "测试用例"
+        },
+        "setup": {
+          "$ref": "#/$defs/testSetup",
+          "description": "测试环境设置"
+        },
+        "teardown": {
+          "$ref": "#/$defs/testTeardown",
+          "description": "测试清理"
+        },
+        "configuration": {
+          "$ref": "#/$defs/testSuiteConfiguration",
+          "description": "测试套件配置"
+        }
+      },
+      "required": ["suiteId", "name", "calculationRuleId", "testCases"],
+      "additionalProperties": false
+    },
+    "testCase": {
+      "type": "object",
+      "properties": {
+        "caseId": {
+          "type": "string",
+          "pattern": "^case_[a-zA-Z0-9_]+$",
+          "description": "测试用例ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "测试用例名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "测试用例描述"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["POSITIVE", "NEGATIVE", "BOUNDARY", "PERFORMANCE", "SECURITY"],
+          "description": "测试用例类别"
+        },
+        "inputs": {
+          "type": "object",
+          "description": "输入参数"
+        },
+        "expectedOutput": {
+          "description": "期望输出"
+        },
+        "tolerance": {
+          "type": "number",
+          "description": "数值容差"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "超时时间（毫秒）"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+          "description": "测试优先级"
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "测试标签"
+        }
+      },
+      "required": ["caseId", "name", "category", "inputs", "expectedOutput"],
+      "additionalProperties": false
+    },
+    "testSetup": {
+      "type": "object",
+      "properties": {
+        "dataPreparation": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "数据准备脚本"
+        },
+        "environment": {
+          "type": "object",
+          "description": "环境变量设置"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "依赖服务"
+        }
+      },
+      "additionalProperties": false
+    },
+    "testTeardown": {
+      "type": "object",
+      "properties": {
+        "cleanup": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "清理脚本"
+        },
+        "dataRemoval": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "数据清除脚本"
+        }
+      },
+      "additionalProperties": false
+    },
+    "testSuiteConfiguration": {
+      "type": "object",
+      "properties": {
+        "parallel": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否并行执行"
+        },
+        "maxParallelThreads": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最大并行线程数"
+        },
+        "retryFailedTests": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否重试失败的测试"
+        },
+        "maxRetries": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最大重试次数"
+        },
+        "reporting": {
+          "$ref": "#/$defs/testReporting",
+          "description": "测试报告配置"
+        }
+      },
+      "additionalProperties": false
+    },
+    "testReporting": {
+      "type": "object",
+      "properties": {
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["JUNIT", "HTML", "JSON", "XML", "CSV"]
+          },
+          "description": "报告格式"
+        },
+        "outputDirectory": {
+          "type": "string",
+          "description": "报告输出目录"
+        },
+        "includeDetails": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否包含详细信息"
+        },
+        "screenshots": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否包含截图"
+        }
+      },
+      "additionalProperties": false
+    },
+    "calculationDependency": {
+      "type": "object",
+      "properties": {
+        "dependencyId": {
+          "type": "string",
+          "pattern": "^dep_[a-zA-Z0-9_]+$",
+          "description": "依赖关系ID"
+        },
+        "source": {
+          "type": "string",
+          "description": "源计算规则ID"
+        },
+        "target": {
+          "type": "string",
+          "description": "目标计算规则ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SEQUENTIAL", "CONDITIONAL", "PARALLEL", "CIRCULAR"],
+          "description": "依赖类型"
+        },
+        "condition": {
+          "type": "string",
+          "description": "依赖条件（条件依赖时）"
+        },
+        "strength": {
+          "type": "string",
+          "enum": ["STRONG", "WEAK", "OPTIONAL"],
+          "description": "依赖强度"
+        },
+        "description": {
+          "type": "string",
+          "description": "依赖描述"
+        }
+      },
+      "required": ["dependencyId", "source", "target", "type"],
+      "additionalProperties": false
+    },
+    "businessRuleIntegration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用业务规则集成"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ruleMapping"
+          },
+          "description": "规则映射关系"
+        },
+        "synchronization": {
+          "$ref": "#/$defs/synchronizationConfig",
+          "description": "同步配置"
+        },
+        "validation": {
+          "$ref": "#/$defs/integrationValidation",
+          "description": "集成验证"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ruleMapping": {
+      "type": "object",
+      "properties": {
+        "calculationRuleId": {
+          "type": "string",
+          "description": "计算规则ID"
+        },
+        "businessRuleId": {
+          "type": "string",
+          "description": "业务规则ID"
+        },
+        "relationship": {
+          "type": "string",
+          "enum": ["IMPLEMENTS", "VALIDATES", "TRIGGERS", "DEPENDS_ON"],
+          "description": "关系类型"
+        },
+        "configuration": {
+          "type": "object",
+          "description": "映射配置"
+        }
+      },
+      "required": ["calculationRuleId", "businessRuleId", "relationship"],
+      "additionalProperties": false
+    },
+    "synchronizationConfig": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["REAL_TIME", "BATCH", "ON_DEMAND"],
+          "description": "同步模式"
+        },
+        "frequency": {
+          "type": "string",
+          "description": "同步频率（Cron表达式）"
+        },
+        "conflictResolution": {
+          "type": "string",
+          "enum": ["CALCULATION_WINS", "BUSINESS_RULE_WINS", "MANUAL", "MERGE"],
+          "description": "冲突解决策略"
+        }
+      },
+      "required": ["mode"],
+      "additionalProperties": false
+    },
+    "integrationValidation": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用集成验证"
+        },
+        "rules": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "验证规则"
+        },
+        "onFailure": {
+          "type": "string",
+          "enum": ["WARN", "ERROR", "BLOCK"],
+          "description": "验证失败时的处理方式"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

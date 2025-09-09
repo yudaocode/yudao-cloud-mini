@@ -1,0 +1,806 @@
+{
+  "$schema": "../full/performance-monitoring-specification.schema.json",
+  "performanceMonitoringSpecification": {
+    "metadata": {
+      "id": "user-service-monitoring",
+      "name": "用户服务性能监控",
+      "version": "1.0.0",
+      "description": "用户管理服务的完整性能监控和度量系统",
+      "author": "DDD Platform Team",
+      "createdAt": "2025-09-08T10:00:00Z",
+      "updatedAt": "2025-09-08T10:00:00Z",
+      "tags": ["user-service", "microservice", "monitoring"]
+    },
+    "globalConfiguration": {
+      "collection": {
+        "interval": "10s",
+        "batchSize": 1000,
+        "bufferSize": 10000,
+        "enableCompression": true
+      },
+      "storage": {
+        "backend": "PROMETHEUS",
+        "retention": {
+          "shortTerm": {
+            "duration": 7,
+            "unit": "DAYS",
+            "resolution": "10s"
+          },
+          "longTerm": {
+            "duration": 6,
+            "unit": "MONTHS",
+            "resolution": "5m"
+          }
+        },
+        "sharding": {
+          "enabled": true,
+          "strategy": "TIME",
+          "shardCount": 4
+        }
+      },
+      "alerting": {
+        "evaluationInterval": "30s",
+        "groupWait": "10s",
+        "groupInterval": "5m",
+        "repeatInterval": "4h",
+        "resolveTimeout": "5m"
+      },
+      "tracing": {
+        "enabled": true,
+        "samplingRate": 0.1,
+        "samplingStrategy": "PROBABILISTIC",
+        "exportFormat": "JAEGER",
+        "maxSpanCount": 10000
+      },
+      "logging": {
+        "level": "INFO",
+        "format": "JSON",
+        "includeStackTrace": false,
+        "maxFileSize": "100MB",
+        "retention": {
+          "days": 30,
+          "maxFiles": 10
+        }
+      }
+    },
+    "metrics": [
+      {
+        "metricId": "user_request_total",
+        "name": "user.request.total",
+        "type": "COUNTER",
+        "unit": "COUNT",
+        "description": "用户服务总请求数",
+        "tags": {
+          "service": "user-service",
+          "method": "http_method",
+          "status": "http_status",
+          "endpoint": "http_endpoint"
+        },
+        "sampling": {
+          "strategy": "FIXED_RATE",
+          "rate": 1.0
+        },
+        "aggregation": {
+          "functions": ["SUM", "RATE"],
+          "timeWindow": {
+            "duration": 5,
+            "unit": "MINUTES",
+            "sliding": true
+          },
+          "groupBy": ["method", "status", "endpoint"]
+        },
+        "retention": {
+          "shortTerm": {
+            "duration": 7,
+            "unit": "DAYS",
+            "resolution": "10s"
+          },
+          "longTerm": {
+            "duration": 3,
+            "unit": "MONTHS",
+            "resolution": "1m"
+          }
+        }
+      },
+      {
+        "metricId": "user_request_duration",
+        "name": "user.request.duration",
+        "type": "HISTOGRAM",
+        "unit": "MILLISECONDS",
+        "description": "用户服务请求响应时间",
+        "tags": {
+          "service": "user-service",
+          "method": "http_method",
+          "endpoint": "http_endpoint"
+        },
+        "sampling": {
+          "strategy": "RESERVOIR",
+          "rate": 0.5,
+          "reservoirSize": 1028
+        },
+        "aggregation": {
+          "functions": ["AVG", "P95", "P99", "MAX"],
+          "timeWindow": {
+            "duration": 1,
+            "unit": "MINUTES",
+            "sliding": true
+          }
+        }
+      },
+      {
+        "metricId": "user_active_sessions",
+        "name": "user.active.sessions",
+        "type": "GAUGE",
+        "unit": "COUNT",
+        "description": "当前活跃用户会话数",
+        "tags": {
+          "service": "user-service"
+        },
+        "baseline": {
+          "metricName": "user.active.sessions",
+          "baselineValue": 1000,
+          "tolerance": 0.2,
+          "calculationMethod": "HISTORICAL_AVERAGE",
+          "timeWindow": {
+            "duration": 24,
+            "unit": "HOURS",
+            "sliding": false
+          },
+          "autoUpdate": true
+        }
+      },
+      {
+        "metricId": "user_registration_rate",
+        "name": "user.registration.rate",
+        "type": "COUNTER",
+        "unit": "COUNT",
+        "description": "用户注册率",
+        "tags": {
+          "service": "user-service",
+          "source": "registration_source"
+        }
+      },
+      {
+        "metricId": "user_authentication_failures",
+        "name": "user.authentication.failures",
+        "type": "COUNTER",
+        "unit": "COUNT",
+        "description": "用户认证失败次数",
+        "tags": {
+          "service": "user-service",
+          "reason": "failure_reason"
+        }
+      }
+    ],
+    "alertRules": [
+      {
+        "ruleId": "high_error_rate",
+        "name": "用户服务高错误率告警",
+        "description": "当用户服务5分钟内错误率超过5%时触发告警",
+        "metricName": "user.request.total",
+        "condition": {
+          "aggregation": "RATE",
+          "timeWindow": {
+            "duration": 5,
+            "unit": "MINUTES",
+            "sliding": true
+          },
+          "threshold": {
+            "value": 0.05,
+            "operator": "GT"
+          },
+          "expression": "rate(user_request_total{status=~\"5..\"}[5m]) / rate(user_request_total[5m]) > 0.05"
+        },
+        "severity": "CRITICAL",
+        "enabled": true,
+        "suppressDuration": 300,
+        "evaluationInterval": 30,
+        "notifications": [
+          {
+            "type": "EMAIL",
+            "target": "ops-team@example.com",
+            "enabled": true
+          },
+          {
+            "type": "SLACK",
+            "target": "#alerts-critical",
+            "enabled": true,
+            "configuration": {
+              "webhook": "https://hooks.slack.com/services/...",
+              "channel": "#alerts-critical",
+              "username": "AlertManager"
+            }
+          }
+        ],
+        "metadata": {
+          "runbook": "https://runbooks.example.com/user-service-high-error-rate",
+          "team": "Platform Team",
+          "escalation": [
+            {
+              "level": 1,
+              "duration": 300,
+              "contacts": ["oncall-engineer@example.com"]
+            },
+            {
+              "level": 2,
+              "duration": 900,
+              "contacts": ["team-lead@example.com", "engineering-manager@example.com"]
+            }
+          ]
+        }
+      },
+      {
+        "ruleId": "high_response_time",
+        "name": "用户服务高响应时间告警",
+        "description": "当用户服务P95响应时间超过500ms时触发告警",
+        "metricName": "user.request.duration",
+        "condition": {
+          "aggregation": "P95",
+          "timeWindow": {
+            "duration": 5,
+            "unit": "MINUTES",
+            "sliding": true
+          },
+          "threshold": {
+            "value": 500,
+            "operator": "GT"
+          }
+        },
+        "severity": "WARNING",
+        "enabled": true,
+        "notifications": [
+          {
+            "type": "SLACK",
+            "target": "#alerts-warning"
+          }
+        ]
+      }
+    ],
+    "dashboards": [
+      {
+        "dashboardId": "user_service_overview",
+        "title": "用户服务概览",
+        "description": "用户服务关键性能指标概览仪表板",
+        "tags": ["overview", "user-service"],
+        "panels": [
+          {
+            "panelId": "request_rate",
+            "title": "请求速率",
+            "type": "graph",
+            "gridPos": {
+              "x": 0,
+              "y": 0,
+              "w": 12,
+              "h": 8
+            },
+            "metrics": [
+              {
+                "metricName": "user.request.total",
+                "aggregation": "RATE",
+                "filters": {
+                  "service": "user-service"
+                },
+                "alias": "总请求率"
+              },
+              {
+                "metricName": "user.request.total",
+                "aggregation": "RATE",
+                "filters": {
+                  "service": "user-service",
+                  "status": "2xx"
+                },
+                "alias": "成功请求率"
+              }
+            ]
+          },
+          {
+            "panelId": "response_time",
+            "title": "响应时间",
+            "type": "graph",
+            "gridPos": {
+              "x": 12,
+              "y": 0,
+              "w": 12,
+              "h": 8
+            },
+            "metrics": [
+              {
+                "metricName": "user.request.duration",
+                "aggregation": "AVG",
+                "alias": "平均响应时间"
+              },
+              {
+                "metricName": "user.request.duration",
+                "aggregation": "P95",
+                "alias": "P95响应时间"
+              },
+              {
+                "metricName": "user.request.duration",
+                "aggregation": "P99",
+                "alias": "P99响应时间"
+              }
+            ],
+            "thresholds": [
+              {
+                "value": 200,
+                "color": "green",
+                "op": "lt"
+              },
+              {
+                "value": 500,
+                "color": "yellow",
+                "op": "lt"
+              },
+              {
+                "value": 1000,
+                "color": "red",
+                "op": "gt"
+              }
+            ]
+          },
+          {
+            "panelId": "active_sessions",
+            "title": "活跃会话",
+            "type": "gauge",
+            "gridPos": {
+              "x": 0,
+              "y": 8,
+              "w": 6,
+              "h": 4
+            },
+            "metrics": [
+              {
+                "metricName": "user.active.sessions",
+                "aggregation": "AVG",
+                "alias": "活跃会话数"
+              }
+            ],
+            "thresholds": [
+              {
+                "value": 500,
+                "color": "green"
+              },
+              {
+                "value": 1500,
+                "color": "yellow"
+              },
+              {
+                "value": 2000,
+                "color": "red"
+              }
+            ]
+          },
+          {
+            "panelId": "error_rate",
+            "title": "错误率",
+            "type": "stat",
+            "gridPos": {
+              "x": 6,
+              "y": 8,
+              "w": 6,
+              "h": 4
+            },
+            "metrics": [
+              {
+                "metricName": "user.request.total",
+                "aggregation": "RATE",
+                "filters": {
+                  "status": "5xx"
+                },
+                "alias": "错误率"
+              }
+            ]
+          }
+        ],
+        "timeRange": {
+          "from": "now-1h",
+          "to": "now",
+          "refresh": "30s"
+        },
+        "variables": [
+          {
+            "name": "environment",
+            "type": "constant",
+            "default": "production"
+          },
+          {
+            "name": "instance",
+            "type": "query",
+            "query": "label_values(user_request_total, instance)"
+          }
+        ]
+      }
+    ],
+    "slaDefinitions": [
+      {
+        "slaId": "user_service_availability",
+        "name": "用户服务可用性SLA",
+        "description": "用户服务99.9%可用性保证",
+        "service": "user-service",
+        "objectives": [
+          {
+            "name": "服务可用性",
+            "metricName": "user.request.total",
+            "targetValue": 0.999,
+            "operator": "GTE",
+            "timeWindow": {
+              "duration": 30,
+              "unit": "DAYS",
+              "sliding": false
+            },
+            "compliance": 0.999,
+            "errorBudget": 0.001
+          },
+          {
+            "name": "响应时间SLA",
+            "metricName": "user.request.duration",
+            "targetValue": 200,
+            "operator": "LTE",
+            "timeWindow": {
+              "duration": 7,
+              "unit": "DAYS",
+              "sliding": true
+            },
+            "compliance": 0.95,
+            "errorBudget": 0.05
+          }
+        ],
+        "indicators": [
+          {
+            "name": "可用性指标",
+            "metricName": "user.request.total",
+            "goodEvents": "sum(rate(user_request_total{status!~\"5..\"}[5m]))",
+            "totalEvents": "sum(rate(user_request_total[5m]))"
+          }
+        ],
+        "reportingPeriod": {
+          "duration": 30,
+          "unit": "DAYS",
+          "sliding": false
+        },
+        "alerting": {
+          "burnRateRules": [
+            {
+              "short": {
+                "window": "5m",
+                "threshold": 14.4
+              },
+              "long": {
+                "window": "1h",
+                "threshold": 14.4
+              },
+              "severity": "CRITICAL"
+            },
+            {
+              "short": {
+                "window": "30m",
+                "threshold": 6
+              },
+              "long": {
+                "window": "6h",
+                "threshold": 6
+              },
+              "severity": "WARNING"
+            }
+          ]
+        }
+      }
+    ],
+    "performanceProfiles": [
+      {
+        "profileId": "production_profile",
+        "name": "生产环境性能配置",
+        "environment": "production",
+        "applicationMetrics": {
+          "requestRate": {
+            "enabled": true,
+            "samplingRate": 1.0
+          },
+          "responseTime": {
+            "enabled": true,
+            "percentiles": [0.5, 0.75, 0.95, 0.99, 0.999]
+          },
+          "errorRate": {
+            "enabled": true,
+            "threshold": 0.01
+          }
+        },
+        "systemMetrics": {
+          "cpu": {
+            "enabled": true,
+            "interval": "10s"
+          },
+          "memory": {
+            "enabled": true,
+            "interval": "10s"
+          },
+          "disk": {
+            "enabled": true,
+            "interval": "30s"
+          },
+          "network": {
+            "enabled": true,
+            "interval": "10s"
+          }
+        },
+        "businessMetrics": {
+          "customMetrics": [
+            {
+              "metricId": "user_registration_rate",
+              "name": "user.registration.rate",
+              "type": "COUNTER",
+              "unit": "COUNT"
+            }
+          ],
+          "domainEvents": {
+            "enabled": true,
+            "eventTypes": [
+              "UserRegisteredEvent",
+              "UserLoginEvent",
+              "UserPasswordChangedEvent"
+            ]
+          }
+        }
+      }
+    ],
+    "loadTestScenarios": [
+      {
+        "scenarioId": "user_service_load_test",
+        "name": "用户服务负载测试",
+        "description": "模拟用户注册、登录、信息更新的负载测试场景",
+        "loadPattern": {
+          "type": "ramp-up",
+          "users": {
+            "initial": 10,
+            "peak": 1000,
+            "rampUpDuration": "5m",
+            "sustainDuration": "10m",
+            "rampDownDuration": "2m"
+          }
+        },
+        "endpoints": [
+          {
+            "name": "用户注册",
+            "method": "POST",
+            "url": "/api/v1/users/register",
+            "weight": 0.2,
+            "expectedResponse": {
+              "statusCode": 201,
+              "responseTime": 200
+            }
+          },
+          {
+            "name": "用户登录",
+            "method": "POST",
+            "url": "/api/v1/users/login",
+            "weight": 0.3,
+            "expectedResponse": {
+              "statusCode": 200,
+              "responseTime": 100
+            }
+          },
+          {
+            "name": "获取用户信息",
+            "method": "GET",
+            "url": "/api/v1/users/profile",
+            "weight": 0.4,
+            "expectedResponse": {
+              "statusCode": 200,
+              "responseTime": 50
+            }
+          },
+          {
+            "name": "更新用户信息",
+            "method": "PUT",
+            "url": "/api/v1/users/profile",
+            "weight": 0.1,
+            "expectedResponse": {
+              "statusCode": 200,
+              "responseTime": 150
+            }
+          }
+        ],
+        "performanceCriteria": {
+          "responseTime": {
+            "average": 100,
+            "p95": 200,
+            "p99": 500
+          },
+          "throughput": 500,
+          "errorRate": 0.01,
+          "resourceUtilization": {
+            "cpu": 0.7,
+            "memory": 0.8
+          }
+        }
+      }
+    ],
+    "domainIntegration": {
+      "domainEvents": {
+        "enabled": true,
+        "eventTypes": [
+          "UserRegisteredEvent",
+          "UserLoginEvent",
+          "UserProfileUpdatedEvent",
+          "UserPasswordChangedEvent",
+          "UserDeactivatedEvent"
+        ],
+        "metricMapping": [
+          {
+            "eventType": "UserRegisteredEvent",
+            "metricName": "user.registration.rate",
+            "aggregation": "COUNT",
+            "labels": {
+              "event_type": "registration",
+              "source": "domain_event"
+            }
+          },
+          {
+            "eventType": "UserLoginEvent",
+            "metricName": "user.login.rate",
+            "aggregation": "COUNT",
+            "labels": {
+              "event_type": "login",
+              "source": "domain_event"
+            }
+          }
+        ]
+      },
+      "aggregateMetrics": {
+        "enabled": true,
+        "aggregateTypes": ["User"],
+        "operationMetrics": [
+          {
+            "aggregateType": "User",
+            "operation": "register",
+            "metrics": ["execution_time", "success_rate", "validation_failures"]
+          },
+          {
+            "aggregateType": "User",
+            "operation": "authenticate",
+            "metrics": ["execution_time", "success_rate", "failure_reasons"]
+          }
+        ]
+      },
+      "businessRuleMetrics": {
+        "enabled": true,
+        "ruleTypes": ["ValidationRule", "BusinessRule"],
+        "executionMetrics": [
+          {
+            "ruleId": "email_validation_rule",
+            "metricNames": ["rule_execution_time", "rule_success_rate", "rule_failure_count"]
+          },
+          {
+            "ruleId": "password_strength_rule",
+            "metricNames": ["rule_execution_time", "rule_success_rate"]
+          }
+        ]
+      },
+      "contextMapping": {
+        "boundedContexts": [
+          {
+            "contextName": "UserManagement",
+            "servicePrefix": "user",
+            "metricNamespace": "user_management"
+          },
+          {
+            "contextName": "Authentication",
+            "servicePrefix": "auth",
+            "metricNamespace": "authentication"
+          }
+        ]
+      }
+    },
+    "exportConfiguration": {
+      "exporters": [
+        {
+          "name": "prometheus-exporter",
+          "type": "PROMETHEUS",
+          "enabled": true,
+          "endpoint": "http://prometheus:9090/api/v1/write",
+          "timeout": "30s",
+          "compression": "gzip",
+          "batchConfig": {
+            "maxExportBatchSize": 512,
+            "exportTimeout": "30s",
+            "maxQueueSize": 2048
+          }
+        },
+        {
+          "name": "jaeger-exporter",
+          "type": "JAEGER",
+          "enabled": true,
+          "endpoint": "http://jaeger:14268/api/traces",
+          "headers": {
+            "Authorization": "Bearer ${JAEGER_TOKEN}"
+          }
+        }
+      ],
+      "processors": [
+        {
+          "name": "batch-processor",
+          "type": "batch",
+          "config": {
+            "timeout": "1s",
+            "send_batch_size": 1024,
+            "send_batch_max_size": 2048
+          }
+        },
+        {
+          "name": "memory-limiter",
+          "type": "memory_limiter",
+          "config": {
+            "limit_mib": 512,
+            "spike_limit_mib": 128
+          }
+        }
+      ]
+    },
+    "securityConfiguration": {
+      "authentication": {
+        "enabled": true,
+        "methods": ["BEARER", "API_KEY"],
+        "providers": [
+          {
+            "name": "jwt-provider",
+            "type": "JWT",
+            "config": {
+              "secret": "${JWT_SECRET}",
+              "algorithm": "HS256"
+            }
+          }
+        ]
+      },
+      "authorization": {
+        "enabled": true,
+        "rbac": {
+          "enabled": true,
+          "roles": [
+            {
+              "name": "admin",
+              "permissions": ["metrics:read", "metrics:write", "alerts:manage", "dashboards:manage"]
+            },
+            {
+              "name": "developer",
+              "permissions": ["metrics:read", "dashboards:read"]
+            },
+            {
+              "name": "operator",
+              "permissions": ["metrics:read", "alerts:read", "dashboards:read"]
+            }
+          ]
+        }
+      },
+      "dataProtection": {
+        "encryption": {
+          "atRest": true,
+          "inTransit": true,
+          "algorithm": "AES-256"
+        },
+        "sensitiveDataMasking": {
+          "enabled": true,
+          "patterns": [
+            {
+              "field": "user_id",
+              "pattern": "\\d{6,}",
+              "replacement": "****"
+            },
+            {
+              "field": "email",
+              "pattern": "(.{3}).*@",
+              "replacement": "$1***@"
+            }
+          ]
+        }
+      },
+      "auditLogging": {
+        "enabled": true,
+        "events": ["ACCESS", "MODIFICATION", "EXPORT"],
+        "retention": {
+          "duration": "2y",
+          "format": "JSON"
+        }
+      }
+    }
+  }
+}

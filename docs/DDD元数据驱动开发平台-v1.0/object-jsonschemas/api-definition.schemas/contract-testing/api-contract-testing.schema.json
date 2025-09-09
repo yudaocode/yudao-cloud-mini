@@ -1,0 +1,901 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "api-contract-testing.schema.json",
+  "version": "3.0.0",
+  "title": "API Contract Testing v3.0",
+  "description": "Contract testing definitions for API validation and consumer-provider contracts",
+  "type": "object",
+  "properties": {
+    "contractTesting": {
+      "$ref": "#/$defs/ContractTestingDefinition"
+    }
+  },
+  "required": ["contractTesting"],
+  "$defs": {
+    "ContractTestingDefinition": {
+      "type": "object",
+      "description": "Complete contract testing configuration",
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/ContractMetadata"
+        },
+        "consumerContracts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConsumerContract"
+          }
+        },
+        "providerContracts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProviderContract"
+          }
+        },
+        "testingFramework": {
+          "$ref": "#/$defs/TestingFramework"
+        },
+        "mockingConfiguration": {
+          "$ref": "#/$defs/MockingConfiguration"
+        },
+        "verificationSettings": {
+          "$ref": "#/$defs/VerificationSettings"
+        },
+        "integrationPoints": {
+          "$ref": "#/$defs/IntegrationPoints"
+        }
+      },
+      "required": ["metadata", "testingFramework"],
+      "additionalProperties": false
+    },
+    "ContractMetadata": {
+      "type": "object",
+      "description": "Metadata for contract testing suite",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "apiId": {
+          "type": "string"
+        },
+        "boundedContext": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "baseUrl": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": ["name"]
+        },
+        "consumers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": ["name"]
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "name", "version", "provider"],
+      "additionalProperties": false
+    },
+    "ConsumerContract": {
+      "type": "object",
+      "description": "Consumer-driven contract definition",
+      "properties": {
+        "consumer": {
+          "type": "string",
+          "description": "Consumer service name"
+        },
+        "contractId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        },
+        "description": {
+          "type": "string"
+        },
+        "interactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContractInteraction"
+          },
+          "minItems": 1
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "priority": {
+              "type": "string",
+              "enum": ["critical", "high", "medium", "low"]
+            }
+          }
+        },
+        "domainContext": {
+          "$ref": "#/$defs/DomainContext"
+        }
+      },
+      "required": ["consumer", "contractId", "interactions"],
+      "additionalProperties": false
+    },
+    "ContractInteraction": {
+      "type": "object",
+      "description": "Individual interaction in a contract",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "providerState": {
+          "type": "string",
+          "description": "Required provider state for this interaction"
+        },
+        "request": {
+          "$ref": "#/$defs/ContractRequest"
+        },
+        "response": {
+          "$ref": "#/$defs/ContractResponse"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "testType": {
+              "type": "string",
+              "enum": ["positive", "negative", "edge_case", "performance"]
+            },
+            "businessScenario": {
+              "type": "string"
+            },
+            "domainEvent": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": ["description", "request", "response"],
+      "additionalProperties": false
+    },
+    "ContractRequest": {
+      "type": "object",
+      "description": "Contract request specification",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^/.*"
+        },
+        "query": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/MatchingRule"
+          }
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/MatchingRule"
+          }
+        },
+        "body": {
+          "$ref": "#/$defs/RequestBody"
+        },
+        "matchingRules": {
+          "$ref": "#/$defs/MatchingRules"
+        }
+      },
+      "required": ["method", "path"],
+      "additionalProperties": false
+    },
+    "ContractResponse": {
+      "type": "object",
+      "description": "Contract response specification",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/MatchingRule"
+          }
+        },
+        "body": {
+          "$ref": "#/$defs/ResponseBody"
+        },
+        "matchingRules": {
+          "$ref": "#/$defs/MatchingRules"
+        }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    },
+    "RequestBody": {
+      "type": "object",
+      "description": "Request body with validation rules",
+      "properties": {
+        "contentType": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$"
+        },
+        "content": {
+          "description": "Request body content"
+        },
+        "schema": {
+          "$ref": "#/$defs/ValidationSchema"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContractExample"
+          }
+        },
+        "domainValidation": {
+          "$ref": "#/$defs/DomainValidation"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResponseBody": {
+      "type": "object",
+      "description": "Response body with validation rules",
+      "properties": {
+        "contentType": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$"
+        },
+        "content": {
+          "description": "Response body content"
+        },
+        "schema": {
+          "$ref": "#/$defs/ValidationSchema"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContractExample"
+          }
+        },
+        "domainValidation": {
+          "$ref": "#/$defs/DomainValidation"
+        }
+      },
+      "additionalProperties": false
+    },
+    "MatchingRule": {
+      "type": "object",
+      "description": "Matching rule for contract validation",
+      "properties": {
+        "matcher": {
+          "type": "string",
+          "enum": ["equality", "regex", "type", "integer", "decimal", "number", "timestamp", "date", "time", "uuid", "include", "null"]
+        },
+        "value": {
+          "description": "Expected value or pattern"
+        },
+        "min": {
+          "type": "number",
+          "description": "Minimum value for numeric matchers"
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum value for numeric matchers"
+        },
+        "format": {
+          "type": "string",
+          "description": "Format specification for date/time matchers"
+        }
+      },
+      "required": ["matcher"],
+      "additionalProperties": false
+    },
+    "MatchingRules": {
+      "type": "object",
+      "description": "Collection of matching rules",
+      "properties": {
+        "body": {
+          "type": "object",
+          "patternProperties": {
+            "^\\$.*": {
+              "$ref": "#/$defs/MatchingRule"
+            }
+          }
+        },
+        "header": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/MatchingRule"
+          }
+        },
+        "query": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/MatchingRule"
+          }
+        },
+        "path": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/MatchingRule"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ValidationSchema": {
+      "type": "object",
+      "description": "Schema for contract validation",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["object", "array", "string", "number", "integer", "boolean", "null"]
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ValidationSchema"
+          }
+        },
+        "items": {
+          "$ref": "#/$defs/ValidationSchema"
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pattern": {
+          "type": "string",
+          "format": "regex"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "enum": {
+          "type": "array"
+        },
+        "format": {
+          "type": "string"
+        },
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ContractExample": {
+      "type": "object",
+      "description": "Example for contract testing",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "description": "Example value"
+        },
+        "businessScenario": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "value"],
+      "additionalProperties": false
+    },
+    "DomainValidation": {
+      "type": "object",
+      "description": "Domain-specific validation rules",
+      "properties": {
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ruleId": {
+                "type": "string"
+              },
+              "validation": {
+                "type": "string"
+              },
+              "errorMessage": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "domainInvariants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "invariantId": {
+                "type": "string"
+              },
+              "condition": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "aggregateConsistency": {
+          "type": "object",
+          "properties": {
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DomainContext": {
+      "type": "object",
+      "description": "Domain context for contracts",
+      "properties": {
+        "boundedContext": {
+          "type": "string"
+        },
+        "aggregate": {
+          "type": "string"
+        },
+        "useCase": {
+          "type": "string"
+        },
+        "domainEvents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "businessCapability": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProviderContract": {
+      "type": "object",
+      "description": "Provider contract definition",
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "contractId": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProviderState"
+          }
+        },
+        "verificationSettings": {
+          "$ref": "#/$defs/ProviderVerificationSettings"
+        }
+      },
+      "required": ["provider", "contractId"],
+      "additionalProperties": false
+    },
+    "ProviderState": {
+      "type": "object",
+      "description": "Provider state for contract testing",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "setupMethod": {
+          "type": "string"
+        },
+        "teardownMethod": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "dataSetup": {
+          "type": "object",
+          "properties": {
+            "entities": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "aggregates": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "repositories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "ProviderVerificationSettings": {
+      "type": "object",
+      "description": "Settings for provider verification",
+      "properties": {
+        "verificationMethod": {
+          "type": "string",
+          "enum": ["automated", "manual", "hybrid"]
+        },
+        "testSuite": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "retries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stateSetupTimeout": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "TestingFramework": {
+      "type": "object",
+      "description": "Testing framework configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["pact", "spring_cloud_contract", "postman", "wiremock", "custom"]
+        },
+        "version": {
+          "type": "string"
+        },
+        "configuration": {
+          "type": "object",
+          "properties": {
+            "pactBroker": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "authentication": {
+                  "type": "object"
+                }
+              }
+            },
+            "publishResults": {
+              "type": "boolean",
+              "default": false
+            },
+            "verificationTimeout": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "configuration": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "MockingConfiguration": {
+      "type": "object",
+      "description": "Configuration for API mocking",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "mockServer": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["wiremock", "mockoon", "json_server", "custom"]
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "baseUrl": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "mockScenarios": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MockScenario"
+          }
+        },
+        "dynamicMocks": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "generator": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "MockScenario": {
+      "type": "object",
+      "description": "Mock scenario definition",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "request": {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object"
+            },
+            "body": {
+              "type": "object"
+            }
+          }
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "headers": {
+              "type": "object"
+            },
+            "body": {
+              "type": "object"
+            },
+            "delay": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "probability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1
+        },
+        "businessScenario": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "request", "response"],
+      "additionalProperties": false
+    },
+    "VerificationSettings": {
+      "type": "object",
+      "description": "Global verification settings",
+      "properties": {
+        "consumerVerification": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "publishResults": {
+              "type": "boolean",
+              "default": false
+            },
+            "failOnPending": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "providerVerification": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "publishResults": {
+              "type": "boolean",
+              "default": false
+            },
+            "includeWipPactsSince": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        },
+        "compatibility": {
+          "type": "object",
+          "properties": {
+            "checkBackwardCompatibility": {
+              "type": "boolean",
+              "default": true
+            },
+            "checkForwardCompatibility": {
+              "type": "boolean",
+              "default": false
+            },
+            "breakingChangePolicy": {
+              "type": "string",
+              "enum": ["strict", "lenient", "warn"]
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "IntegrationPoints": {
+      "type": "object",
+      "description": "Integration with CI/CD and other tools",
+      "properties": {
+        "cicdIntegration": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "pipeline": {
+              "type": "string"
+            },
+            "triggerOnCommit": {
+              "type": "boolean"
+            },
+            "publishToRegistry": {
+              "type": "boolean"
+            }
+          }
+        },
+        "registryIntegration": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["pact_broker", "schema_registry", "custom"]
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "authentication": {
+              "type": "object"
+            }
+          }
+        },
+        "monitoringIntegration": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "metricsExport": {
+              "type": "boolean"
+            },
+            "alerting": {
+              "type": "object",
+              "properties": {
+                "onContractFailure": {
+                  "type": "boolean"
+                },
+                "channels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

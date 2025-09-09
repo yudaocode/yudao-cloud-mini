@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/ddd-metamodel/3.0/calculation/calculation.schema.json",
+  "title": "计算规则主Schema",
+  "description": "DDD元数据平台计算规则模块的主要Schema定义，整合了计算规则、公式定义、表达式解析等功能",
+  "version": "3.0.0",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "full/calculation-rule.schema.json"
+    },
+    {
+      "properties": {
+        "calculationModule": {
+          "type": "object",
+          "description": "计算模块配置",
+          "properties": {
+            "moduleId": {
+              "type": "string",
+              "pattern": "^calc_module_[a-zA-Z0-9_]+$",
+              "description": "计算模块唯一标识"
+            },
+            "name": {
+              "type": "string",
+              "description": "计算模块名称"
+            },
+            "version": {
+              "$ref": "fields/calculation-fields.schema.json#/$defs/versionNumber",
+              "description": "模块版本"
+            },
+            "description": {
+              "$ref": "fields/calculation-fields.schema.json#/$defs/description",
+              "description": "模块描述"
+            },
+            "configuration": {
+              "type": "object",
+              "description": "模块配置",
+              "properties": {
+                "defaultExecutor": {
+                  "type": "string",
+                  "description": "默认执行器ID"
+                },
+                "defaultLanguage": {
+                  "$ref": "fields/calculation-fields.schema.json#/$defs/formulaLanguage",
+                  "description": "默认公式语言"
+                },
+                "cacheEnabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "是否启用缓存"
+                },
+                "validationEnabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "是否启用验证"
+                },
+                "auditEnabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "是否启用审计"
+                },
+                "performanceMonitoring": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "是否启用性能监控"
+                }
+              },
+              "required": ["defaultExecutor", "defaultLanguage"],
+              "additionalProperties": false
+            },
+            "integrations": {
+              "type": "object",
+              "description": "外部系统集成配置",
+              "properties": {
+                "businessRules": {
+                  "type": "object",
+                  "description": "业务规则系统集成",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "是否启用集成"
+                    },
+                    "endpoint": {
+                      "$ref": "fields/calculation-fields.schema.json#/$defs/url",
+                      "description": "业务规则系统端点"
+                    },
+                    "authentication": {
+                      "type": "object",
+                      "description": "认证配置"
+                    },
+                    "syncMode": {
+                      "$ref": "fields/calculation-fields.schema.json#/$defs/synchronizationMode",
+                      "description": "同步模式"
+                    }
+                  }
+                },
+                "domainEvents": {
+                  "type": "object",
+                  "description": "领域事件系统集成",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "是否启用集成"
+                    },
+                    "eventBus": {
+                      "type": "string",
+                      "description": "事件总线配置"
+                    },
+                    "publishEvents": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "CALCULATION_STARTED", "CALCULATION_COMPLETED", 
+                          "CALCULATION_FAILED", "FORMULA_COMPILED", 
+                          "VALIDATION_FAILED", "PERFORMANCE_THRESHOLD_EXCEEDED"
+                        ]
+                      },
+                      "description": "发布的事件类型"
+                    },
+                    "subscribeEvents": {
+                      "type": "array",
+                      "items": {"type": "string"},
+                      "description": "订阅的事件类型"
+                    }
+                  }
+                },
+                "externalServices": {
+                  "type": "array",
+                  "description": "外部服务集成",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "serviceId": {
+                        "type": "string",
+                        "description": "服务标识"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "服务名称"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["REST_API", "SOAP", "DATABASE", "MESSAGE_QUEUE", "FILE_SYSTEM"],
+                        "description": "服务类型"
+                      },
+                      "endpoint": {
+                        "$ref": "fields/calculation-fields.schema.json#/$defs/url",
+                        "description": "服务端点"
+                      },
+                      "authentication": {
+                        "type": "object",
+                        "description": "认证配置"
+                      },
+                      "timeout": {
+                        "$ref": "fields/calculation-fields.schema.json#/$defs/timeout",
+                        "description": "超时时间"
+                      },
+                      "retryPolicy": {
+                        "type": "object",
+                        "description": "重试策略"
+                      }
+                    },
+                    "required": ["serviceId", "name", "type", "endpoint"],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "operations": {
+              "$ref": "operations/calculation-operations.schema.json#/properties/calculationOperations",
+              "description": "计算操作定义"
+            },
+            "metadata": {
+              "$ref": "../../root.schema.json#/$defs/metadata",
+              "description": "模块元数据"
+            }
+          },
+          "required": ["moduleId", "name", "version", "configuration"],
+          "additionalProperties": false
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "calculationModule": {
+        "moduleId": "calc_module_financial",
+        "name": "财务计算模块",
+        "version": "1.0.0",
+        "description": "处理财务相关的计算规则和公式",
+        "configuration": {
+          "defaultExecutor": "executor_mathematical",
+          "defaultLanguage": "MATHEMATICAL",
+          "cacheEnabled": true,
+          "validationEnabled": true,
+          "auditEnabled": true,
+          "performanceMonitoring": true
+        }
+      },
+      "calculationRules": [
+        {
+          "calculationId": "calc_interest_rate",
+          "name": "利率计算",
+          "category": "FINANCIAL",
+          "complexity": "SIMPLE",
+          "formula": {
+            "formulaId": "formula_simple_interest",
+            "expression": "principal * rate * time / 100",
+            "language": "MATHEMATICAL",
+            "syntax": "INFIX",
+            "variables": [
+              {
+                "name": "principal",
+                "type": "DECIMAL",
+                "scope": "PARAMETER"
+              },
+              {
+                "name": "rate",
+                "type": "DECIMAL",
+                "scope": "PARAMETER"
+              },
+              {
+                "name": "time",
+                "type": "DECIMAL",
+                "scope": "PARAMETER"
+              }
+            ]
+          },
+          "inputParameters": [
+            {
+              "parameterId": "param_principal",
+              "name": "principal",
+              "type": "DECIMAL",
+              "required": true,
+              "constraints": {
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "description": "本金金额"
+            },
+            {
+              "parameterId": "param_rate",
+              "name": "rate",
+              "type": "DECIMAL",
+              "required": true,
+              "constraints": {
+                "minimum": 0,
+                "maximum": 100
+              },
+              "description": "利率（百分比）"
+            },
+            {
+              "parameterId": "param_time",
+              "name": "time",
+              "type": "DECIMAL",
+              "required": true,
+              "constraints": {
+                "minimum": 0
+              },
+              "description": "时间（年）"
+            }
+          ],
+          "outputDefinition": {
+            "type": "DECIMAL",
+            "precision": 2,
+            "roundingMode": "HALF_UP",
+            "unit": "currency"
+          }
+        }
+      ],
+      "testSuites": [
+        {
+          "suiteId": "suite_interest_rate",
+          "name": "利率计算测试套件",
+          "calculationRuleId": "calc_interest_rate",
+          "testCases": [
+            {
+              "caseId": "case_basic_interest",
+              "name": "基本利率计算",
+              "category": "POSITIVE",
+              "inputs": {
+                "principal": 10000,
+                "rate": 5.0,
+                "time": 2
+              },
+              "expectedOutput": 1000.00,
+              "tolerance": 0.01,
+              "priority": "HIGH"
+            },
+            {
+              "caseId": "case_zero_principal",
+              "name": "零本金测试",
+              "category": "BOUNDARY",
+              "inputs": {
+                "principal": 0,
+                "rate": 5.0,
+                "time": 2
+              },
+              "expectedOutput": 0.00,
+              "priority": "MEDIUM"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

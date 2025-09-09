@@ -1,0 +1,612 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.ddd-platform.com/performance-monitoring/full/performance-monitoring-specification.schema.json",
+  "title": "性能监控规范v3.0",
+  "description": "完整的性能监控和度量定义Schema - 企业级性能监控、告警、SLA管理系统",
+  "type": "object",
+  "version": "3.0.0",
+  "properties": {
+    "performanceMonitoringSpecification": {
+      "$ref": "#/$defs/PerformanceMonitoringSpecification"
+    }
+  },
+  "required": ["performanceMonitoringSpecification"],
+  "$defs": {
+    "PerformanceMonitoringSpecification": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricIdentifier"
+            },
+            "name": {
+              "type": "string",
+              "description": "监控系统名称"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "description": "版本号"
+            },
+            "description": {
+              "type": "string",
+              "description": "系统描述"
+            },
+            "author": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["id", "name", "version"]
+        },
+        "globalConfiguration": {
+          "$ref": "#/$defs/GlobalConfiguration"
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/performance-monitoring-operations.schema.json#/$defs/MetricDefinition"
+          },
+          "description": "度量定义列表"
+        },
+        "alertRules": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/performance-monitoring-operations.schema.json#/$defs/AlertRule"
+          },
+          "description": "告警规则列表"
+        },
+        "dashboards": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/performance-monitoring-operations.schema.json#/$defs/Dashboard"
+          },
+          "description": "仪表板列表"
+        },
+        "slaDefinitions": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/performance-monitoring-operations.schema.json#/$defs/SLADefinition"
+          },
+          "description": "SLA定义列表"
+        },
+        "performanceProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/performance-monitoring-operations.schema.json#/$defs/PerformanceProfile"
+          },
+          "description": "性能配置文件列表"
+        },
+        "loadTestScenarios": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/performance-monitoring-operations.schema.json#/$defs/LoadTestScenario"
+          },
+          "description": "负载测试场景列表"
+        },
+        "domainIntegration": {
+          "$ref": "#/$defs/DomainIntegration"
+        },
+        "exportConfiguration": {
+          "$ref": "#/$defs/ExportConfiguration"
+        },
+        "securityConfiguration": {
+          "$ref": "#/$defs/SecurityConfiguration"
+        }
+      },
+      "required": ["metadata", "globalConfiguration", "metrics"],
+      "description": "性能监控规范定义"
+    },
+    
+    "GlobalConfiguration": {
+      "type": "object",
+      "properties": {
+        "collection": {
+          "type": "object",
+          "properties": {
+            "interval": {
+              "type": "string",
+              "enum": ["1s", "5s", "10s", "30s", "1m"],
+              "default": "10s",
+              "description": "默认收集间隔"
+            },
+            "batchSize": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1000,
+              "description": "批量收集大小"
+            },
+            "bufferSize": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10000,
+              "description": "缓冲区大小"
+            },
+            "enableCompression": {
+              "type": "boolean",
+              "default": true,
+              "description": "启用数据压缩"
+            }
+          }
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "backend": {
+              "type": "string",
+              "enum": ["PROMETHEUS", "INFLUXDB", "ELASTICSEARCH", "DATADOG", "NEWRELIC"],
+              "description": "存储后端"
+            },
+            "retention": {
+              "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/DataRetention"
+            },
+            "sharding": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "strategy": {
+                  "type": "string",
+                  "enum": ["TIME", "METRIC", "TAG"]
+                },
+                "shardCount": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "required": ["backend"]
+        },
+        "alerting": {
+          "type": "object",
+          "properties": {
+            "evaluationInterval": {
+              "type": "string",
+              "default": "30s",
+              "description": "告警评估间隔"
+            },
+            "groupWait": {
+              "type": "string",
+              "default": "10s",
+              "description": "分组等待时间"
+            },
+            "groupInterval": {
+              "type": "string",
+              "default": "5m",
+              "description": "分组间隔"
+            },
+            "repeatInterval": {
+              "type": "string",
+              "default": "4h",
+              "description": "重复间隔"
+            },
+            "resolveTimeout": {
+              "type": "string",
+              "default": "5m",
+              "description": "解决超时"
+            }
+          }
+        },
+        "tracing": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/TraceConfiguration"
+        },
+        "logging": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/LoggingConfiguration"
+        }
+      },
+      "required": ["collection", "storage"],
+      "description": "全局配置"
+    },
+    
+    "DomainIntegration": {
+      "type": "object",
+      "properties": {
+        "domainEvents": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "eventTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "监控的领域事件类型"
+            },
+            "metricMapping": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "eventType": {
+                    "type": "string"
+                  },
+                  "metricName": {
+                    "type": "string"
+                  },
+                  "aggregation": {
+                    "type": "string"
+                  },
+                  "labels": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "aggregateMetrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "aggregateTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "operationMetrics": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "aggregateType": {
+                    "type": "string"
+                  },
+                  "operation": {
+                    "type": "string"
+                  },
+                  "metrics": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "businessRuleMetrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "ruleTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "executionMetrics": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ruleId": {
+                    "type": "string"
+                  },
+                  "metricNames": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "contextMapping": {
+          "type": "object",
+          "properties": {
+            "boundedContexts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "contextName": {
+                    "type": "string"
+                  },
+                  "servicePrefix": {
+                    "type": "string"
+                  },
+                  "metricNamespace": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "DDD领域集成配置"
+    },
+    
+    "ExportConfiguration": {
+      "type": "object",
+      "properties": {
+        "exporters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["PROMETHEUS", "JAEGER", "ZIPKIN", "OTLP", "DATADOG", "NEWRELIC", "ELASTIC"]
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              },
+              "endpoint": {
+                "type": "string",
+                "description": "导出端点URL"
+              },
+              "headers": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "HTTP头部"
+              },
+              "timeout": {
+                "type": "string",
+                "default": "30s",
+                "description": "超时时间"
+              },
+              "compression": {
+                "type": "string",
+                "enum": ["none", "gzip", "snappy"],
+                "default": "gzip"
+              },
+              "batchConfig": {
+                "type": "object",
+                "properties": {
+                  "maxExportBatchSize": {
+                    "type": "integer",
+                    "default": 512
+                  },
+                  "exportTimeout": {
+                    "type": "string",
+                    "default": "30s"
+                  },
+                  "maxQueueSize": {
+                    "type": "integer",
+                    "default": 2048
+                  }
+                }
+              }
+            },
+            "required": ["name", "type", "endpoint"]
+          }
+        },
+        "processors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["batch", "memory_limiter", "resource", "span", "probabilistic_sampler"]
+              },
+              "config": {
+                "type": "object",
+                "description": "处理器特定配置"
+              }
+            }
+          }
+        }
+      },
+      "description": "导出配置"
+    },
+    
+    "SecurityConfiguration": {
+      "type": "object",
+      "properties": {
+        "authentication": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["BASIC", "BEARER", "API_KEY", "OAUTH2", "MTLS"]
+              }
+            },
+            "providers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "authorization": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "rbac": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "permissions": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "policies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "conditions": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "dataProtection": {
+          "type": "object",
+          "properties": {
+            "encryption": {
+              "type": "object",
+              "properties": {
+                "atRest": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "inTransit": {
+                  "type": "boolean", 
+                  "default": true
+                },
+                "algorithm": {
+                  "type": "string",
+                  "enum": ["AES-256", "ChaCha20"],
+                  "default": "AES-256"
+                }
+              }
+            },
+            "sensitiveDataMasking": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "patterns": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "pattern": {
+                        "type": "string"
+                      },
+                      "replacement": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "auditLogging": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["ACCESS", "MODIFICATION", "DELETION", "EXPORT", "CONFIGURATION_CHANGE"]
+              }
+            },
+            "retention": {
+              "type": "object",
+              "properties": {
+                "duration": {
+                  "type": "string",
+                  "default": "2y"
+                },
+                "format": {
+                  "type": "string",
+                  "enum": ["JSON", "CEF", "LEEF"],
+                  "default": "JSON"
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "安全配置"
+    }
+  }
+}

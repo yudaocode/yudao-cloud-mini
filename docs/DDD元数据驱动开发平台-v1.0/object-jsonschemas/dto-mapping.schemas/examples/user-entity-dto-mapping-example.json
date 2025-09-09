@@ -1,0 +1,436 @@
+{
+  "$schema": "../full/dto-mapping-specification.schema.json",
+  "mappingSpecification": {
+    "metadata": {
+      "id": "user-entity-to-dto-mapping",
+      "version": "1.0.0",
+      "name": "用户实体到DTO映射",
+      "description": "用户聚合实体到用户DTO的映射定义示例",
+      "author": "DDD Platform Team",
+      "createdAt": "2025-09-08T10:00:00Z",
+      "updatedAt": "2025-09-08T10:00:00Z",
+      "tags": ["user", "entity-to-dto", "core-mapping"],
+      "category": "Domain-DTO Mapping"
+    },
+    "mappingConfiguration": {
+      "globalSettings": {
+        "strictMode": false,
+        "ignoreUnknownFields": true,
+        "defaultNullHandling": "SET_DEFAULT",
+        "dateTimeFormat": "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+        "locale": "zh_CN",
+        "timezone": "Asia/Shanghai"
+      },
+      "performanceSettings": {
+        "enableCaching": true,
+        "cacheProvider": "REDIS",
+        "defaultCacheTtl": 300,
+        "enableBatching": true,
+        "defaultBatchSize": 100,
+        "enableAsyncMapping": false,
+        "threadPoolSize": 10
+      },
+      "securitySettings": {
+        "enableFieldEncryption": true,
+        "encryptionProvider": "AES",
+        "enableAuditLogging": true,
+        "auditProvider": "DATABASE",
+        "dataClassificationEnabled": true,
+        "accessControlEnabled": true
+      },
+      "integrationSettings": {
+        "frameworkIntegration": {
+          "springBoot": {
+            "enabled": true,
+            "autoConfiguration": true,
+            "profiles": ["default", "prod"]
+          },
+          "mapstruct": {
+            "enabled": true,
+            "componentModel": "spring"
+          }
+        },
+        "eventIntegration": {
+          "enableDomainEvents": true,
+          "eventBus": "SPRING_EVENTS",
+          "eventStore": "DATABASE"
+        }
+      }
+    },
+    "mappingOperations": [
+      {
+        "operationId": "user-entity-to-response-dto",
+        "operationType": "ENTITY_TO_DTO",
+        "sourceType": "com.example.domain.user.User",
+        "targetType": "com.example.api.dto.UserResponseDTO",
+        "mappingStrategy": "LENIENT",
+        "fieldMappings": [
+          {
+            "mappingId": "id-mapping",
+            "sourceField": "id",
+            "targetField": "userId",
+            "mappingType": "DIRECT",
+            "nullable": false,
+            "validationRules": [
+              {
+                "type": "REQUIRED",
+                "expression": "value != null",
+                "message": "用户ID不能为空"
+              }
+            ]
+          },
+          {
+            "mappingId": "username-mapping",
+            "sourceField": "profile.username",
+            "targetField": "username",
+            "mappingType": "DIRECT",
+            "nullable": false,
+            "formatConfig": {
+              "stringFormat": {
+                "encoding": "UTF-8",
+                "trim": true,
+                "case": "ORIGINAL"
+              }
+            }
+          },
+          {
+            "mappingId": "email-mapping",
+            "sourceField": "profile.email",
+            "targetField": "email",
+            "mappingType": "TRANSFORM",
+            "transformFunction": {
+              "name": "maskEmail",
+              "parameters": {
+                "maskCharacter": "*",
+                "visibleChars": 3
+              },
+              "language": "JAVASCRIPT",
+              "script": "function maskEmail(email, params) { return email.substring(0, params.visibleChars) + params.maskCharacter.repeat(3) + email.substring(email.indexOf('@')); }"
+            },
+            "condition": {
+              "expression": "hasPermission('VIEW_FULL_EMAIL')",
+              "language": "SPEL"
+            }
+          },
+          {
+            "mappingId": "fullname-mapping",
+            "sourceField": "profile.personalInfo",
+            "targetField": "fullName",
+            "mappingType": "AGGREGATE",
+            "transformFunction": {
+              "name": "concatenateNames",
+              "language": "JAVASCRIPT",
+              "script": "function concatenateNames(personalInfo) { return personalInfo.firstName + ' ' + personalInfo.lastName; }"
+            }
+          },
+          {
+            "mappingId": "roles-mapping",
+            "sourceField": "roles",
+            "targetField": "roleNames",
+            "mappingType": "TRANSFORM",
+            "transformFunction": {
+              "name": "extractRoleNames",
+              "language": "JAVASCRIPT",
+              "script": "function extractRoleNames(roles) { return roles.map(role => role.name); }"
+            }
+          },
+          {
+            "mappingId": "createdat-mapping",
+            "sourceField": "auditInfo.createdAt",
+            "targetField": "createdAt",
+            "mappingType": "DIRECT",
+            "formatConfig": {
+              "dateFormat": "yyyy-MM-dd HH:mm:ss"
+            }
+          },
+          {
+            "mappingId": "status-mapping",
+            "sourceField": "status",
+            "targetField": "statusDisplay",
+            "mappingType": "LOOKUP",
+            "transformFunction": {
+              "name": "statusToDisplay",
+              "parameters": {
+                "mappings": {
+                  "ACTIVE": "活跃",
+                  "INACTIVE": "未激活",
+                  "SUSPENDED": "已暂停",
+                  "DELETED": "已删除"
+                }
+              }
+            }
+          }
+        ],
+        "domainIntegration": {
+          "aggregateRoot": "com.example.domain.user.User",
+          "domainEvents": [
+            {
+              "eventType": "UserMappedToDTOEvent",
+              "trigger": "AFTER_MAPPING",
+              "condition": "mappingResult.isSuccess()"
+            }
+          ],
+          "businessRules": [
+            {
+              "ruleId": "email-privacy-rule",
+              "ruleType": "TRANSFORMATION",
+              "expression": "if (!hasPermission('VIEW_FULL_EMAIL')) { return maskSensitiveData(email); }",
+              "priority": 1
+            }
+          ],
+          "contextMapping": {
+            "boundedContext": "UserManagement",
+            "relationships": [
+              {
+                "contextName": "Authentication",
+                "relationship": "CUSTOMER_SUPPLIER"
+              }
+            ]
+          }
+        },
+        "validationRules": [
+          {
+            "type": "CUSTOM",
+            "expression": "result.userId != null && result.username != null",
+            "message": "映射结果必须包含用户ID和用户名"
+          }
+        ],
+        "performanceProfile": {
+          "cacheable": true,
+          "cacheKey": "user-dto:#{sourceObject.id}:#{currentUser.roles}",
+          "cacheTtl": 300,
+          "timeout": 5000,
+          "retryPolicy": {
+            "enabled": true,
+            "maxAttempts": 3,
+            "backoffMultiplier": 1.5
+          }
+        },
+        "securityConfig": {
+          "dataClassification": "INTERNAL",
+          "accessControl": {
+            "requiredRoles": ["USER_VIEWER"],
+            "requiredPermissions": ["READ_USER_PROFILE"]
+          },
+          "auditLevel": "BASIC"
+        }
+      }
+    ],
+    "batchOperations": [
+      {
+        "batchId": "bulk-user-entity-to-dto",
+        "operations": [
+          {
+            "operationId": "user-entity-to-response-dto",
+            "operationType": "ENTITY_TO_DTO",
+            "sourceType": "com.example.domain.user.User",
+            "targetType": "com.example.api.dto.UserResponseDTO",
+            "mappingStrategy": "LENIENT",
+            "fieldMappings": []
+          }
+        ],
+        "batchStrategy": "PARALLEL",
+        "errorHandling": {
+          "strategy": "CONTINUE_ON_ERROR",
+          "maxErrors": 10,
+          "retryPolicy": {
+            "enabled": true,
+            "maxAttempts": 2,
+            "backoffDelay": 1000
+          }
+        },
+        "performanceConfig": {
+          "batchSize": 50,
+          "maxConcurrency": 5,
+          "timeout": 30000
+        }
+      }
+    ],
+    "mappingTemplates": [
+      {
+        "templateId": "entity-to-dto-template",
+        "name": "实体到DTO映射模板",
+        "description": "通用的实体到DTO映射模板",
+        "parameters": {
+          "sourceType": {
+            "type": "STRING",
+            "required": true,
+            "description": "源实体类型"
+          },
+          "targetType": {
+            "type": "STRING",
+            "required": true,
+            "description": "目标DTO类型"
+          },
+          "includeAuditFields": {
+            "type": "BOOLEAN",
+            "required": false,
+            "defaultValue": true,
+            "description": "是否包含审计字段"
+          }
+        },
+        "mappingDefinition": {
+          "operationId": "template-entity-to-dto",
+          "operationType": "ENTITY_TO_DTO",
+          "sourceType": "#{sourceType}",
+          "targetType": "#{targetType}",
+          "mappingStrategy": "LENIENT",
+          "fieldMappings": []
+        }
+      }
+    ],
+    "testSuites": [
+      {
+        "testId": "user-mapping-test-suite",
+        "mappingOperationId": "user-entity-to-response-dto",
+        "testCases": [
+          {
+            "name": "正常用户映射测试",
+            "description": "测试正常用户实体到DTO的映射",
+            "input": {
+              "id": 12345,
+              "profile": {
+                "username": "testuser",
+                "email": "test@example.com",
+                "personalInfo": {
+                  "firstName": "张",
+                  "lastName": "三"
+                }
+              },
+              "roles": [
+                {"name": "USER"},
+                {"name": "ADMIN"}
+              ],
+              "status": "ACTIVE",
+              "auditInfo": {
+                "createdAt": "2025-01-01T10:00:00Z"
+              }
+            },
+            "expectedOutput": {
+              "userId": 12345,
+              "username": "testuser",
+              "email": "tes***@example.com",
+              "fullName": "张 三",
+              "roleNames": ["USER", "ADMIN"],
+              "statusDisplay": "活跃",
+              "createdAt": "2025-01-01 10:00:00"
+            },
+            "assertions": [
+              {
+                "field": "userId",
+                "operator": "EQUALS",
+                "expectedValue": 12345,
+                "description": "用户ID应该正确映射"
+              },
+              {
+                "field": "email",
+                "operator": "MATCHES_PATTERN",
+                "expectedValue": "^.{3}\\*{3}@.*",
+                "description": "邮箱应该被脱敏处理"
+              }
+            ],
+            "tags": ["happy-path", "basic-mapping"]
+          }
+        ],
+        "performanceTests": [
+          {
+            "name": "单个用户映射性能测试",
+            "dataSize": 1,
+            "maxLatency": 10,
+            "minThroughput": 1000,
+            "memoryLimit": 512
+          },
+          {
+            "name": "批量用户映射性能测试",
+            "dataSize": 1000,
+            "maxLatency": 5000,
+            "minThroughput": 200,
+            "memoryLimit": 2048
+          }
+        ]
+      }
+    ],
+    "qualityMetrics": {
+      "accuracy": 0.99,
+      "completeness": 0.95,
+      "consistency": 0.98,
+      "performance": {
+        "averageLatency": 5.2,
+        "throughput": 850,
+        "errorRate": 0.001
+      }
+    },
+    "documentation": {
+      "autoGeneration": {
+        "enabled": true,
+        "formats": ["HTML", "MARKDOWN"],
+        "includeExamples": true,
+        "includeTestCases": true,
+        "includeDiagrams": true
+      },
+      "apiDocumentation": {
+        "swagger": {
+          "enabled": true,
+          "title": "用户映射API",
+          "version": "1.0.0",
+          "description": "用户实体到DTO映射API文档"
+        }
+      },
+      "diagramGeneration": {
+        "enabled": true,
+        "formats": ["PLANTUML", "MERMAID"],
+        "includeDataFlow": true,
+        "includeMappingRelations": true
+      }
+    },
+    "monitoring": {
+      "metrics": {
+        "enabled": true,
+        "provider": "MICROMETER",
+        "customMetrics": [
+          {
+            "name": "dto_mapping_duration",
+            "type": "TIMER",
+            "description": "DTO映射执行时间",
+            "tags": {
+              "operation": "user-entity-to-dto",
+              "source_type": "User",
+              "target_type": "UserResponseDTO"
+            }
+          },
+          {
+            "name": "dto_mapping_errors",
+            "type": "COUNTER",
+            "description": "DTO映射错误次数",
+            "tags": {
+              "operation": "user-entity-to-dto",
+              "error_type": "validation_failed"
+            }
+          }
+        ]
+      },
+      "tracing": {
+        "enabled": true,
+        "provider": "JAEGER",
+        "samplingRate": 0.1
+      },
+      "alerting": {
+        "enabled": true,
+        "rules": [
+          {
+            "name": "高错误率告警",
+            "condition": "dto_mapping_errors_rate > 0.05",
+            "threshold": 0.05,
+            "severity": "WARNING",
+            "actions": [
+              {
+                "type": "EMAIL",
+                "target": "admin@example.com"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

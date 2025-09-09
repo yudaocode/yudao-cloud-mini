@@ -1,0 +1,764 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "domain-event.schema.json",
+  "version": "3.0.0",
+  "title": "DDD Domain Event Schema",
+  "description": "Schema for defining domain events and their integration with business rules in DDD architecture",
+  "type": "object",
+  "properties": {
+    "domainEvent": {
+      "$ref": "#/$defs/DomainEvent"
+    }
+  },
+  "required": ["domainEvent"],
+  "$defs": {
+    "DomainEvent": {
+      "type": "object",
+      "description": "A domain event represents something significant that happened in the domain",
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/EventMetadata"
+        },
+        "definition": {
+          "$ref": "#/$defs/EventDefinition"
+        },
+        "payload": {
+          "$ref": "#/$defs/EventPayload"
+        },
+        "businessRuleIntegration": {
+          "$ref": "#/$defs/BusinessRuleIntegration"
+        },
+        "eventSourcing": {
+          "$ref": "#/$defs/EventSourcing"
+        },
+        "processing": {
+          "$ref": "#/$defs/EventProcessing"
+        },
+        "monitoring": {
+          "$ref": "#/$defs/EventMonitoring"
+        }
+      },
+      "required": ["metadata", "definition", "payload"],
+      "additionalProperties": false
+    },
+    "EventMetadata": {
+      "type": "object",
+      "description": "Metadata information for the domain event",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the event",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the event"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the event schema",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the event"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["domain", "integration", "application", "infrastructure"],
+          "description": "Category of the domain event"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"],
+          "description": "Priority level of the event"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for categorizing and searching events"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the event definition was created"
+        },
+        "modifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the event definition was last modified"
+        }
+      },
+      "required": ["id", "name", "version", "category"]
+    },
+    "EventDefinition": {
+      "type": "object",
+      "description": "Definition of the domain event structure and behavior",
+      "properties": {
+        "eventType": {
+          "type": "string",
+          "enum": ["created", "updated", "deleted", "status_changed", "workflow_completed", "business_rule_triggered", "custom"],
+          "description": "Type of the domain event"
+        },
+        "aggregateRoot": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Type of aggregate that produces this event"
+            },
+            "id": {
+              "type": "string",
+              "description": "Identifier of the aggregate instance"
+            },
+            "version": {
+              "type": "integer",
+              "description": "Version of the aggregate when event was produced"
+            }
+          },
+          "required": ["type"]
+        },
+        "causedBy": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "Command that caused this event"
+            },
+            "user": {
+              "type": "string",
+              "description": "User who triggered the event"
+            },
+            "system": {
+              "type": "string",
+              "description": "System component that triggered the event"
+            },
+            "correlationId": {
+              "type": "string",
+              "description": "Correlation ID for tracking related events"
+            }
+          }
+        },
+        "occuredAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the event occurred in the domain"
+        },
+        "immutable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the event data is immutable"
+        }
+      },
+      "required": ["eventType", "aggregateRoot"]
+    },
+    "EventPayload": {
+      "type": "object",
+      "description": "Data payload of the domain event",
+      "properties": {
+        "schema": {
+          "type": "object",
+          "description": "JSON Schema definition for event payload validation",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["object", "array", "string", "number", "boolean", "null"]
+            },
+            "properties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            },
+            "required": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "dataTypes": {
+          "type": "object",
+          "description": "Mapping of payload fields to their data types",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["string", "number", "integer", "boolean", "array", "object", "date", "datetime", "uuid"]
+          }
+        },
+        "serialization": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": ["json", "avro", "protobuf", "xml"],
+              "default": "json"
+            },
+            "compression": {
+              "type": "string",
+              "enum": ["none", "gzip", "lz4", "snappy"],
+              "default": "none"
+            },
+            "encryption": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "algorithm": {
+                  "type": "string",
+                  "enum": ["AES", "RSA"]
+                }
+              }
+            }
+          }
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "strict": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to enforce strict validation"
+            },
+            "customValidators": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "function": {
+                    "type": "string"
+                  },
+                  "errorMessage": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "BusinessRuleIntegration": {
+      "type": "object",
+      "description": "Integration configuration between domain events and business rules",
+      "properties": {
+        "triggeredRules": {
+          "type": "array",
+          "description": "Business rules triggered by this event",
+          "items": {
+            "$ref": "#/$defs/TriggeredRule"
+          }
+        },
+        "ruleEvaluationContext": {
+          "type": "object",
+          "description": "Context data available for rule evaluation",
+          "properties": {
+            "eventData": {
+              "type": "boolean",
+              "default": true,
+              "description": "Include event payload in rule context"
+            },
+            "aggregateState": {
+              "type": "boolean",
+              "default": false,
+              "description": "Include current aggregate state in rule context"
+            },
+            "historicalData": {
+              "type": "object",
+              "properties": {
+                "include": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "timeWindow": {
+                  "type": "string",
+                  "description": "Time window for historical data (e.g., '1h', '1d', '1w')"
+                }
+              }
+            },
+            "externalData": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string"
+                  },
+                  "query": {
+                    "type": "string"
+                  },
+                  "cacheable": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ruleExecutionStrategy": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["synchronous", "asynchronous", "eventual"],
+              "default": "synchronous"
+            },
+            "parallelExecution": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether rules can be executed in parallel"
+            },
+            "failureHandling": {
+              "type": "string",
+              "enum": ["stop_on_first_failure", "continue_on_failure", "rollback_on_failure"],
+              "default": "stop_on_first_failure"
+            },
+            "timeout": {
+              "type": "string",
+              "description": "Maximum execution time (e.g., '5s', '30s', '2m')"
+            }
+          }
+        },
+        "resultHandling": {
+          "type": "object",
+          "properties": {
+            "aggregateResults": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to aggregate rule execution results"
+            },
+            "publishResults": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to publish rule execution results as events"
+            },
+            "storeResults": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to store rule execution results"
+            }
+          }
+        }
+      }
+    },
+    "TriggeredRule": {
+      "type": "object",
+      "description": "Configuration for a business rule triggered by the event",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "description": "Identifier of the business rule"
+        },
+        "condition": {
+          "type": "object",
+          "description": "Condition that must be met for rule to be triggered",
+          "properties": {
+            "expression": {
+              "type": "string",
+              "description": "Boolean expression to evaluate"
+            },
+            "language": {
+              "type": "string",
+              "enum": ["SPEL", "MVEL", "JAVASCRIPT", "GROOVY"],
+              "default": "SPEL"
+            }
+          }
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Execution priority (lower numbers execute first)"
+        },
+        "async": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to execute rule asynchronously"
+        },
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 3
+            },
+            "backoffStrategy": {
+              "type": "string",
+              "enum": ["fixed", "exponential", "linear"],
+              "default": "exponential"
+            },
+            "initialDelay": {
+              "type": "string",
+              "default": "1s"
+            }
+          }
+        },
+        "compensation": {
+          "type": "object",
+          "description": "Compensation action if rule execution fails",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "action": {
+              "type": "string",
+              "enum": ["rollback", "alert", "log", "custom"]
+            },
+            "customAction": {
+              "type": "string",
+              "description": "Custom compensation action implementation"
+            }
+          }
+        }
+      },
+      "required": ["ruleId"]
+    },
+    "EventSourcing": {
+      "type": "object",
+      "description": "Event sourcing configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether event sourcing is enabled"
+        },
+        "eventStore": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["inmemory", "database", "kafka", "eventstoredb", "custom"]
+            },
+            "configuration": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "snapshotting": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "frequency": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Create snapshot every N events"
+            },
+            "compression": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "replay": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "fromVersion": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "toVersion": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "EventProcessing": {
+      "type": "object",
+      "description": "Event processing configuration",
+      "properties": {
+        "handlers": {
+          "type": "array",
+          "description": "Event handlers for processing the event",
+          "items": {
+            "$ref": "#/$defs/EventHandler"
+          }
+        },
+        "routing": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["broadcast", "round_robin", "topic_based", "content_based"],
+              "default": "broadcast"
+            },
+            "routingKey": {
+              "type": "string",
+              "description": "Key used for routing decisions"
+            },
+            "filters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "condition": {
+                    "type": "string"
+                  },
+                  "target": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ordering": {
+          "type": "object",
+          "properties": {
+            "guaranteed": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether event ordering is guaranteed"
+            },
+            "partitionKey": {
+              "type": "string",
+              "description": "Key used for partitioning to ensure ordering"
+            }
+          }
+        },
+        "durability": {
+          "type": "object",
+          "properties": {
+            "persistent": {
+              "type": "boolean",
+              "default": true
+            },
+            "replication": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "retention": {
+              "type": "string",
+              "description": "Event retention period (e.g., '7d', '30d', '1y')"
+            }
+          }
+        }
+      }
+    },
+    "EventHandler": {
+      "type": "object",
+      "description": "Configuration for an event handler",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the handler"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name of the handler"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["business_logic", "projection", "saga", "notification", "integration", "audit"],
+          "description": "Type of event handler"
+        },
+        "implementation": {
+          "type": "object",
+          "properties": {
+            "class": {
+              "type": "string",
+              "description": "Handler implementation class"
+            },
+            "method": {
+              "type": "string",
+              "description": "Handler method name"
+            },
+            "configuration": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "errorHandling": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["retry", "dead_letter", "ignore", "compensate"],
+              "default": "retry"
+            },
+            "maxRetries": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3
+            },
+            "deadLetterQueue": {
+              "type": "string",
+              "description": "Dead letter queue for failed events"
+            }
+          }
+        },
+        "performance": {
+          "type": "object",
+          "properties": {
+            "batchSize": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "timeout": {
+              "type": "string",
+              "default": "30s"
+            }
+          }
+        }
+      },
+      "required": ["id", "name", "type"]
+    },
+    "EventMonitoring": {
+      "type": "object",
+      "description": "Monitoring and observability configuration",
+      "properties": {
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "customMetrics": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["counter", "gauge", "histogram", "timer"]
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tracing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "samplingRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.1
+            },
+            "propagation": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["jaeger", "zipkin", "b3", "w3c"]
+              }
+            }
+          }
+        },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "level": {
+              "type": "string",
+              "enum": ["debug", "info", "warn", "error"],
+              "default": "info"
+            },
+            "includePayload": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to include event payload in logs"
+            },
+            "sensitiveFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields to mask in logs"
+            }
+          }
+        },
+        "alerting": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "condition": {
+                    "type": "string"
+                  },
+                  "threshold": {
+                    "type": "number"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": ["low", "medium", "high", "critical"]
+                  },
+                  "notification": {
+                    "type": "object",
+                    "properties": {
+                      "channels": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": ["email", "sms", "slack", "webhook"]
+                        }
+                      },
+                      "recipients": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

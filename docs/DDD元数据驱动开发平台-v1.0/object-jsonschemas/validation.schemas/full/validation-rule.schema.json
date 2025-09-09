@@ -1,92 +1,700 @@
 {
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "object-jsonschemas/validation.schemas/full/validation-rule.schema.json",
-  "title": "完整验证规则Schema",
-  "description": "验证规则的完整对象Schema，用于CREATE和完整读取操作",
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/ddd-metamodel/3.0/validation/validation-rule.schema.json",
+  "title": "验证规则完整定义",
+  "description": "领域驱动设计验证规则的完整Schema定义 - v3.0 增强版",
+  "version": "3.0.0",
   "type": "object",
   "properties": {
-    "id": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/ruleId"
+    "validationId": {
+      "type": "string",
+      "pattern": "^val_[a-zA-Z0-9_]+$",
+      "description": "验证规则ID"
     },
     "name": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/name"
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "验证规则名称"
     },
     "description": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/description"
+      "type": "string",
+      "maxLength": 1000,
+      "description": "验证规则描述"
     },
-    "type": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/validationType"
+    "boundedContextId": {
+      "type": "string",
+      "pattern": "^bc_[a-zA-Z0-9_]+$",
+      "description": "所属限界上下文ID"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["DOMAIN", "TECHNICAL", "BUSINESS", "SECURITY", "FORMAT", "RANGE", "DEPENDENCY"],
+      "description": "验证规则类别"
+    },
+    "validationType": {
+      "type": "string",
+      "enum": ["ATTRIBUTE", "ENTITY", "AGGREGATE", "VALUE_OBJECT", "CROSS_ENTITY", "BUSINESS_INVARIANT"],
+      "description": "验证类型"
     },
     "severity": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/severity"
+      "type": "string",
+      "enum": ["ERROR", "WARNING", "INFO"],
+      "description": "验证失败严重程度",
+      "default": "ERROR"
     },
-    "scope": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/scope"
-    },
-    "expression": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/expression"
-    },
-    "message": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/message"
-    },
-    "conditions": {
-      "$ref": "../fields/validation-configuration-fields.schema.json#/$defs/conditions"
-    },
-    "parameters": {
-      "$ref": "../fields/validation-rule-fields.schema.json#/$defs/parameters"
+    "isEnabled": {
+      "type": "boolean",
+      "description": "是否启用",
+      "default": true
     },
     "priority": {
       "type": "integer",
       "minimum": 1,
       "maximum": 10,
-      "description": "执行优先级（1-10，数字越小优先级越高）"
+      "description": "验证优先级（1-10，数字越小优先级越高）",
+      "default": 5
     },
-    "order": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "执行顺序"
+    "expression": {
+      "$ref": "#/$defs/validationExpression",
+      "description": "验证表达式定义"
     },
-    "isActive": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/isActive"
+    "applicableScopes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/validationScope"
+      },
+      "description": "适用范围列表"
     },
-    "createdAt": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/createdAt"
+    "conditions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/validationCondition"
+      },
+      "description": "验证条件列表"
     },
-    "updatedAt": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/updatedAt"
+    "triggers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/validationTrigger"
+      },
+      "description": "验证触发器列表"
+    },
+    "errorMessages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/errorMessage"
+      },
+      "description": "错误消息定义列表"
+    },
+    "fixSuggestions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/fixSuggestion"
+      },
+      "description": "修复建议列表"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/validationDependency"
+      },
+      "description": "验证依赖关系列表"
+    },
+    "customParameters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/validationParameter"
+      },
+      "description": "自定义参数列表"
+    },
+    "businessRules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^rule_[a-zA-Z0-9_]+$"
+      },
+      "description": "关联的业务规则ID列表"
+    },
+    "ubiquitousLanguageTermId": {
+      "type": "string",
+      "pattern": "^term_[a-zA-Z0-9_]+$",
+      "description": "关联的统一语言术语ID"
+    },
+    "performanceProfile": {
+      "$ref": "#/$defs/validationPerformanceProfile",
+      "description": "性能概况"
+    },
+    "auditConfiguration": {
+      "$ref": "#/$defs/validationAuditConfiguration",
+      "description": "审计配置"
+    },
+    "testCases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/validationTestCase"
+      },
+      "description": "验证测试用例列表"
+    },
+    "metadata": {
+      "$ref": "../../../root.schema.json#/$defs/metadata",
+      "description": "元数据信息"
     }
   },
-  "required": [
-    "id",
-    "name",
-    "type",
-    "severity",
-    "scope",
-    "expression",
-    "message",
-    "isActive"
-  ],
+  "required": ["validationId", "name", "category", "validationType", "expression"],
   "additionalProperties": false,
-  "examples": [
-    {
-      "id": "validation_rule_domain_consistency_001",
-      "name": "领域一致性检查",
-      "description": "检查领域模型与战术设计的一致性",
-      "type": "CONSISTENCY",
-      "severity": "ERROR",
-      "scope": "DOMAIN",
-      "expression": "$.strategicDesign.domains[*].id in $.tacticalDesign.domains[*].id",
-      "message": "战术设计中缺少对应的领域定义：{missingDomains}",
-      "conditions": {
-        "triggers": ["ON_CREATE", "ON_UPDATE"]
+  "$defs": {
+    "validationExpression": {
+      "type": "object",
+      "properties": {
+        "expressionType": {
+          "type": "string",
+          "enum": ["REGEX", "LOGICAL", "ARITHMETIC", "FUNCTIONAL", "CUSTOM", "SQL", "RULE_ENGINE"],
+          "description": "表达式类型"
+        },
+        "expression": {
+          "type": "string",
+          "description": "验证表达式内容"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["JAVASCRIPT", "GROOVY", "SPEL", "DROOLS", "SQL", "REGEX", "CUSTOM"],
+          "description": "表达式语言"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationVariable"
+          },
+          "description": "表达式变量列表"
+        },
+        "functions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationFunction"
+          },
+          "description": "自定义函数列表"
+        },
+        "compiledExpression": {
+          "type": "string",
+          "description": "编译后的表达式（缓存用）"
+        },
+        "isCompilable": {
+          "type": "boolean",
+          "description": "是否可编译",
+          "default": false
+        }
       },
-      "parameters": {
-        "checkDepth": 2,
-        "ignoreInactive": true
+      "required": ["expressionType", "expression", "language"],
+      "additionalProperties": false
+    },
+    "validationVariable": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "变量名称"
+        },
+        "type": {
+          "type": "string",
+          "description": "变量类型"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["CONTEXT", "PARAMETER", "ATTRIBUTE", "CALCULATED", "EXTERNAL"],
+          "description": "变量来源"
+        },
+        "path": {
+          "type": "string",
+          "description": "变量路径或表达式"
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "默认值"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "description": "是否必需",
+          "default": false
+        }
       },
-      "priority": 1,
-      "order": 10,
-      "isActive": true
+      "required": ["name", "type", "source"],
+      "additionalProperties": false
+    },
+    "validationFunction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "函数名称"
+        },
+        "signature": {
+          "type": "string",
+          "description": "函数签名"
+        },
+        "implementation": {
+          "type": "string",
+          "description": "函数实现"
+        },
+        "language": {
+          "type": "string",
+          "description": "实现语言"
+        },
+        "isBuiltIn": {
+          "type": "boolean",
+          "description": "是否内置函数",
+          "default": false
+        }
+      },
+      "required": ["name", "signature"],
+      "additionalProperties": false
+    },
+    "validationScope": {
+      "type": "object",
+      "properties": {
+        "scopeType": {
+          "type": "string",
+          "enum": ["ENTITY", "ATTRIBUTE", "AGGREGATE", "VALUE_OBJECT", "BOUNDED_CONTEXT", "DOMAIN"],
+          "description": "范围类型"
+        },
+        "targetId": {
+          "type": "string",
+          "description": "目标ID"
+        },
+        "targetName": {
+          "type": "string",
+          "description": "目标名称"
+        },
+        "isExcluded": {
+          "type": "boolean",
+          "description": "是否排除",
+          "default": false
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "应用条件"
+        }
+      },
+      "required": ["scopeType", "targetId"],
+      "additionalProperties": false
+    },
+    "validationCondition": {
+      "type": "object",
+      "properties": {
+        "conditionId": {
+          "type": "string",
+          "pattern": "^cond_[a-zA-Z0-9_]+$",
+          "description": "条件ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "条件名称"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["PRECONDITION", "POSTCONDITION", "GUARD", "FILTER"],
+          "description": "条件类型"
+        },
+        "expression": {
+          "type": "string",
+          "description": "条件表达式"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "description": "是否必须满足",
+          "default": true
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "条件不满足时的错误消息"
+        }
+      },
+      "required": ["conditionId", "name", "type", "expression"],
+      "additionalProperties": false
+    },
+    "validationTrigger": {
+      "type": "object",
+      "properties": {
+        "triggerId": {
+          "type": "string",
+          "pattern": "^trigger_[a-zA-Z0-9_]+$",
+          "description": "触发器ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "触发器名称"
+        },
+        "triggerType": {
+          "type": "string",
+          "enum": ["ON_CREATE", "ON_UPDATE", "ON_DELETE", "ON_ACCESS", "ON_STATE_CHANGE", "SCHEDULED", "MANUAL"],
+          "description": "触发类型"
+        },
+        "timing": {
+          "type": "string",
+          "enum": ["BEFORE", "AFTER", "INSTEAD_OF", "ASYNC"],
+          "description": "触发时机"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "触发条件"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活",
+          "default": true
+        },
+        "priority": {
+          "type": "integer",
+          "description": "优先级"
+        }
+      },
+      "required": ["triggerId", "name", "triggerType", "timing"],
+      "additionalProperties": false
+    },
+    "errorMessage": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string",
+          "pattern": "^msg_[a-zA-Z0-9_]+$",
+          "description": "消息ID"
+        },
+        "locale": {
+          "type": "string",
+          "description": "语言区域",
+          "default": "zh-CN"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["ERROR", "WARNING", "INFO"],
+          "description": "消息严重程度"
+        },
+        "template": {
+          "type": "string",
+          "description": "消息模板"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "source": {"type": "string"}
+            },
+            "required": ["name"]
+          },
+          "description": "消息参数"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["VALIDATION", "BUSINESS", "TECHNICAL", "SECURITY"],
+          "description": "消息类别"
+        },
+        "userFriendlyMessage": {
+          "type": "string",
+          "description": "用户友好消息"
+        },
+        "technicalMessage": {
+          "type": "string",
+          "description": "技术详细消息"
+        }
+      },
+      "required": ["messageId", "template"],
+      "additionalProperties": false
+    },
+    "fixSuggestion": {
+      "type": "object",
+      "properties": {
+        "suggestionId": {
+          "type": "string",
+          "pattern": "^fix_[a-zA-Z0-9_]+$",
+          "description": "建议ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "建议名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "建议描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["AUTOMATIC", "SEMI_AUTOMATIC", "MANUAL", "GUIDANCE"],
+          "description": "修复类型"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fixAction"
+          },
+          "description": "修复动作列表"
+        },
+        "applicableConditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "适用条件"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "修复信心度"
+        }
+      },
+      "required": ["suggestionId", "name", "type"],
+      "additionalProperties": false
+    },
+    "fixAction": {
+      "type": "object",
+      "properties": {
+        "actionId": {
+          "type": "string",
+          "pattern": "^action_[a-zA-Z0-9_]+$",
+          "description": "动作ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SET_VALUE", "REMOVE_VALUE", "TRANSFORM", "VALIDATE", "NOTIFY"],
+          "description": "动作类型"
+        },
+        "target": {
+          "type": "string",
+          "description": "动作目标"
+        },
+        "operation": {
+          "type": "string",
+          "description": "操作描述"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "动作参数"
+        },
+        "order": {
+          "type": "integer",
+          "description": "执行顺序"
+        }
+      },
+      "required": ["actionId", "type", "target"],
+      "additionalProperties": false
+    },
+    "validationDependency": {
+      "type": "object",
+      "properties": {
+        "dependencyId": {
+          "type": "string",
+          "pattern": "^dep_[a-zA-Z0-9_]+$",
+          "description": "依赖ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["REQUIRED", "CONFLICTING", "SEQUENTIAL", "CONDITIONAL"],
+          "description": "依赖类型"
+        },
+        "targetValidationId": {
+          "type": "string",
+          "pattern": "^val_[a-zA-Z0-9_]+$",
+          "description": "目标验证规则ID"
+        },
+        "condition": {
+          "type": "string",
+          "description": "依赖条件"
+        },
+        "isStrict": {
+          "type": "boolean",
+          "description": "是否严格依赖",
+          "default": true
+        }
+      },
+      "required": ["dependencyId", "type", "targetValidationId"],
+      "additionalProperties": false
+    },
+    "validationParameter": {
+      "type": "object",
+      "properties": {
+        "parameterId": {
+          "type": "string",
+          "pattern": "^param_[a-zA-Z0-9_]+$",
+          "description": "参数ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "参数名称"
+        },
+        "type": {
+          "type": "string",
+          "description": "参数类型"
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "默认值"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "description": "是否必需",
+          "default": false
+        },
+        "validationRule": {
+          "type": "string",
+          "description": "参数验证规则"
+        },
+        "description": {
+          "type": "string",
+          "description": "参数描述"
+        }
+      },
+      "required": ["parameterId", "name", "type"],
+      "additionalProperties": false
+    },
+    "validationPerformanceProfile": {
+      "type": "object",
+      "properties": {
+        "estimatedExecutionTime": {
+          "type": "string",
+          "description": "预计执行时间"
+        },
+        "complexityLevel": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "VERY_HIGH"],
+          "description": "复杂度级别"
+        },
+        "resourceUsage": {
+          "type": "object",
+          "properties": {
+            "cpu": {"type": "string"},
+            "memory": {"type": "string"},
+            "io": {"type": "string"}
+          },
+          "description": "资源使用情况"
+        },
+        "cacheable": {
+          "type": "boolean",
+          "description": "是否可缓存",
+          "default": false
+        },
+        "batchProcessable": {
+          "type": "boolean",
+          "description": "是否支持批处理",
+          "default": false
+        },
+        "parallelizable": {
+          "type": "boolean",
+          "description": "是否可并行化",
+          "default": false
+        },
+        "scalabilityImpact": {
+          "type": "string",
+          "enum": ["NONE", "LOW", "MEDIUM", "HIGH"],
+          "description": "可扩展性影响"
+        }
+      },
+      "additionalProperties": false
+    },
+    "validationAuditConfiguration": {
+      "type": "object",
+      "properties": {
+        "auditLevel": {
+          "type": "string",
+          "enum": ["NONE", "BASIC", "DETAILED", "FULL"],
+          "description": "审计级别",
+          "default": "BASIC"
+        },
+        "auditEvents": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["VALIDATION_START", "VALIDATION_END", "VALIDATION_ERROR", "VALIDATION_SUCCESS", "RULE_CHANGE"]
+          },
+          "description": "审计事件类型"
+        },
+        "includeInputData": {
+          "type": "boolean",
+          "description": "是否包含输入数据",
+          "default": false
+        },
+        "includeOutputData": {
+          "type": "boolean",
+          "description": "是否包含输出数据",
+          "default": false
+        },
+        "retentionPeriod": {
+          "type": "string",
+          "description": "审计数据保留期"
+        },
+        "complianceRequirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "合规要求"
+        }
+      },
+      "additionalProperties": false
+    },
+    "validationTestCase": {
+      "type": "object",
+      "properties": {
+        "testCaseId": {
+          "type": "string",
+          "pattern": "^test_[a-zA-Z0-9_]+$",
+          "description": "测试用例ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "测试用例名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "测试用例描述"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["POSITIVE", "NEGATIVE", "BOUNDARY", "EDGE_CASE", "PERFORMANCE"],
+          "description": "测试类别"
+        },
+        "inputData": {
+          "type": "object",
+          "description": "输入数据"
+        },
+        "expectedResult": {
+          "type": "object",
+          "properties": {
+            "isValid": {"type": "boolean"},
+            "errorMessages": {"type": "array", "items": {"type": "string"}},
+            "validationResults": {"type": "object"}
+          },
+          "description": "期望结果"
+        },
+        "setup": {
+          "type": "string",
+          "description": "测试设置"
+        },
+        "teardown": {
+          "type": "string",
+          "description": "测试清理"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活",
+          "default": true
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+          "description": "测试优先级"
+        }
+      },
+      "required": ["testCaseId", "name", "category", "inputData", "expectedResult"],
+      "additionalProperties": false
     }
-  ]
+  }
 }

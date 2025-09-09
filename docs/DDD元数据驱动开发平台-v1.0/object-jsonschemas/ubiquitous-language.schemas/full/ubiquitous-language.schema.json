@@ -1,58 +1,1765 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/ddd-metamodel/1.0/schemas/full/ubiquitous-language.schema.json",
-  "title": "统一语言聚合根",
-  "description": "领域统一语言聚合根定义 - 重构版 v2.0",
-  "version": "2.0.0",
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/ddd-metamodel/3.0/schemas/ubiquitous-language/ubiquitous-language.schema.json",
+  "title": "统一语言域聚合根",
+  "description": "统一语言域聚合根定义 - 5域架构集成版 v3.0",
+  "version": "3.0.0",
   "type": "object",
   "properties": {
-    "version": {
-      "type": "string",
-      "description": "模式版本",
-      "const": "2.0.0"
+    "metadata": {
+      "$ref": "../../root.schema.json#/$defs/SchemaMetadata",
+      "description": "Schema元数据信息"
     },
-    "domainId": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/domainId"
+    "identity": {
+      "$ref": "#/$defs/UbiquitousLanguageIdentity",
+      "description": "统一语言标识信息"
     },
-    "businessTerms": {
-      "type": "array",
-      "items": {
-        "$ref": "business-term.schema.json"
-      },
-      "minItems": 1,
-      "description": "业务术语列表"
+    "terminology": {
+      "$ref": "#/$defs/TerminologySystem",
+      "description": "术语体系定义"
     },
-    "businessAttributes": {
-      "type": "array",
-      "items": {
-        "$ref": "business-attribute.schema.json"
-      },
-      "description": "业务属性列表"
+    "semantics": {
+      "$ref": "#/$defs/SemanticDefinitions",
+      "description": "语义定义体系"
     },
-    "businessRules": {
-      "type": "array",
-      "items": {
-        "$ref": "business-rule.schema.json"
-      },
-      "description": "业务规则列表"
+    "crossDomainMappings": {
+      "$ref": "#/$defs/CrossDomainMappings",
+      "description": "跨域映射关系"
     },
-    "termRelationships": {
-      "type": "array",
-      "items": {
-        "$ref": "term-relationship.schema.json"
-      },
-      "description": "术语关系列表"
+    "evolution": {
+      "$ref": "#/$defs/LanguageEvolution",
+      "description": "语言演进历史"
     },
-    "usageStatus": {
-      "$ref": "usage-status.schema.json"
+    "governance": {
+      "$ref": "#/$defs/LanguageGovernance",
+      "description": "语言治理机制"
     },
-    "createdAt": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/timestamp"
+    "qualityMetrics": {
+      "$ref": "#/$defs/LanguageQualityMetrics",
+      "description": "语言质量度量"
     },
-    "updatedAt": {
-      "$ref": "../fields/common-fields.schema.json#/$defs/timestamp"
+    "integration": {
+      "$ref": "#/$defs/IntegrationConfiguration",
+      "description": "集成配置信息"
     }
   },
-  "required": ["version", "businessTerms"],
-  "additionalProperties": false
+  "required": ["metadata", "identity", "terminology"],
+  "additionalProperties": false,
+  "$defs": {
+    "UbiquitousLanguageIdentity": {
+      "type": "object",
+      "description": "统一语言标识信息",
+      "properties": {
+        "languageId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+          "description": "统一语言唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "统一语言名称"
+        },
+        "namespace": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9.-]*[a-z0-9]$",
+          "description": "命名空间"
+        },
+        "domainContext": {
+          "type": "string",
+          "description": "领域上下文标识"
+        },
+        "boundedContextId": {
+          "type": "string",
+          "description": "限界上下文标识"
+        },
+        "version": {
+          "$ref": "#/$defs/SemanticVersion",
+          "description": "语言版本信息"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["global", "domain", "bounded-context", "module"],
+          "description": "语言范围"
+        },
+        "maturityLevel": {
+          "type": "string",
+          "enum": ["draft", "candidate", "stable", "deprecated"],
+          "description": "成熟度级别"
+        }
+      },
+      "required": ["languageId", "name", "namespace", "version"],
+      "additionalProperties": false
+    },
+    "TerminologySystem": {
+      "type": "object",
+      "description": "术语体系定义",
+      "properties": {
+        "coreConcepts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/BusinessTerm" },
+          "description": "核心概念术语"
+        },
+        "domainSpecificTerms": {
+          "type": "array", 
+          "items": { "$ref": "#/$defs/BusinessTerm" },
+          "description": "领域特定术语"
+        },
+        "technicalTerms": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TechnicalTerm" },
+          "description": "技术术语"
+        },
+        "businessProcessTerms": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ProcessTerm" },
+          "description": "业务流程术语"
+        },
+        "termCategories": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TermCategory" },
+          "description": "术语分类体系"
+        },
+        "termRelationships": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TermRelationship" },
+          "description": "术语关系定义"
+        },
+        "terminologyGlossary": {
+          "$ref": "#/$defs/TerminologyGlossary",
+          "description": "术语词汇表"
+        },
+        "translationMappings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LanguageTranslation" },
+          "description": "多语言翻译映射"
+        }
+      },
+      "required": ["coreConcepts"],
+      "additionalProperties": false
+    },
+    "BusinessTerm": {
+      "type": "object",
+      "description": "业务术语定义",
+      "properties": {
+        "termId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+          "description": "术语唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "术语名称"
+        },
+        "englishName": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9 ]*$",
+          "description": "英文名称"
+        },
+        "programmingName": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "description": "编程名称"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 10,
+          "description": "术语定义"
+        },
+        "context": {
+          "type": "string",
+          "description": "使用上下文"
+        },
+        "category": {
+          "$ref": "#/$defs/TermCategoryType",
+          "description": "术语分类"
+        },
+        "importance": {
+          "type": "string",
+          "enum": ["critical", "important", "normal", "optional"],
+          "description": "重要程度"
+        },
+        "usage": {
+          "$ref": "#/$defs/TermUsage",
+          "description": "使用情况"
+        },
+        "semantics": {
+          "$ref": "#/$defs/TermSemantics",
+          "description": "语义信息"
+        },
+        "relationships": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TermRelationshipReference" },
+          "description": "术语关系引用"
+        },
+        "domainMappings": {
+          "$ref": "#/$defs/TermDomainMappings",
+          "description": "跨域映射"
+        },
+        "examples": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TermExample" },
+          "description": "使用示例"
+        },
+        "businessRules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "关联业务规则ID"
+        },
+        "qualityIndicators": {
+          "$ref": "#/$defs/TermQualityIndicators",
+          "description": "质量指标"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/TermLifecycle",
+          "description": "生命周期信息"
+        }
+      },
+      "required": ["termId", "name", "definition", "category"],
+      "additionalProperties": false
+    },
+    "TechnicalTerm": {
+      "type": "object",
+      "description": "技术术语定义",
+      "properties": {
+        "termId": {
+          "type": "string",
+          "pattern": "^tech-[a-z][a-z0-9-]*[a-z0-9]$",
+          "description": "技术术语标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "技术术语名称"
+        },
+        "technicalDefinition": {
+          "type": "string",
+          "description": "技术定义"
+        },
+        "implementationDetails": {
+          "type": "object",
+          "description": "实现细节"
+        },
+        "relatedBusinessTerms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "关联业务术语"
+        }
+      },
+      "required": ["termId", "name", "technicalDefinition"],
+      "additionalProperties": false
+    },
+    "ProcessTerm": {
+      "type": "object",
+      "description": "流程术语定义",
+      "properties": {
+        "termId": {
+          "type": "string",
+          "pattern": "^process-[a-z][a-z0-9-]*[a-z0-9]$",
+          "description": "流程术语标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "流程术语名称"
+        },
+        "processDefinition": {
+          "type": "string",
+          "description": "流程定义"
+        },
+        "steps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "流程步骤"
+        },
+        "participants": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "参与者"
+        }
+      },
+      "required": ["termId", "name", "processDefinition"],
+      "additionalProperties": false
+    },
+    "TermCategory": {
+      "type": "object",
+      "description": "术语分类定义",
+      "properties": {
+        "categoryId": {
+          "type": "string",
+          "description": "分类标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "分类名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "分类描述"
+        },
+        "parentCategoryId": {
+          "type": "string",
+          "description": "父分类标识"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "分类层级"
+        }
+      },
+      "required": ["categoryId", "name"],
+      "additionalProperties": false
+    },
+    "TermCategoryType": {
+      "type": "string",
+      "enum": [
+        "entity",
+        "value-object", 
+        "aggregate",
+        "domain-service",
+        "business-process",
+        "business-rule",
+        "event",
+        "command",
+        "query",
+        "policy",
+        "specification"
+      ],
+      "description": "术语分类类型"
+    },
+    "TermRelationship": {
+      "type": "object",
+      "description": "术语关系定义",
+      "properties": {
+        "relationshipId": {
+          "type": "string",
+          "description": "关系标识"
+        },
+        "sourceTermId": {
+          "type": "string",
+          "description": "源术语标识"
+        },
+        "targetTermId": {
+          "type": "string",
+          "description": "目标术语标识"
+        },
+        "relationshipType": {
+          "$ref": "#/$defs/RelationshipType",
+          "description": "关系类型"
+        },
+        "strength": {
+          "type": "string",
+          "enum": ["weak", "moderate", "strong"],
+          "description": "关系强度"
+        },
+        "direction": {
+          "type": "string", 
+          "enum": ["unidirectional", "bidirectional"],
+          "description": "关系方向"
+        },
+        "description": {
+          "type": "string",
+          "description": "关系描述"
+        },
+        "constraints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "关系约束"
+        }
+      },
+      "required": ["relationshipId", "sourceTermId", "targetTermId", "relationshipType"],
+      "additionalProperties": false
+    },
+    "RelationshipType": {
+      "type": "string",
+      "enum": [
+        "synonym",
+        "antonym", 
+        "hypernym",
+        "hyponym",
+        "meronym",
+        "holonym",
+        "association",
+        "composition",
+        "aggregation",
+        "inheritance",
+        "dependency",
+        "causation",
+        "sequence",
+        "alternative"
+      ],
+      "description": "术语关系类型"
+    },
+    "TermUsage": {
+      "type": "object",
+      "description": "术语使用情况",
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "enum": ["very-high", "high", "medium", "low", "very-low"],
+          "description": "使用频率"
+        },
+        "contexts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "使用上下文列表"
+        },
+        "userRoles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "使用用户角色"
+        },
+        "communicationChannels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "沟通渠道"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TermSemantics": {
+      "type": "object",
+      "description": "术语语义信息",
+      "properties": {
+        "conceptType": {
+          "type": "string",
+          "enum": ["concrete", "abstract", "collective", "relational"],
+          "description": "概念类型"
+        },
+        "semanticDomain": {
+          "type": "string",
+          "description": "语义领域"
+        },
+        "ontologyMapping": {
+          "type": "object",
+          "description": "本体映射"
+        },
+        "synonyms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "同义词"
+        },
+        "antonyms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "反义词"
+        },
+        "relatedConcepts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "相关概念"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TermDomainMappings": {
+      "type": "object",
+      "description": "术语跨域映射",
+      "properties": {
+        "problemDomainMapping": {
+          "$ref": "#/$defs/ProblemDomainMapping",
+          "description": "问题域映射"
+        },
+        "solutionDomainMapping": {
+          "$ref": "#/$defs/SolutionDomainMapping", 
+          "description": "解决方案域映射"
+        },
+        "communicationDomainMapping": {
+          "$ref": "#/$defs/CommunicationDomainMapping",
+          "description": "通信域映射"
+        },
+        "infrastructureDomainMapping": {
+          "$ref": "#/$defs/InfrastructureDomainMapping",
+          "description": "基础设施域映射"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProblemDomainMapping": {
+      "type": "object",
+      "description": "问题域映射",
+      "properties": {
+        "aggregateRoots": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "聚合根映射"
+        },
+        "entities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "实体映射"
+        },
+        "valueObjects": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "值对象映射"
+        },
+        "domainEvents": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "域事件映射"
+        },
+        "businessRules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "业务规则映射"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SolutionDomainMapping": {
+      "type": "object",
+      "description": "解决方案域映射",
+      "properties": {
+        "applicationServices": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "应用服务映射"
+        },
+        "domainServices": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "域服务映射"
+        },
+        "repositories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "仓储映射"
+        },
+        "factories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "工厂映射"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CommunicationDomainMapping": {
+      "type": "object",
+      "description": "通信域映射",
+      "properties": {
+        "apiEndpoints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "API端点映射"
+        },
+        "dtoObjects": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "DTO对象映射"
+        },
+        "messageTypes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "消息类型映射"
+        },
+        "communicationProtocols": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "通信协议映射"
+        }
+      },
+      "additionalProperties": false
+    },
+    "InfrastructureDomainMapping": {
+      "type": "object",
+      "description": "基础设施域映射",
+      "properties": {
+        "persistenceEntities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "持久化实体映射"
+        },
+        "databaseTables": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "数据库表映射"
+        },
+        "integrationPoints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "集成点映射"
+        },
+        "externalSystems": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "外部系统映射"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TermExample": {
+      "type": "object",
+      "description": "术语使用示例",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "示例标题"
+        },
+        "context": {
+          "type": "string",
+          "description": "示例上下文"
+        },
+        "usage": {
+          "type": "string",
+          "description": "使用方式"
+        },
+        "explanation": {
+          "type": "string",
+          "description": "示例解释"
+        }
+      },
+      "required": ["title", "usage"],
+      "additionalProperties": false
+    },
+    "TermQualityIndicators": {
+      "type": "object",
+      "description": "术语质量指标",
+      "properties": {
+        "clarity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "清晰度评分"
+        },
+        "consistency": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "一致性评分"
+        },
+        "completeness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "完整性评分"
+        },
+        "accuracy": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "准确性评分"
+        },
+        "usability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "可用性评分"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TermLifecycle": {
+      "type": "object",
+      "description": "术语生命周期",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["proposed", "review", "approved", "active", "deprecated", "retired"],
+          "description": "状态"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "创建者"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "批准时间"
+        },
+        "approvedBy": {
+          "type": "string",
+          "description": "批准者"
+        },
+        "lastModifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最后修改时间"
+        },
+        "lastModifiedBy": {
+          "type": "string",
+          "description": "最后修改者"
+        },
+        "deprecatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "废弃时间"
+        },
+        "retiredAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "退役时间"
+        }
+      },
+      "required": ["status", "createdAt", "createdBy"],
+      "additionalProperties": false
+    },
+    "SemanticDefinitions": {
+      "type": "object",
+      "description": "语义定义体系",
+      "properties": {
+        "conceptualModel": {
+          "$ref": "#/$defs/ConceptualModel",
+          "description": "概念模型"
+        },
+        "ontologyDefinitions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/OntologyDefinition" },
+          "description": "本体定义"
+        },
+        "semanticRules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SemanticRule" },
+          "description": "语义规则"
+        },
+        "contextDefinitions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ContextDefinition" },
+          "description": "上下文定义"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ConceptualModel": {
+      "type": "object",
+      "description": "概念模型",
+      "properties": {
+        "modelId": {
+          "type": "string",
+          "description": "模型标识"
+        },
+        "concepts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Concept" },
+          "description": "概念定义"
+        },
+        "relationships": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ConceptRelationship" },
+          "description": "概念关系"
+        }
+      },
+      "required": ["modelId", "concepts"],
+      "additionalProperties": false
+    },
+    "Concept": {
+      "type": "object",
+      "description": "概念定义",
+      "properties": {
+        "conceptId": {
+          "type": "string",
+          "description": "概念标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "概念名称"
+        },
+        "definition": {
+          "type": "string",
+          "description": "概念定义"
+        },
+        "properties": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "概念属性"
+        }
+      },
+      "required": ["conceptId", "name", "definition"],
+      "additionalProperties": false
+    },
+    "ConceptRelationship": {
+      "type": "object",
+      "description": "概念关系",
+      "properties": {
+        "sourceConceptId": {
+          "type": "string",
+          "description": "源概念标识"
+        },
+        "targetConceptId": {
+          "type": "string",
+          "description": "目标概念标识"
+        },
+        "relationshipType": {
+          "type": "string",
+          "description": "关系类型"
+        }
+      },
+      "required": ["sourceConceptId", "targetConceptId", "relationshipType"],
+      "additionalProperties": false
+    },
+    "OntologyDefinition": {
+      "type": "object",
+      "description": "本体定义",
+      "properties": {
+        "ontologyId": {
+          "type": "string",
+          "description": "本体标识"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "命名空间"
+        },
+        "classes": {
+          "type": "array",
+          "items": { "type": "object" },
+          "description": "类定义"
+        },
+        "properties": {
+          "type": "array",
+          "items": { "type": "object" },
+          "description": "属性定义"
+        },
+        "individuals": {
+          "type": "array",
+          "items": { "type": "object" },
+          "description": "个体定义"
+        }
+      },
+      "required": ["ontologyId", "namespace"],
+      "additionalProperties": false
+    },
+    "SemanticRule": {
+      "type": "object",
+      "description": "语义规则",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "description": "规则标识"
+        },
+        "condition": {
+          "type": "string",
+          "description": "规则条件"
+        },
+        "action": {
+          "type": "string",
+          "description": "规则动作"
+        },
+        "priority": {
+          "type": "integer",
+          "description": "规则优先级"
+        }
+      },
+      "required": ["ruleId", "condition", "action"],
+      "additionalProperties": false
+    },
+    "ContextDefinition": {
+      "type": "object",
+      "description": "上下文定义",
+      "properties": {
+        "contextId": {
+          "type": "string",
+          "description": "上下文标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "上下文名称"
+        },
+        "scope": {
+          "type": "string",
+          "description": "上下文范围"
+        },
+        "applicableTerms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "适用术语"
+        }
+      },
+      "required": ["contextId", "name", "scope"],
+      "additionalProperties": false
+    },
+    "CrossDomainMappings": {
+      "type": "object",
+      "description": "跨域映射关系",
+      "properties": {
+        "problemToSolutionMappings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DomainMapping" },
+          "description": "问题域到解决方案域映射"
+        },
+        "solutionToCommunicationMappings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DomainMapping" },
+          "description": "解决方案域到通信域映射"
+        },
+        "communicationToInfrastructureMappings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DomainMapping" },
+          "description": "通信域到基础设施域映射"
+        },
+        "ubiquitousToAllDomainsMappings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/UbiquitousDomainMapping" },
+          "description": "统一语言域到所有域的映射"
+        }
+      },
+      "additionalProperties": false
+    },
+    "DomainMapping": {
+      "type": "object",
+      "description": "域映射",
+      "properties": {
+        "mappingId": {
+          "type": "string",
+          "description": "映射标识"
+        },
+        "sourceTermId": {
+          "type": "string",
+          "description": "源术语标识"
+        },
+        "targetElementId": {
+          "type": "string",
+          "description": "目标元素标识"
+        },
+        "mappingType": {
+          "type": "string",
+          "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many"],
+          "description": "映射类型"
+        },
+        "transformationRules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "转换规则"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "验证规则"
+        }
+      },
+      "required": ["mappingId", "sourceTermId", "targetElementId", "mappingType"],
+      "additionalProperties": false
+    },
+    "UbiquitousDomainMapping": {
+      "type": "object",
+      "description": "统一语言域映射",
+      "properties": {
+        "termId": {
+          "type": "string",
+          "description": "术语标识"
+        },
+        "targetDomain": {
+          "type": "string",
+          "enum": ["problem", "solution", "communication", "infrastructure"],
+          "description": "目标域"
+        },
+        "mappingElements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "映射元素"
+        },
+        "consistency": {
+          "$ref": "#/$defs/ConsistencyCheck",
+          "description": "一致性检查"
+        }
+      },
+      "required": ["termId", "targetDomain", "mappingElements"],
+      "additionalProperties": false
+    },
+    "ConsistencyCheck": {
+      "type": "object",
+      "description": "一致性检查",
+      "properties": {
+        "checkType": {
+          "type": "string",
+          "enum": ["naming", "semantic", "structural", "behavioral"],
+          "description": "检查类型"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["consistent", "inconsistent", "unknown"],
+          "description": "一致性状态"
+        },
+        "issues": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "一致性问题"
+        },
+        "recommendations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "改进建议"
+        }
+      },
+      "required": ["checkType", "status"],
+      "additionalProperties": false
+    },
+    "LanguageEvolution": {
+      "type": "object",
+      "description": "语言演进历史",
+      "properties": {
+        "versionHistory": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LanguageVersion" },
+          "description": "版本历史"
+        },
+        "evolutionPattern": {
+          "$ref": "#/$defs/EvolutionPattern",
+          "description": "演进模式"
+        },
+        "migrationStrategies": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MigrationStrategy" },
+          "description": "迁移策略"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LanguageVersion": {
+      "type": "object",
+      "description": "语言版本",
+      "properties": {
+        "version": {
+          "$ref": "#/$defs/SemanticVersion",
+          "description": "版本号"
+        },
+        "releaseDate": {
+          "type": "string",
+          "format": "date",
+          "description": "发布日期"
+        },
+        "changes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/LanguageChange" },
+          "description": "变更记录"
+        },
+        "compatibility": {
+          "$ref": "#/$defs/CompatibilityInfo",
+          "description": "兼容性信息"
+        }
+      },
+      "required": ["version", "releaseDate"],
+      "additionalProperties": false
+    },
+    "LanguageChange": {
+      "type": "object",
+      "description": "语言变更",
+      "properties": {
+        "changeType": {
+          "type": "string",
+          "enum": ["addition", "modification", "deletion", "deprecation"],
+          "description": "变更类型"
+        },
+        "affectedElement": {
+          "type": "string",
+          "description": "受影响元素"
+        },
+        "description": {
+          "type": "string",
+          "description": "变更描述"
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "影响程度"
+        }
+      },
+      "required": ["changeType", "affectedElement", "description"],
+      "additionalProperties": false
+    },
+    "EvolutionPattern": {
+      "type": "object",
+      "description": "演进模式",
+      "properties": {
+        "patternType": {
+          "type": "string",
+          "enum": ["incremental", "revolutionary", "branching", "merging"],
+          "description": "演进模式类型"
+        },
+        "frequency": {
+          "type": "string",
+          "enum": ["continuous", "periodic", "as-needed"],
+          "description": "演进频率"
+        },
+        "triggers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "演进触发器"
+        }
+      },
+      "required": ["patternType"],
+      "additionalProperties": false
+    },
+    "MigrationStrategy": {
+      "type": "object",
+      "description": "迁移策略",
+      "properties": {
+        "strategyId": {
+          "type": "string",
+          "description": "策略标识"
+        },
+        "fromVersion": {
+          "type": "string",
+          "description": "源版本"
+        },
+        "toVersion": {
+          "type": "string",
+          "description": "目标版本"
+        },
+        "migrationSteps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "迁移步骤"
+        },
+        "rollbackPlan": {
+          "type": "string",
+          "description": "回滚计划"
+        }
+      },
+      "required": ["strategyId", "fromVersion", "toVersion", "migrationSteps"],
+      "additionalProperties": false
+    },
+    "LanguageGovernance": {
+      "type": "object",
+      "description": "语言治理机制",
+      "properties": {
+        "governanceBoard": {
+          "$ref": "#/$defs/GovernanceBoard",
+          "description": "治理委员会"
+        },
+        "approvalProcess": {
+          "$ref": "#/$defs/ApprovalProcess",
+          "description": "批准流程"
+        },
+        "qualityStandards": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/QualityStandard" },
+          "description": "质量标准"
+        },
+        "complianceRules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ComplianceRule" },
+          "description": "合规规则"
+        }
+      },
+      "additionalProperties": false
+    },
+    "GovernanceBoard": {
+      "type": "object",
+      "description": "治理委员会",
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/BoardMember" },
+          "description": "委员会成员"
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "职责范围"
+        },
+        "meetingSchedule": {
+          "type": "string",
+          "description": "会议安排"
+        }
+      },
+      "required": ["members"],
+      "additionalProperties": false
+    },
+    "BoardMember": {
+      "type": "object",
+      "description": "委员会成员",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "成员姓名"
+        },
+        "role": {
+          "type": "string",
+          "description": "角色"
+        },
+        "expertise": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "专业领域"
+        }
+      },
+      "required": ["name", "role"],
+      "additionalProperties": false
+    },
+    "ApprovalProcess": {
+      "type": "object",
+      "description": "批准流程",
+      "properties": {
+        "stages": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ApprovalStage" },
+          "description": "批准阶段"
+        },
+        "criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "批准标准"
+        },
+        "timeframe": {
+          "type": "string",
+          "description": "时间框架"
+        }
+      },
+      "required": ["stages"],
+      "additionalProperties": false
+    },
+    "ApprovalStage": {
+      "type": "object",
+      "description": "批准阶段",
+      "properties": {
+        "stageName": {
+          "type": "string",
+          "description": "阶段名称"
+        },
+        "approvers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "批准者"
+        },
+        "requirements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "要求"
+        }
+      },
+      "required": ["stageName", "approvers"],
+      "additionalProperties": false
+    },
+    "QualityStandard": {
+      "type": "object",
+      "description": "质量标准",
+      "properties": {
+        "standardId": {
+          "type": "string",
+          "description": "标准标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "标准名称"
+        },
+        "criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "标准条件"
+        },
+        "metrics": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/QualityMetric" },
+          "description": "质量度量"
+        }
+      },
+      "required": ["standardId", "name", "criteria"],
+      "additionalProperties": false
+    },
+    "QualityMetric": {
+      "type": "object",
+      "description": "质量度量",
+      "properties": {
+        "metricName": {
+          "type": "string",
+          "description": "度量名称"
+        },
+        "measurement": {
+          "type": "string",
+          "description": "测量方法"
+        },
+        "target": {
+          "type": "number",
+          "description": "目标值"
+        },
+        "threshold": {
+          "type": "number",
+          "description": "阈值"
+        }
+      },
+      "required": ["metricName", "measurement"],
+      "additionalProperties": false
+    },
+    "ComplianceRule": {
+      "type": "object",
+      "description": "合规规则",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "description": "规则标识"
+        },
+        "description": {
+          "type": "string",
+          "description": "规则描述"
+        },
+        "applicability": {
+          "type": "string",
+          "description": "适用范围"
+        },
+        "validationMethod": {
+          "type": "string",
+          "description": "验证方法"
+        }
+      },
+      "required": ["ruleId", "description"],
+      "additionalProperties": false
+    },
+    "LanguageQualityMetrics": {
+      "type": "object",
+      "description": "语言质量度量",
+      "properties": {
+        "overallQuality": {
+          "$ref": "#/$defs/QualityScore",
+          "description": "总体质量评分"
+        },
+        "coverageMetrics": {
+          "$ref": "#/$defs/CoverageMetrics",
+          "description": "覆盖度度量"
+        },
+        "consistencyMetrics": {
+          "$ref": "#/$defs/ConsistencyMetrics",
+          "description": "一致性度量"
+        },
+        "usabilityMetrics": {
+          "$ref": "#/$defs/UsabilityMetrics",
+          "description": "可用性度量"
+        },
+        "evolutionMetrics": {
+          "$ref": "#/$defs/EvolutionMetrics",
+          "description": "演进度量"
+        }
+      },
+      "additionalProperties": false
+    },
+    "QualityScore": {
+      "type": "object",
+      "description": "质量评分",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "评分值"
+        },
+        "level": {
+          "type": "string",
+          "enum": ["excellent", "good", "fair", "poor"],
+          "description": "质量等级"
+        },
+        "calculatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "计算时间"
+        }
+      },
+      "required": ["score", "level"],
+      "additionalProperties": false
+    },
+    "CoverageMetrics": {
+      "type": "object",
+      "description": "覆盖度度量",
+      "properties": {
+        "termCoverage": {
+          "type": "number",
+          "description": "术语覆盖度"
+        },
+        "domainCoverage": {
+          "type": "number",
+          "description": "域覆盖度"
+        },
+        "processCoverage": {
+          "type": "number",
+          "description": "流程覆盖度"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ConsistencyMetrics": {
+      "type": "object",
+      "description": "一致性度量",
+      "properties": {
+        "namingConsistency": {
+          "type": "number",
+          "description": "命名一致性"
+        },
+        "semanticConsistency": {
+          "type": "number",
+          "description": "语义一致性"
+        },
+        "crossDomainConsistency": {
+          "type": "number",
+          "description": "跨域一致性"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UsabilityMetrics": {
+      "type": "object",
+      "description": "可用性度量",
+      "properties": {
+        "adoptionRate": {
+          "type": "number",
+          "description": "采用率"
+        },
+        "userSatisfaction": {
+          "type": "number",
+          "description": "用户满意度"
+        },
+        "learningCurve": {
+          "type": "number",
+          "description": "学习曲线"
+        }
+      },
+      "additionalProperties": false
+    },
+    "EvolutionMetrics": {
+      "type": "object",
+      "description": "演进度量",
+      "properties": {
+        "changeFrequency": {
+          "type": "number",
+          "description": "变更频率"
+        },
+        "adaptabilityScore": {
+          "type": "number",
+          "description": "适应性评分"
+        },
+        "stabilityScore": {
+          "type": "number",
+          "description": "稳定性评分"
+        }
+      },
+      "additionalProperties": false
+    },
+    "IntegrationConfiguration": {
+      "type": "object",
+      "description": "集成配置",
+      "properties": {
+        "toolIntegrations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ToolIntegration" },
+          "description": "工具集成配置"
+        },
+        "exportFormats": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ExportFormat" },
+          "description": "导出格式配置"
+        },
+        "synchronizationSettings": {
+          "$ref": "#/$defs/SynchronizationSettings",
+          "description": "同步设置"
+        },
+        "notificationSettings": {
+          "$ref": "#/$defs/NotificationSettings",
+          "description": "通知设置"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ToolIntegration": {
+      "type": "object",
+      "description": "工具集成",
+      "properties": {
+        "toolName": {
+          "type": "string",
+          "description": "工具名称"
+        },
+        "integrationType": {
+          "type": "string",
+          "enum": ["api", "file", "database", "webhook"],
+          "description": "集成类型"
+        },
+        "configuration": {
+          "type": "object",
+          "description": "配置信息"
+        },
+        "syncFrequency": {
+          "type": "string",
+          "description": "同步频率"
+        }
+      },
+      "required": ["toolName", "integrationType"],
+      "additionalProperties": false
+    },
+    "ExportFormat": {
+      "type": "object",
+      "description": "导出格式",
+      "properties": {
+        "formatName": {
+          "type": "string",
+          "description": "格式名称"
+        },
+        "mimeType": {
+          "type": "string",
+          "description": "MIME类型"
+        },
+        "template": {
+          "type": "string",
+          "description": "模板配置"
+        },
+        "includeMetadata": {
+          "type": "boolean",
+          "description": "包含元数据"
+        }
+      },
+      "required": ["formatName", "mimeType"],
+      "additionalProperties": false
+    },
+    "SynchronizationSettings": {
+      "type": "object",
+      "description": "同步设置",
+      "properties": {
+        "autoSync": {
+          "type": "boolean",
+          "description": "自动同步"
+        },
+        "syncInterval": {
+          "type": "string",
+          "description": "同步间隔"
+        },
+        "conflictResolution": {
+          "type": "string",
+          "enum": ["manual", "source-wins", "target-wins", "merge"],
+          "description": "冲突解决策略"
+        }
+      },
+      "additionalProperties": false
+    },
+    "NotificationSettings": {
+      "type": "object",
+      "description": "通知设置",
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "通知渠道"
+        },
+        "events": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "通知事件"
+        },
+        "recipients": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "通知接收者"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TerminologyGlossary": {
+      "type": "object",
+      "description": "术语词汇表",
+      "properties": {
+        "glossaryId": {
+          "type": "string",
+          "description": "词汇表标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "词汇表名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "词汇表描述"
+        },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GlossaryEntry" },
+          "description": "词汇表条目"
+        },
+        "organization": {
+          "$ref": "#/$defs/GlossaryOrganization",
+          "description": "组织结构"
+        }
+      },
+      "required": ["glossaryId", "name", "entries"],
+      "additionalProperties": false
+    },
+    "GlossaryEntry": {
+      "type": "object",
+      "description": "词汇表条目",
+      "properties": {
+        "termId": {
+          "type": "string",
+          "description": "术语标识"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "显示名称"
+        },
+        "shortDefinition": {
+          "type": "string",
+          "description": "简短定义"
+        },
+        "detailedDefinition": {
+          "type": "string",
+          "description": "详细定义"
+        },
+        "seeAlso": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "参考条目"
+        }
+      },
+      "required": ["termId", "displayName", "shortDefinition"],
+      "additionalProperties": false
+    },
+    "GlossaryOrganization": {
+      "type": "object",
+      "description": "词汇表组织结构",
+      "properties": {
+        "organizationType": {
+          "type": "string",
+          "enum": ["alphabetical", "categorical", "hierarchical", "topical"],
+          "description": "组织类型"
+        },
+        "sections": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GlossarySection" },
+          "description": "组织分区"
+        }
+      },
+      "required": ["organizationType"],
+      "additionalProperties": false
+    },
+    "GlossarySection": {
+      "type": "object",
+      "description": "词汇表分区",
+      "properties": {
+        "sectionId": {
+          "type": "string",
+          "description": "分区标识"
+        },
+        "title": {
+          "type": "string",
+          "description": "分区标题"
+        },
+        "termIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "术语标识列表"
+        },
+        "subsections": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/GlossarySection" },
+          "description": "子分区"
+        }
+      },
+      "required": ["sectionId", "title"],
+      "additionalProperties": false
+    },
+    "LanguageTranslation": {
+      "type": "object",
+      "description": "语言翻译",
+      "properties": {
+        "sourceTermId": {
+          "type": "string",
+          "description": "源术语标识"
+        },
+        "targetLanguage": {
+          "type": "string",
+          "description": "目标语言"
+        },
+        "translation": {
+          "type": "string",
+          "description": "翻译结果"
+        },
+        "translationType": {
+          "type": "string",
+          "enum": ["literal", "semantic", "contextual"],
+          "description": "翻译类型"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "翻译置信度"
+        },
+        "notes": {
+          "type": "string",
+          "description": "翻译备注"
+        }
+      },
+      "required": ["sourceTermId", "targetLanguage", "translation"],
+      "additionalProperties": false
+    },
+    "TermRelationshipReference": {
+      "type": "object",
+      "description": "术语关系引用",
+      "properties": {
+        "relationshipId": {
+          "type": "string",
+          "description": "关系标识"
+        },
+        "relatedTermId": {
+          "type": "string",
+          "description": "关联术语标识"
+        },
+        "relationshipType": {
+          "$ref": "#/$defs/RelationshipType",
+          "description": "关系类型"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["incoming", "outgoing", "bidirectional"],
+          "description": "关系方向"
+        }
+      },
+      "required": ["relationshipId", "relatedTermId", "relationshipType"],
+      "additionalProperties": false
+    },
+    "SemanticVersion": {
+      "type": "object",
+      "description": "语义版本",
+      "properties": {
+        "major": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "主版本号"
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "次版本号"
+        },
+        "patch": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "补丁版本号"
+        },
+        "prerelease": {
+          "type": "string",
+          "description": "预发布标识"
+        },
+        "build": {
+          "type": "string",
+          "description": "构建标识"
+        }
+      },
+      "required": ["major", "minor", "patch"],
+      "additionalProperties": false
+    },
+    "CompatibilityInfo": {
+      "type": "object",
+      "description": "兼容性信息",
+      "properties": {
+        "backwardCompatible": {
+          "type": "boolean",
+          "description": "向后兼容"
+        },
+        "forwardCompatible": {
+          "type": "boolean",
+          "description": "向前兼容"
+        },
+        "breakingChanges": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "破坏性变更"
+        },
+        "migrationPath": {
+          "type": "string",
+          "description": "迁移路径"
+        }
+      },
+      "required": ["backwardCompatible"],
+      "additionalProperties": false
+    }
+  }
 }

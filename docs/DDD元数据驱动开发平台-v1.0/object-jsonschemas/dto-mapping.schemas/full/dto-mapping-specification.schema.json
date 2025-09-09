@@ -1,0 +1,538 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.ddd-platform.com/dto-mapping/full/dto-mapping-specification.schema.json",
+  "title": "DTO映射规范v3.0",
+  "description": "完整的DTO映射和转换规则定义Schema - 企业级数据传输对象映射系统",
+  "type": "object",
+  "version": "3.0.0",
+  "properties": {
+    "mappingSpecification": {
+      "$ref": "#/$defs/DTOMappingSpecification"
+    }
+  },
+  "required": ["mappingSpecification"],
+  "$defs": {
+    "DTOMappingSpecification": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingMetadata"
+        },
+        "mappingConfiguration": {
+          "$ref": "#/$defs/MappingConfiguration"
+        },
+        "mappingOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/dto-mapping-operations.schema.json#/$defs/MappingOperation"
+          },
+          "description": "映射操作列表"
+        },
+        "batchOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/dto-mapping-operations.schema.json#/$defs/BatchMappingOperation"
+          },
+          "description": "批量映射操作"
+        },
+        "mappingTemplates": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/dto-mapping-operations.schema.json#/$defs/MappingTemplate"
+          },
+          "description": "映射模板库"
+        },
+        "testSuites": {
+          "type": "array",
+          "items": {
+            "$ref": "../operations/dto-mapping-operations.schema.json#/$defs/MappingTest"
+          },
+          "description": "测试套件"
+        },
+        "qualityMetrics": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/QualityMetrics"
+        },
+        "documentation": {
+          "$ref": "#/$defs/DocumentationConfiguration"
+        },
+        "deployment": {
+          "$ref": "#/$defs/DeploymentConfiguration"
+        },
+        "monitoring": {
+          "$ref": "#/$defs/MonitoringConfiguration"
+        }
+      },
+      "required": ["metadata", "mappingConfiguration", "mappingOperations"],
+      "description": "DTO映射规范定义"
+    },
+    
+    "MappingConfiguration": {
+      "type": "object",
+      "properties": {
+        "globalSettings": {
+          "type": "object",
+          "properties": {
+            "strictMode": {
+              "type": "boolean",
+              "description": "严格模式 - 要求所有字段都必须映射"
+            },
+            "ignoreUnknownFields": {
+              "type": "boolean",
+              "description": "忽略未知字段"
+            },
+            "defaultNullHandling": {
+              "type": "string",
+              "enum": ["IGNORE", "SET_DEFAULT", "THROW_EXCEPTION"],
+              "description": "默认空值处理策略"
+            },
+            "dateTimeFormat": {
+              "type": "string",
+              "description": "全局日期时间格式"
+            },
+            "locale": {
+              "type": "string",
+              "description": "区域设置"
+            },
+            "timezone": {
+              "type": "string",
+              "description": "时区"
+            }
+          }
+        },
+        "performanceSettings": {
+          "type": "object",
+          "properties": {
+            "enableCaching": {
+              "type": "boolean"
+            },
+            "cacheProvider": {
+              "type": "string",
+              "enum": ["REDIS", "HAZELCAST", "CAFFEINE", "MEMORY"]
+            },
+            "defaultCacheTtl": {
+              "type": "integer",
+              "description": "默认缓存TTL（秒）"
+            },
+            "enableBatching": {
+              "type": "boolean"
+            },
+            "defaultBatchSize": {
+              "type": "integer"
+            },
+            "enableAsyncMapping": {
+              "type": "boolean"
+            },
+            "threadPoolSize": {
+              "type": "integer"
+            }
+          }
+        },
+        "securitySettings": {
+          "type": "object",
+          "properties": {
+            "enableFieldEncryption": {
+              "type": "boolean"
+            },
+            "encryptionProvider": {
+              "type": "string",
+              "enum": ["AES", "RSA", "JASYPT"]
+            },
+            "enableAuditLogging": {
+              "type": "boolean"
+            },
+            "auditProvider": {
+              "type": "string",
+              "enum": ["DATABASE", "FILE", "ELASTIC", "KAFKA"]
+            },
+            "dataClassificationEnabled": {
+              "type": "boolean"
+            },
+            "accessControlEnabled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "integrationSettings": {
+          "type": "object",
+          "properties": {
+            "frameworkIntegration": {
+              "type": "object",
+              "properties": {
+                "springBoot": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "autoConfiguration": {
+                      "type": "boolean"
+                    },
+                    "profiles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "mapstruct": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "componentModel": {
+                      "type": "string",
+                      "enum": ["default", "spring", "cdi", "jsr330"]
+                    }
+                  }
+                }
+              }
+            },
+            "eventIntegration": {
+              "type": "object",
+              "properties": {
+                "enableDomainEvents": {
+                  "type": "boolean"
+                },
+                "eventBus": {
+                  "type": "string",
+                  "enum": ["SPRING_EVENTS", "GUAVA", "AXON", "KAFKA"]
+                },
+                "eventStore": {
+                  "type": "string",
+                  "enum": ["MEMORY", "DATABASE", "AXON", "EVENSTORE"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "映射配置"
+    },
+    
+    "DocumentationConfiguration": {
+      "type": "object",
+      "properties": {
+        "autoGeneration": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "formats": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["HTML", "MARKDOWN", "PDF", "CONFLUENCE", "OPENAPI"]
+              }
+            },
+            "includeExamples": {
+              "type": "boolean"
+            },
+            "includeTestCases": {
+              "type": "boolean"
+            },
+            "includeDiagrams": {
+              "type": "boolean"
+            }
+          }
+        },
+        "apiDocumentation": {
+          "type": "object",
+          "properties": {
+            "swagger": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "diagramGeneration": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "formats": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["PLANTUML", "MERMAID", "GRAPHVIZ"]
+              }
+            },
+            "includeDataFlow": {
+              "type": "boolean"
+            },
+            "includeMappingRelations": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "description": "文档配置"
+    },
+    
+    "DeploymentConfiguration": {
+      "type": "object",
+      "properties": {
+        "environments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": ["development", "testing", "staging", "production"]
+              },
+              "configuration": {
+                "type": "object",
+                "properties": {
+                  "performanceProfile": {
+                    "type": "string",
+                    "enum": ["DEVELOPMENT", "TESTING", "PRODUCTION"]
+                  },
+                  "logging": {
+                    "type": "object",
+                    "properties": {
+                      "level": {
+                        "type": "string",
+                        "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR"]
+                      },
+                      "includeStackTrace": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "caching": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "provider": {
+                        "type": "string"
+                      },
+                      "configuration": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "containerization": {
+          "type": "object",
+          "properties": {
+            "docker": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "baseImage": {
+                  "type": "string"
+                },
+                "exposedPorts": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "kubernetes": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "namespace": {
+                  "type": "string"
+                },
+                "replicas": {
+                  "type": "integer"
+                },
+                "resources": {
+                  "type": "object",
+                  "properties": {
+                    "requests": {
+                      "type": "object",
+                      "properties": {
+                        "memory": {
+                          "type": "string"
+                        },
+                        "cpu": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "limits": {
+                      "type": "object",
+                      "properties": {
+                        "memory": {
+                          "type": "string"
+                        },
+                        "cpu": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "部署配置"
+    },
+    
+    "MonitoringConfiguration": {
+      "type": "object",
+      "properties": {
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "provider": {
+              "type": "string",
+              "enum": ["MICROMETER", "PROMETHEUS", "DATADOG", "NEW_RELIC"]
+            },
+            "customMetrics": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["COUNTER", "GAUGE", "TIMER", "HISTOGRAM"]
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tracing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "provider": {
+              "type": "string",
+              "enum": ["JAEGER", "ZIPKIN", "DATADOG", "ELASTIC_APM"]
+            },
+            "samplingRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "alerting": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "condition": {
+                    "type": "string"
+                  },
+                  "threshold": {
+                    "type": "number"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": ["INFO", "WARNING", "CRITICAL"]
+                  },
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": ["EMAIL", "SLACK", "WEBHOOK", "SMS"]
+                        },
+                        "target": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "healthChecks": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["LIVENESS", "READINESS", "STARTUP"]
+                  },
+                  "endpoint": {
+                    "type": "string"
+                  },
+                  "interval": {
+                    "type": "integer"
+                  },
+                  "timeout": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "监控配置"
+    }
+  }
+}

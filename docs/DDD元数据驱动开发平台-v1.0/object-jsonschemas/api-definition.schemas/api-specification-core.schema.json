@@ -1,0 +1,680 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "api-specification-core.schema.json",
+  "version": "3.0.0",
+  "title": "DDD API Specification Core v3.0",
+  "description": "Core API specification schema for basic use cases with essential DDD integration",
+  "type": "object",
+  "properties": {
+    "apiSpecification": {
+      "$ref": "#/$defs/ApiSpecificationCore"
+    }
+  },
+  "required": ["apiSpecification"],
+  "$defs": {
+    "ApiSpecificationCore": {
+      "type": "object",
+      "description": "Core API specification with essential features",
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/ApiMetadata"
+        },
+        "openApiDefinition": {
+          "$ref": "#/$defs/OpenApiCore"
+        },
+        "domainMapping": {
+          "$ref": "#/$defs/DomainMapping"
+        },
+        "versionInfo": {
+          "$ref": "#/$defs/VersionInfo"
+        }
+      },
+      "required": ["metadata", "openApiDefinition", "domainMapping"],
+      "additionalProperties": false
+    },
+    "ApiMetadata": {
+      "type": "object",
+      "description": "Essential API metadata",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+          "description": "Unique API identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable API name"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "API version in semantic versioning format"
+        },
+        "description": {
+          "type": "string",
+          "description": "API description"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["domain_api", "application_api", "integration_api", "infrastructure_api"],
+          "description": "API category in DDD context"
+        },
+        "boundedContext": {
+          "type": "string",
+          "description": "Bounded context this API belongs to"
+        },
+        "subdomain": {
+          "type": "string",
+          "description": "Subdomain this API serves"
+        },
+        "owner": {
+          "type": "object",
+          "properties": {
+            "team": {
+              "type": "string"
+            },
+            "contact": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          "required": ["team"]
+        },
+        "lifecycle": {
+          "type": "string",
+          "enum": ["development", "testing", "staging", "production", "deprecated"],
+          "description": "API lifecycle stage"
+        }
+      },
+      "required": ["id", "name", "version", "category", "boundedContext"]
+    },
+    "OpenApiCore": {
+      "type": "object",
+      "description": "Core OpenAPI 3.0 definition",
+      "properties": {
+        "openapi": {
+          "type": "string",
+          "enum": ["3.0.0", "3.0.1", "3.0.2", "3.0.3", "3.1.0"],
+          "default": "3.0.3"
+        },
+        "info": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "contact": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "required": ["title", "version"]
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": {
+                "type": "string"
+              },
+              "environment": {
+                "type": "string",
+                "enum": ["development", "testing", "staging", "production"]
+              }
+            },
+            "required": ["url"]
+          }
+        },
+        "paths": {
+          "type": "object",
+          "patternProperties": {
+            "^/.*": {
+              "$ref": "#/$defs/PathItem"
+            }
+          }
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "schemas": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/SchemaDefinition"
+              }
+            },
+            "responses": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/ResponseDefinition"
+              }
+            },
+            "parameters": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/ParameterDefinition"
+              }
+            },
+            "securitySchemes": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/SecurityScheme"
+              }
+            }
+          }
+        },
+        "security": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": ["name"]
+          }
+        }
+      },
+      "required": ["openapi", "info", "paths"]
+    },
+    "PathItem": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "get": {
+          "$ref": "#/$defs/Operation"
+        },
+        "post": {
+          "$ref": "#/$defs/Operation"
+        },
+        "put": {
+          "$ref": "#/$defs/Operation"
+        },
+        "delete": {
+          "$ref": "#/$defs/Operation"
+        },
+        "patch": {
+          "$ref": "#/$defs/Operation"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParameterDefinition"
+          }
+        }
+      }
+    },
+    "Operation": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParameterDefinition"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/$defs/RequestBody"
+        },
+        "responses": {
+          "type": "object",
+          "patternProperties": {
+            "^[1-5][0-9][0-9]$|^default$": {
+              "$ref": "#/$defs/ResponseDefinition"
+            }
+          }
+        },
+        "security": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "domainMapping": {
+          "$ref": "#/$defs/OperationDomainMapping"
+        }
+      },
+      "required": ["operationId", "responses"]
+    },
+    "OperationDomainMapping": {
+      "type": "object",
+      "description": "Domain mapping for API operation",
+      "properties": {
+        "aggregate": {
+          "type": "string",
+          "description": "Target aggregate"
+        },
+        "entity": {
+          "type": "string",
+          "description": "Target entity"
+        },
+        "command": {
+          "type": "string",
+          "description": "Command pattern"
+        },
+        "query": {
+          "type": "string",
+          "description": "Query pattern"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Triggered domain events"
+        },
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Applied business rules"
+        }
+      }
+    },
+    "ParameterDefinition": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "in": {
+          "type": "string",
+          "enum": ["query", "header", "path", "cookie"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "schema": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "example": {}
+      },
+      "required": ["name", "in"]
+    },
+    "RequestBody": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "content": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$": {
+              "$ref": "#/$defs/MediaType"
+            }
+          }
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": ["content"]
+    },
+    "ResponseDefinition": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/HeaderDefinition"
+          }
+        },
+        "content": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$": {
+              "$ref": "#/$defs/MediaType"
+            }
+          }
+        }
+      },
+      "required": ["description"]
+    },
+    "MediaType": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "example": {},
+        "examples": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/Example"
+          }
+        }
+      }
+    },
+    "SchemaDefinition": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["null", "boolean", "object", "array", "number", "string", "integer"]
+        },
+        "format": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "items": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enum": {
+          "type": "array"
+        },
+        "default": {},
+        "example": {},
+        "pattern": {
+          "type": "string"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/$defs/SchemaDefinition"
+            }
+          ]
+        },
+        "$ref": {
+          "type": "string"
+        },
+        "allOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "oneOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "anyOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "domainType": {
+          "type": "string",
+          "enum": ["entity", "value_object", "aggregate_id", "domain_event", "command", "query_result"],
+          "description": "Domain type this schema represents"
+        },
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Business rules associated with this schema"
+        }
+      }
+    },
+    "HeaderDefinition": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "schema": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "example": {}
+      }
+    },
+    "Example": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {},
+        "externalValue": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "SecurityScheme": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["apiKey", "http", "oauth2", "openIdConnect"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "in": {
+          "type": "string",
+          "enum": ["query", "header", "cookie"]
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "bearerFormat": {
+          "type": "string"
+        }
+      },
+      "required": ["type"]
+    },
+    "DomainMapping": {
+      "type": "object",
+      "description": "Mapping between API and domain concepts",
+      "properties": {
+        "boundedContext": {
+          "type": "string",
+          "description": "Primary bounded context"
+        },
+        "aggregates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "operations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "domainEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string"
+              },
+              "triggeringOperations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ruleId": {
+                "type": "string"
+              },
+              "operations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["boundedContext"]
+    },
+    "VersionInfo": {
+      "type": "object",
+      "description": "Basic version information",
+      "properties": {
+        "current": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "supported": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          }
+        },
+        "deprecated": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          }
+        },
+        "versioningStrategy": {
+          "type": "string",
+          "enum": ["url_path", "query_parameter", "header"],
+          "default": "url_path"
+        }
+      },
+      "required": ["current"]
+    }
+  }
+}

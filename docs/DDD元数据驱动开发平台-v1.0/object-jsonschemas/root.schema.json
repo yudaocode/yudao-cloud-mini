@@ -1,68 +1,421 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/ddd-metamodel/2.0/root.schema.json",
-  "title": "DDD元数据模型根定义",
-  "description": "领域驱动设计元数据完整定义 - v2.0 (引用分层架构Schema)",
-  "version": "2.0.0",
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/ddd-metamodel/3.0/root.schema.json",
+  "title": "DDD元数据平台根定义",
+  "description": "基于项目驱动的六大域分层架构的DDD元数据完整定义 - v3.0",
+  "version": "3.0.0",
   "type": "object",
   "properties": {
     "version": {
       "type": "string",
       "description": "元模型版本",
-      "const": "2.0.0"
+      "const": "3.0.0"
     },
-    "projectMetadata": {
-      "$ref": "./project-metadata.schemas/full/project-metadata.schema.json",
-      "description": "项目元数据 - 包含项目信息、团队、技术栈、业务上下文和领域定义"
+    "project": {
+      "type": "object",
+      "description": "项目容器 - 顶级业务上下文，包含六大域的完整架构",
+      "properties": {
+        "projectContainer": {
+          "$ref": "./project-metadata.schemas/full/project-metadata.schema.json",
+          "description": "项目容器层 - 项目元数据、配置、团队信息"
+        },
+        "ubiquitousLanguageDomain": {
+          "type": "object",
+          "description": "统一语言域 - 项目级术语体系，包括业务术语、属性、规则",
+          "properties": {
+            "ubiquitousLanguage": {
+              "$ref": "./ubiquitous-language.schemas/full/ubiquitous-language.schema.json",
+              "description": "统一语言根定义"
+            },
+            "businessRules": {
+              "$ref": "./ubiquitous-language.schemas/full/business-rule.schema.json",
+              "description": "业务规则定义"
+            },
+            "validationRules": {
+              "$ref": "./validation.schemas/full/validation-rule.schema.json",
+              "description": "验证规则定义"
+            },
+            "calculationRules": {
+              "$ref": "./calculation.schemas/calculation.schema.json",
+              "description": "计算规则和公式定义"
+            },
+            "domainEventDefinitions": {
+              "$ref": "./domain-events.schemas/domain-event.schema.json",
+              "description": "领域事件标准定义模板"
+            }
+          },
+          "required": ["ubiquitousLanguage"],
+          "additionalProperties": false
+        },
+        "problemDomain": {
+          "type": "object",
+          "description": "问题域 - 要解决的业务问题，包括领域建模和业务规则对象",
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "$ref": "./project-metadata.schemas/full/domain.schema.json"
+              },
+              "description": "领域定义列表"
+            },
+            "subdomains": {
+              "type": "array",
+              "items": {
+                "$ref": "./strategic-design.schemas/full/subdomain.schema.json"
+              },
+              "description": "子域定义列表"
+            },
+            "aggregates": {
+              "type": "array",
+              "items": {
+                "$ref": "./tactical-design.schemas/full/aggregate.schema.json"
+              },
+              "description": "聚合定义列表"
+            },
+            "entities": {
+              "type": "array",
+              "items": {
+                "$ref": "./tactical-design.schemas/full/entity.schema.json"
+              },
+              "description": "实体定义列表"
+            },
+            "valueObjects": {
+              "type": "array",
+              "items": {
+                "$ref": "./tactical-design.schemas/full/value-object.schema.json"
+              },
+              "description": "值对象定义列表"
+            },
+            "domainEvents": {
+              "type": "array",
+              "items": {
+                "$ref": "./domain-events.schemas/full/domain-event-rule.schema.json"
+              },
+              "description": "领域事件定义列表 - 支持与业务规则深度集成的完整事件建模"
+            },
+            "specifications": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/specification"
+              },
+              "description": "规约模式定义列表"
+            },
+            "policies": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/policy"
+              },
+              "description": "策略模式定义列表"
+            },
+            "invariants": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/invariant"
+              },
+              "description": "不变式定义列表"
+            }
+          },
+          "required": ["domains"],
+          "additionalProperties": false
+        },
+        "solutionDomain": {
+          "type": "object",
+          "description": "解决方案域 - 技术实现方案，包括限界上下文、服务和集成",
+          "properties": {
+            "boundedContexts": {
+              "type": "array",
+              "items": {
+                "$ref": "./strategic-design.schemas/full/bounded-context.schema.json"
+              },
+              "description": "限界上下文定义列表"
+            },
+            "modules": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/module"
+              },
+              "description": "模块定义列表"
+            },
+            "domainServices": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/domainService"
+              },
+              "description": "领域服务定义列表"
+            },
+            "applicationServices": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/applicationService"
+              },
+              "description": "应用服务定义列表"
+            },
+            "adapters": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/adapter"
+              },
+              "description": "适配器定义列表"
+            },
+            "antiCorruptionLayers": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/antiCorruptionLayer"
+              },
+              "description": "防腐网关定义列表"
+            },
+            "externalSystems": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/externalSystem"
+              },
+              "description": "外部系统定义列表"
+            }
+          },
+          "required": ["boundedContexts"],
+          "additionalProperties": false
+        },
+        "userInterfaceDomain": {
+          "type": "object",
+          "description": "用户界面域 - 用户交互界面，包括屏幕定义、表单和组件",
+          "properties": {
+            "screenDefinitions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/screenDefinition"
+              },
+              "description": "屏幕定义列表"
+            },
+            "amisScreenDefinitions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/amisScreenDefinition"
+              },
+              "description": "Amis屏幕定义列表"
+            },
+            "formDefinitions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/formDefinition"
+              },
+              "description": "表单定义列表"
+            },
+            "layoutDefinitions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/layoutDefinition"
+              },
+              "description": "布局定义列表"
+            },
+            "componentDefinitions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/componentDefinition"
+              },
+              "description": "组件定义列表"
+            }
+          },
+          "additionalProperties": false
+        },
+        "communicationDomain": {
+          "type": "object",
+          "description": "通信接口域 - 对外暴露接口，包括SDK、API和数据传输对象",
+          "properties": {
+            "sdks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/sdk"
+              },
+              "description": "客户端SDK定义列表"
+            },
+            "apiSpecifications": {
+              "type": "array",
+              "items": {
+                "$ref": "./api-definition.schemas/full/api-specification-v3.schema.json"
+              },
+              "description": "API规范定义列表 - v3.0支持OpenAPI 3.0、契约测试、性能监控"
+            },
+            "dataTransferObjects": {
+              "$ref": "./data-transfer-objects.schemas/full/data-transfer-objects.schema.json",
+              "description": "数据传输对象完整定义"
+            },
+            "dtoMappingSpecifications": {
+              "type": "array",
+              "items": {
+                "$ref": "./dto-mapping.schemas/full/dto-mapping-specification.schema.json"
+              },
+              "description": "DTO映射和转换规则定义列表 - v3.0支持自动映射、复杂转换、性能优化"
+            },
+            "performanceMonitoringSpecifications": {
+              "type": "array",
+              "items": {
+                "$ref": "./performance-monitoring.schemas/full/performance-monitoring-specification.schema.json"
+              },
+              "description": "性能监控和度量系统定义列表 - v3.0支持企业级监控、SLA管理、负载测试"
+            },
+            "methodParameters": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/methodParameter"
+              },
+              "description": "方法参数定义列表"
+            },
+            "methodReturns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/methodReturn"
+              },
+              "description": "方法返回值定义列表"
+            }
+          },
+          "required": ["apiSpecifications"],
+          "additionalProperties": false
+        },
+        "infrastructureDomain": {
+          "type": "object",
+          "description": "基础设施域 - 技术支撑服务，包括持久化、通信、集成和技术服务",
+          "properties": {
+            "persistenceServices": {
+              "type": "object",
+              "properties": {
+                "repositories": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/repository"
+                  },
+                  "description": "仓储接口和实现"
+                },
+                "persistenceMapping": {
+                  "$ref": "./implementation-mapping.schemas/full/persistence-mapping.schema.json",
+                  "description": "持久化映射配置"
+                }
+              },
+              "additionalProperties": false
+            },
+            "communicationServices": {
+              "type": "object",
+              "properties": {
+                "messageSenders": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/messageSender"
+                  },
+                  "description": "消息发送器"
+                },
+                "eventBus": {
+                  "$ref": "#/$defs/eventBus",
+                  "description": "事件总线"
+                },
+                "notificationServices": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/notificationService"
+                  },
+                  "description": "通知服务"
+                }
+              },
+              "additionalProperties": false
+            },
+            "integrationServices": {
+              "type": "object",
+              "properties": {
+                "externalServiceClients": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/externalServiceClient"
+                  },
+                  "description": "外部服务客户端"
+                },
+                "integrationMapping": {
+                  "$ref": "./implementation-mapping.schemas/full/integration-mapping.schema.json",
+                  "description": "集成映射配置"
+                }
+              },
+              "additionalProperties": false
+            },
+            "technicalServices": {
+              "type": "object",
+              "properties": {
+                "cacheServices": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/cacheService"
+                  },
+                  "description": "缓存服务"
+                },
+                "logServices": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/logService"
+                  },
+                  "description": "日志服务"
+                },
+                "securityServices": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/securityService"
+                  },
+                  "description": "安全服务"
+                },
+                "architectureMapping": {
+                  "$ref": "./implementation-mapping.schemas/full/architecture-mapping.schema.json",
+                  "description": "架构映射配置"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "projectContainer",
+        "ubiquitousLanguageDomain", 
+        "problemDomain",
+        "solutionDomain",
+        "userInterfaceDomain",
+        "communicationDomain"
+      ],
+      "additionalProperties": false
     },
     "metadata": {
-      "$ref": "#/$defs/metadata"
-    },
-    "domain": {
-      "$ref": "#/$defs/domain"
-    },
-    "ubiquitousLanguage": {
-      "$ref": "./ubiquitous-language.schemas/full/ubiquitous-language.schema.json",
-      "description": "统一语言定义 - 业务术语、属性、关系和概念映射"
-    },
-    "strategicDesign": {
-      "$ref": "./strategic-design.schemas/full/strategic-design.schema.json",
-      "description": "战略设计 - 限界上下文、子域和上下文映射"
-    },
-    "tacticalDesign": {
-      "$ref": "./tactical-design.schemas/full/tactical-design.schema.json", 
-      "description": "战术设计 - 聚合根、实体、值对象和领域服务"
-    },
-    "dataTransferObjects": {
-      "$ref": "./data-transfer-objects.schemas/full/data-transfer-objects.schema.json",
-      "description": "数据传输对象 - DTO定义、映射规则和序列化配置"
-    },
-    "apiDefinition": {
-      "$ref": "./api-definition.schemas/full/api-specification.schema.json",
-      "description": "API定义模式 - OpenAPI规范、端点、参数和响应定义"
-    },
-    "implementationMapping": {
-      "$ref": "./implementation-mapping.schemas/full/implementation-mapping.schema.json",
-      "description": "实现映射 - 架构组件、持久化和集成配置"
-    },
-    "screenDefinition": {
-      "$ref": "./screen-definition.schemas/full/screen-definition.schema.json",
-      "description": "界面定义 - 页面组件、布局和交互设计"
-    },
-    "amisScreenDefinition": {
-      "$ref": "./screen-definition.schemas/full/amis-screen-definition.schema.json",
-      "description": "Amis界面定义 - 基于Amis框架的低代码界面配置"
+      "$ref": "#/$defs/metadata",
+      "description": "根级元数据信息"
     },
     "relationships": {
       "type": "array",
       "items": {
         "$ref": "#/$defs/relationship"
       },
-      "description": "Schema间关系定义"
+      "description": "域间和Schema间关系定义"
     },
-    "validation": {
-      "$ref": "./validation.schemas/full/validation-configuration.schema.json",
-      "description": "验证配置 - 数据验证规则和约束定义"
+    "crossDomainRelationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/crossDomainRelationship"
+      },
+      "description": "跨域关系定义"
+    },
+    "integrationPatterns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/integrationPattern"
+      },
+      "description": "集成模式定义"
+    },
+    "communicationProtocols": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/communicationProtocol"
+      },
+      "description": "通信协议定义"
+    },
+    "dataFlows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dataFlow"
+      },
+      "description": "数据流定义"
     },
     "isActive": {
       "type": "boolean",
@@ -72,7 +425,7 @@
   },
   "required": [
     "version", 
-    "projectMetadata", 
+    "project", 
     "metadata"
   ],
   "additionalProperties": false,
@@ -127,46 +480,6 @@
       "required": ["id", "name", "version"],
       "additionalProperties": false
     },
-    "domain": {
-      "type": "object",
-      "properties": {
-        "domainId": {
-          "type": "string",
-          "pattern": "^domain_[a-zA-Z0-9_]+$",
-          "description": "领域ID"
-        },
-        "name": {
-          "type": "string",
-          "description": "领域名称"
-        },
-        "description": {
-          "type": "string",
-          "description": "领域描述"
-        },
-        "type": {
-          "type": "string",
-          "enum": ["CORE", "SUPPORTING", "GENERIC"],
-          "description": "领域类型"
-        },
-        "priority": {
-          "type": "string",
-          "enum": ["HIGH", "MEDIUM", "LOW"],
-          "description": "优先级"
-        },
-        "complexity": {
-          "type": "string",
-          "enum": ["SIMPLE", "MEDIUM", "COMPLEX", "VERY_COMPLEX"],
-          "description": "复杂度"
-        },
-        "status": {
-          "type": "string",
-          "enum": ["PLANNED", "IN_PROGRESS", "COMPLETED", "ON_HOLD", "CANCELLED"],
-          "description": "状态"
-        }
-      },
-      "required": ["domainId", "name"],
-      "additionalProperties": false
-    },
     "relationship": {
       "type": "object",
       "properties": {
@@ -177,15 +490,18 @@
         },
         "source": {
           "type": "string",
-          "description": "源Schema"
+          "description": "源Schema或域"
         },
         "target": {
           "type": "string",
-          "description": "目标Schema"
+          "description": "目标Schema或域"
         },
         "type": {
           "type": "string",
-          "enum": ["DEPENDS_ON", "CONTAINS", "REFERENCES", "EXTENDS", "IMPLEMENTS"],
+          "enum": [
+            "DEPENDS_ON", "CONTAINS", "REFERENCES", "EXTENDS", "IMPLEMENTS",
+            "MAPS_TO", "EXPOSES", "DEFINES", "USES", "VALIDATES"
+          ],
           "description": "关系类型"
         },
         "cardinality": {
@@ -204,6 +520,1531 @@
         }
       },
       "required": ["relationshipId", "source", "target", "type"],
+      "additionalProperties": false
+    },
+    "specification": {
+      "type": "object",
+      "properties": {
+        "specificationId": {
+          "type": "string",
+          "pattern": "^spec_[a-zA-Z0-9_]+$",
+          "description": "规约ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "规约名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "规约描述"
+        },
+        "expression": {
+          "type": "string",
+          "description": "规约表达式"
+        },
+        "appliesTo": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "适用的对象类型"
+        },
+        "isComposite": {
+          "type": "boolean",
+          "description": "是否为组合规约",
+          "default": false
+        },
+        "compositeType": {
+          "type": "string",
+          "enum": ["AND", "OR", "NOT"],
+          "description": "组合类型"
+        },
+        "childSpecifications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "子规约ID列表"
+        }
+      },
+      "required": ["specificationId", "name", "expression"],
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string",
+          "pattern": "^policy_[a-zA-Z0-9_]+$",
+          "description": "策略ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "策略名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "策略描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["BUSINESS_RULE", "CALCULATION", "DECISION", "VALIDATION"],
+          "description": "策略类型"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["DOMAIN", "SUBDOMAIN", "BOUNDED_CONTEXT"],
+          "description": "策略作用域"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "关联的业务规则ID列表"
+        }
+      },
+      "required": ["policyId", "name", "type", "scope"],
+      "additionalProperties": false
+    },
+    "invariant": {
+      "type": "object",
+      "properties": {
+        "invariantId": {
+          "type": "string",
+          "pattern": "^inv_[a-zA-Z0-9_]+$",
+          "description": "不变式ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "不变式名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "不变式描述"
+        },
+        "condition": {
+          "type": "string",
+          "description": "不变式条件表达式"
+        },
+        "aggregateId": {
+          "type": "string",
+          "description": "所属聚合ID"
+        },
+        "violationMessage": {
+          "type": "string",
+          "description": "违反时的错误消息"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活",
+          "default": true
+        }
+      },
+      "required": ["invariantId", "name", "condition", "aggregateId"],
+      "additionalProperties": false
+    },
+    "domainEvent": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "pattern": "^event_[a-zA-Z0-9_]+$",
+          "description": "领域事件ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "事件名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "事件描述"
+        },
+        "aggregateId": {
+          "type": "string",
+          "description": "发布事件的聚合ID"
+        },
+        "eventData": {
+          "type": "object",
+          "description": "事件数据结构",
+          "additionalProperties": true
+        },
+        "isAsync": {
+          "type": "boolean",
+          "description": "是否异步处理",
+          "default": true
+        }
+      },
+      "required": ["eventId", "name", "aggregateId"],
+      "additionalProperties": false
+    },
+    "module": {
+      "type": "object",
+      "properties": {
+        "moduleId": {
+          "type": "string",
+          "pattern": "^module_[a-zA-Z0-9_]+$",
+          "description": "模块ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "模块名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "模块描述"
+        },
+        "boundedContexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "包含的限界上下文ID列表"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "依赖的模块ID列表"
+        }
+      },
+      "required": ["moduleId", "name"],
+      "additionalProperties": false
+    },
+    "domainService": {
+      "type": "object",
+      "properties": {
+        "serviceId": {
+          "type": "string",
+          "pattern": "^ds_[a-zA-Z0-9_]+$",
+          "description": "领域服务ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "服务名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "服务描述"
+        },
+        "boundedContextId": {
+          "type": "string",
+          "description": "所属限界上下文ID"
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/serviceMethod"
+          },
+          "description": "服务方法列表"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "依赖的仓储接口ID列表"
+        }
+      },
+      "required": ["serviceId", "name", "boundedContextId"],
+      "additionalProperties": false
+    },
+    "applicationService": {
+      "type": "object",
+      "properties": {
+        "serviceId": {
+          "type": "string",
+          "pattern": "^as_[a-zA-Z0-9_]+$",
+          "description": "应用服务ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "服务名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "服务描述"
+        },
+        "boundedContextId": {
+          "type": "string",
+          "description": "所属限界上下文ID"
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/serviceMethod"
+          },
+          "description": "服务方法列表"
+        },
+        "usedDomainServices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "使用的领域服务ID列表"
+        },
+        "exposedApis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "暴露的API端点ID列表"
+        }
+      },
+      "required": ["serviceId", "name", "boundedContextId"],
+      "additionalProperties": false
+    },
+    "serviceMethod": {
+      "type": "object",
+      "properties": {
+        "methodId": {
+          "type": "string",
+          "pattern": "^method_[a-zA-Z0-9_]+$",
+          "description": "方法ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "方法名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "方法描述"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/methodParameter"
+          },
+          "description": "方法参数列表"
+        },
+        "returnType": {
+          "$ref": "#/$defs/methodReturn",
+          "description": "返回值定义"
+        },
+        "isAsync": {
+          "type": "boolean",
+          "description": "是否异步方法",
+          "default": false
+        }
+      },
+      "required": ["methodId", "name"],
+      "additionalProperties": false
+    },
+    "methodParameter": {
+      "type": "object",
+      "properties": {
+        "parameterId": {
+          "type": "string",
+          "pattern": "^param_[a-zA-Z0-9_]+$",
+          "description": "参数ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "参数名称"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["DTO", "AGGREGATE_ROOT", "ENTITY", "VALUE_OBJECT", "PRIMITIVE"],
+          "description": "参数类型"
+        },
+        "typeReference": {
+          "type": "string",
+          "description": "类型引用ID"
+        },
+        "isOptional": {
+          "type": "boolean",
+          "description": "是否可选参数",
+          "default": false
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "验证规则ID列表"
+        }
+      },
+      "required": ["parameterId", "name", "type"],
+      "additionalProperties": false
+    },
+    "methodReturn": {
+      "type": "object",
+      "properties": {
+        "returnId": {
+          "type": "string",
+          "pattern": "^return_[a-zA-Z0-9_]+$",
+          "description": "返回值ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["DTO", "AGGREGATE_ROOT", "ENTITY", "VALUE_OBJECT", "PRIMITIVE", "VOID"],
+          "description": "返回值类型"
+        },
+        "typeReference": {
+          "type": "string",
+          "description": "类型引用ID"
+        },
+        "isCollection": {
+          "type": "boolean",
+          "description": "是否集合类型",
+          "default": false
+        },
+        "isPaginated": {
+          "type": "boolean",
+          "description": "是否分页结果",
+          "default": false
+        }
+      },
+      "required": ["returnId", "type"],
+      "additionalProperties": false
+    },
+    "adapter": {
+      "type": "object",
+      "properties": {
+        "adapterId": {
+          "type": "string",
+          "pattern": "^adapter_[a-zA-Z0-9_]+$",
+          "description": "适配器ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "适配器名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "适配器描述"
+        },
+        "boundedContextId": {
+          "type": "string",
+          "description": "所属限界上下文ID"
+        },
+        "externalSystemId": {
+          "type": "string",
+          "description": "连接的外部系统ID"
+        },
+        "protocolType": {
+          "type": "string",
+          "enum": ["HTTP", "GRPC", "MESSAGING", "DATABASE", "FILE"],
+          "description": "协议类型"
+        },
+        "mappingRules": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "数据映射规则"
+        }
+      },
+      "required": ["adapterId", "name", "boundedContextId", "externalSystemId"],
+      "additionalProperties": false
+    },
+    "antiCorruptionLayer": {
+      "type": "object",
+      "properties": {
+        "aclId": {
+          "type": "string",
+          "pattern": "^acl_[a-zA-Z0-9_]+$",
+          "description": "防腐网关ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "防腐网关名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "防腐网关描述"
+        },
+        "boundedContextId": {
+          "type": "string",
+          "description": "定义此防腐网关的限界上下文ID"
+        },
+        "protectedDomainModels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "受保护的领域模型ID列表"
+        },
+        "usedAdapters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "使用的适配器ID列表"
+        },
+        "translationRules": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "转换规则"
+        }
+      },
+      "required": ["aclId", "name", "boundedContextId"],
+      "additionalProperties": false
+    },
+    "externalSystem": {
+      "type": "object",
+      "properties": {
+        "systemId": {
+          "type": "string",
+          "pattern": "^ext_[a-zA-Z0-9_]+$",
+          "description": "外部系统ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "外部系统名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "外部系统描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["LEGACY_SYSTEM", "THIRD_PARTY_SERVICE", "EXTERNAL_API", "DATABASE"],
+          "description": "外部系统类型"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "系统端点"
+        },
+        "version": {
+          "type": "string",
+          "description": "系统版本"
+        },
+        "reliability": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"],
+          "description": "可靠性等级"
+        }
+      },
+      "required": ["systemId", "name", "type"],
+      "additionalProperties": false
+    },
+    "sdk": {
+      "type": "object",
+      "properties": {
+        "sdkId": {
+          "type": "string",
+          "pattern": "^sdk_[a-zA-Z0-9_]+$",
+          "description": "SDK ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "SDK名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "SDK描述"
+        },
+        "boundedContextId": {
+          "type": "string",
+          "description": "暴露此SDK的限界上下文ID"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["JAVA", "JAVASCRIPT", "PYTHON", "CSHARP", "GO"],
+          "description": "SDK语言"
+        },
+        "version": {
+          "type": "string",
+          "description": "SDK版本"
+        },
+        "apiSpecifications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "包含的API规范ID列表"
+        },
+        "dtoDefinitions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "定义的DTO ID列表"
+        }
+      },
+      "required": ["sdkId", "name", "boundedContextId", "language"],
+      "additionalProperties": false
+    },
+    "repository": {
+      "type": "object",
+      "properties": {
+        "repositoryId": {
+          "type": "string",
+          "pattern": "^repo_[a-zA-Z0-9_]+$",
+          "description": "仓储ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "仓储名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "仓储描述"
+        },
+        "aggregateRootId": {
+          "type": "string",
+          "description": "管理的聚合根ID"
+        },
+        "interfaceDefinition": {
+          "type": "object",
+          "description": "接口定义",
+          "additionalProperties": true
+        },
+        "implementationClass": {
+          "type": "string",
+          "description": "实现类"
+        },
+        "persistenceType": {
+          "type": "string",
+          "enum": ["RELATIONAL", "DOCUMENT", "KEY_VALUE", "GRAPH"],
+          "description": "持久化类型"
+        }
+      },
+      "required": ["repositoryId", "name", "aggregateRootId"],
+      "additionalProperties": false
+    },
+    "messageSender": {
+      "type": "object",
+      "properties": {
+        "senderId": {
+          "type": "string",
+          "pattern": "^sender_[a-zA-Z0-9_]+$",
+          "description": "消息发送器ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "发送器名称"
+        },
+        "messageType": {
+          "type": "string",
+          "enum": ["COMMAND", "EVENT", "QUERY"],
+          "description": "消息类型"
+        },
+        "protocol": {
+          "type": "string",
+          "enum": ["AMQP", "KAFKA", "HTTP", "GRPC"],
+          "description": "通信协议"
+        }
+      },
+      "required": ["senderId", "name", "messageType"],
+      "additionalProperties": false
+    },
+    "eventBus": {
+      "type": "object",
+      "properties": {
+        "busId": {
+          "type": "string",
+          "pattern": "^bus_[a-zA-Z0-9_]+$",
+          "description": "事件总线ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "事件总线名称"
+        },
+        "implementation": {
+          "type": "string",
+          "enum": ["IN_MEMORY", "KAFKA", "RABBITMQ", "AZURE_SERVICE_BUS"],
+          "description": "实现类型"
+        },
+        "supportedEvents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "支持的事件类型列表"
+        }
+      },
+      "required": ["busId", "name", "implementation"],
+      "additionalProperties": false
+    },
+    "notificationService": {
+      "type": "object",
+      "properties": {
+        "notificationId": {
+          "type": "string",
+          "pattern": "^notif_[a-zA-Z0-9_]+$",
+          "description": "通知服务ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "通知服务名称"
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["EMAIL", "SMS", "PUSH", "WEBHOOK"]
+          },
+          "description": "支持的通知渠道"
+        }
+      },
+      "required": ["notificationId", "name", "channels"],
+      "additionalProperties": false
+    },
+    "externalServiceClient": {
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "pattern": "^client_[a-zA-Z0-9_]+$",
+          "description": "外部服务客户端ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "客户端名称"
+        },
+        "externalSystemId": {
+          "type": "string",
+          "description": "目标外部系统ID"
+        },
+        "connectionType": {
+          "type": "string",
+          "enum": ["SYNCHRONOUS", "ASYNCHRONOUS"],
+          "description": "连接类型"
+        }
+      },
+      "required": ["clientId", "name", "externalSystemId"],
+      "additionalProperties": false
+    },
+    "cacheService": {
+      "type": "object",
+      "properties": {
+        "cacheId": {
+          "type": "string",
+          "pattern": "^cache_[a-zA-Z0-9_]+$",
+          "description": "缓存服务ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "缓存服务名称"
+        },
+        "implementation": {
+          "type": "string",
+          "enum": ["REDIS", "MEMCACHED", "IN_MEMORY", "HAZELCAST"],
+          "description": "缓存实现"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["APPLICATION", "SESSION", "REQUEST"],
+          "description": "缓存范围"
+        }
+      },
+      "required": ["cacheId", "name", "implementation"],
+      "additionalProperties": false
+    },
+    "logService": {
+      "type": "object",
+      "properties": {
+        "logId": {
+          "type": "string",
+          "pattern": "^log_[a-zA-Z0-9_]+$",
+          "description": "日志服务ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "日志服务名称"
+        },
+        "level": {
+          "type": "string",
+          "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR"],
+          "description": "日志级别"
+        },
+        "appender": {
+          "type": "string",
+          "enum": ["CONSOLE", "FILE", "ELASTICSEARCH", "SPLUNK"],
+          "description": "日志输出器"
+        }
+      },
+      "required": ["logId", "name", "level"],
+      "additionalProperties": false
+    },
+    "businessRule": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "pattern": "^rule_[a-zA-Z0-9_]+$",
+          "description": "业务规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "业务规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "业务规则描述"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["VALIDATION", "CALCULATION", "AUTHORIZATION", "WORKFLOW", "CONSTRAINT"],
+          "description": "业务规则类别"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+          "description": "规则优先级"
+        },
+        "implementationType": {
+          "type": "string",
+          "enum": ["SPECIFICATION", "POLICY", "INVARIANT", "HANDLER"],
+          "description": "实现类型"
+        },
+        "implementationId": {
+          "type": "string",
+          "description": "实现对象ID（规约、策略、不变式等）"
+        },
+        "appliedContexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "应用的限界上下文ID列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活",
+          "default": true
+        },
+        "effectiveDate": {
+          "type": "string",
+          "format": "date",
+          "description": "生效日期"
+        },
+        "expirationDate": {
+          "type": "string",
+          "format": "date",
+          "description": "失效日期"
+        }
+      },
+      "required": ["ruleId", "name", "category", "implementationType"],
+      "additionalProperties": false
+    },
+    "validationRule": {
+      "type": "object",
+      "properties": {
+        "validationId": {
+          "type": "string",
+          "pattern": "^val_[a-zA-Z0-9_]+$",
+          "description": "验证规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "验证规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "验证规则描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["REQUIRED", "FORMAT", "RANGE", "CUSTOM"],
+          "description": "验证类型"
+        },
+        "expression": {
+          "type": "string",
+          "description": "验证表达式"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "错误消息模板"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["ERROR", "WARNING", "INFO"],
+          "description": "验证严重级别"
+        },
+        "appliesTo": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "适用的字段或对象"
+        }
+      },
+      "required": ["validationId", "name", "type", "expression"],
+      "additionalProperties": false
+    },
+    "calculationRule": {
+      "type": "object",
+      "properties": {
+        "calculationId": {
+          "type": "string",
+          "pattern": "^calc_[a-zA-Z0-9_]+$",
+          "description": "计算规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "计算规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "计算规则描述"
+        },
+        "formula": {
+          "type": "string",
+          "description": "计算公式"
+        },
+        "inputParameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "required": {"type": "boolean", "default": true}
+            },
+            "required": ["name", "type"]
+          },
+          "description": "输入参数定义"
+        },
+        "outputType": {
+          "type": "string",
+          "description": "输出类型"
+        },
+        "precision": {
+          "type": "integer",
+          "description": "计算精度"
+        },
+        "roundingMode": {
+          "type": "string",
+          "enum": ["UP", "DOWN", "CEILING", "FLOOR", "HALF_UP", "HALF_DOWN", "HALF_EVEN"],
+          "description": "舍入模式"
+        }
+      },
+      "required": ["calculationId", "name", "formula", "outputType"],
+      "additionalProperties": false
+    },
+    "authorizationRule": {
+      "type": "object",
+      "properties": {
+        "authorizationId": {
+          "type": "string",
+          "pattern": "^auth_[a-zA-Z0-9_]+$",
+          "description": "授权规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "授权规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "授权规则描述"
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "资源类型"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["CREATE", "READ", "UPDATE", "DELETE", "EXECUTE"],
+          "description": "操作类型"
+        },
+        "condition": {
+          "type": "string",
+          "description": "授权条件表达式"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "适用角色列表"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "所需权限列表"
+        },
+        "isContextSensitive": {
+          "type": "boolean",
+          "description": "是否上下文敏感",
+          "default": false
+        }
+      },
+      "required": ["authorizationId", "name", "resourceType", "action"],
+      "additionalProperties": false
+    },
+    "workflowRule": {
+      "type": "object",
+      "properties": {
+        "workflowId": {
+          "type": "string",
+          "pattern": "^wf_[a-zA-Z0-9_]+$",
+          "description": "工作流规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "工作流规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "工作流规则描述"
+        },
+        "triggerCondition": {
+          "type": "string",
+          "description": "触发条件"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stepId": {"type": "string"},
+              "name": {"type": "string"},
+              "action": {"type": "string"},
+              "condition": {"type": "string"},
+              "nextSteps": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "required": ["stepId", "name", "action"]
+          },
+          "description": "工作流步骤"
+        },
+        "timeoutDuration": {
+          "type": "string",
+          "description": "超时时长"
+        },
+        "errorHandling": {
+          "type": "object",
+          "description": "错误处理策略"
+        }
+      },
+      "required": ["workflowId", "name", "triggerCondition", "steps"],
+      "additionalProperties": false
+    },
+    "crossDomainRelationship": {
+      "type": "object",
+      "properties": {
+        "relationshipId": {
+          "type": "string",
+          "pattern": "^crossrel_[a-zA-Z0-9_]+$",
+          "description": "跨域关系ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "跨域关系名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "跨域关系描述"
+        },
+        "sourceDomain": {
+          "type": "string",
+          "enum": ["UBIQUITOUS_LANGUAGE", "PROBLEM", "SOLUTION", "COMMUNICATION", "INFRASTRUCTURE"],
+          "description": "源域"
+        },
+        "targetDomain": {
+          "type": "string",
+          "enum": ["UBIQUITOUS_LANGUAGE", "PROBLEM", "SOLUTION", "COMMUNICATION", "INFRASTRUCTURE"],
+          "description": "目标域"
+        },
+        "sourceEntityId": {
+          "type": "string",
+          "description": "源实体ID"
+        },
+        "targetEntityId": {
+          "type": "string",
+          "description": "目标实体ID"
+        },
+        "relationshipType": {
+          "type": "string",
+          "enum": [
+            "DEFINES", "IMPLEMENTS", "USES", "EXPOSES", "MANAGES", "VALIDATES",
+            "TRANSFORMS", "ROUTES", "CACHES", "LOGS", "SECURES", "MONITORS"
+          ],
+          "description": "跨域关系类型"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["UNIDIRECTIONAL", "BIDIRECTIONAL"],
+          "description": "关系方向"
+        },
+        "strength": {
+          "type": "string",
+          "enum": ["STRONG", "MEDIUM", "WEAK"],
+          "description": "关系强度"
+        },
+        "synchronization": {
+          "type": "string",
+          "enum": ["SYNCHRONOUS", "ASYNCHRONOUS", "EVENT_DRIVEN"],
+          "description": "同步方式"
+        },
+        "consistency": {
+          "type": "string",
+          "enum": ["STRONG", "EVENTUAL", "WEAK"],
+          "description": "一致性要求"
+        },
+        "patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "使用的集成模式ID列表"
+        },
+        "protocols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "使用的通信协议ID列表"
+        },
+        "dataFlows": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "关联的数据流ID列表"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["PERFORMANCE", "SECURITY", "AVAILABILITY", "SCALABILITY"]
+              },
+              "description": {"type": "string"},
+              "value": {"type": "string"}
+            },
+            "required": ["type", "description"]
+          },
+          "description": "关系约束"
+        }
+      },
+      "required": ["relationshipId", "sourceDomain", "targetDomain", "sourceEntityId", "targetEntityId", "relationshipType"],
+      "additionalProperties": false
+    },
+    "integrationPattern": {
+      "type": "object",
+      "properties": {
+        "patternId": {
+          "type": "string",
+          "pattern": "^pattern_[a-zA-Z0-9_]+$",
+          "description": "集成模式ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "集成模式名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "集成模式描述"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "MESSAGING", "DATABASE", "FILE_TRANSFER", "RPC", "REST_API",
+            "SHARED_DATABASE", "EVENT_STREAMING", "BATCH_PROCESSING"
+          ],
+          "description": "集成模式类别"
+        },
+        "style": {
+          "type": "string",
+          "enum": ["SYNCHRONOUS", "ASYNCHRONOUS", "HYBRID"],
+          "description": "集成风格"
+        },
+        "coupling": {
+          "type": "string",
+          "enum": ["TIGHT", "LOOSE", "DECOUPLED"],
+          "description": "耦合度"
+        },
+        "reliability": {
+          "type": "string",
+          "enum": ["AT_MOST_ONCE", "AT_LEAST_ONCE", "EXACTLY_ONCE"],
+          "description": "可靠性保证"
+        },
+        "transactionSupport": {
+          "type": "boolean",
+          "description": "是否支持事务",
+          "default": false
+        },
+        "orderingGuarantee": {
+          "type": "boolean",
+          "description": "是否保证顺序",
+          "default": false
+        },
+        "errorHandling": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["RETRY", "DEAD_LETTER", "CIRCUIT_BREAKER", "BULKHEAD"]
+            },
+            "maxRetries": {"type": "integer"},
+            "retryInterval": {"type": "string"},
+            "timeoutDuration": {"type": "string"}
+          },
+          "description": "错误处理配置"
+        },
+        "performanceCharacteristics": {
+          "type": "object",
+          "properties": {
+            "throughput": {"type": "string"},
+            "latency": {"type": "string"},
+            "scalability": {"type": "string"}
+          },
+          "description": "性能特征"
+        },
+        "implementationGuidelines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "实现指导"
+        },
+        "applicableScenarios": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "适用场景"
+        }
+      },
+      "required": ["patternId", "name", "category", "style"],
+      "additionalProperties": false
+    },
+    "communicationProtocol": {
+      "type": "object",
+      "properties": {
+        "protocolId": {
+          "type": "string",
+          "pattern": "^proto_[a-zA-Z0-9_]+$",
+          "description": "通信协议ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "协议名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "协议描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["HTTP", "HTTPS", "GRPC", "WEBSOCKET", "AMQP", "KAFKA", "TCP", "UDP"],
+          "description": "协议类型"
+        },
+        "layer": {
+          "type": "string",
+          "enum": ["APPLICATION", "TRANSPORT", "NETWORK", "DATA_LINK"],
+          "description": "协议层次"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["JSON", "XML", "PROTOBUF", "AVRO", "BINARY", "TEXT"],
+          "description": "数据格式"
+        },
+        "encoding": {
+          "type": "string",
+          "enum": ["UTF8", "ASCII", "BINARY"],
+          "description": "编码方式"
+        },
+        "security": {
+          "type": "object",
+          "properties": {
+            "encryption": {"type": "boolean", "default": false},
+            "authentication": {"type": "boolean", "default": false},
+            "authorization": {"type": "boolean", "default": false},
+            "integrityCheck": {"type": "boolean", "default": false}
+          },
+          "description": "安全特性"
+        },
+        "qosParameters": {
+          "type": "object",
+          "properties": {
+            "reliability": {"type": "string"},
+            "durability": {"type": "boolean"},
+            "ordering": {"type": "boolean"},
+            "deliveryGuarantee": {
+              "type": "string",
+              "enum": ["AT_MOST_ONCE", "AT_LEAST_ONCE", "EXACTLY_ONCE"]
+            }
+          },
+          "description": "服务质量参数"
+        },
+        "configuration": {
+          "type": "object",
+          "description": "协议配置参数",
+          "additionalProperties": true
+        },
+        "supportedPatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "支持的集成模式ID列表"
+        }
+      },
+      "required": ["protocolId", "name", "type"],
+      "additionalProperties": false
+    },
+    "dataFlow": {
+      "type": "object",
+      "properties": {
+        "flowId": {
+          "type": "string",
+          "pattern": "^flow_[a-zA-Z0-9_]+$",
+          "description": "数据流ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "数据流名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "数据流描述"
+        },
+        "sourceType": {
+          "type": "string",
+          "enum": ["DOMAIN", "BOUNDED_CONTEXT", "AGGREGATE", "SERVICE", "EXTERNAL_SYSTEM"],
+          "description": "源类型"
+        },
+        "sourceId": {
+          "type": "string",
+          "description": "源ID"
+        },
+        "targetType": {
+          "type": "string",
+          "enum": ["DOMAIN", "BOUNDED_CONTEXT", "AGGREGATE", "SERVICE", "EXTERNAL_SYSTEM"],
+          "description": "目标类型"
+        },
+        "targetId": {
+          "type": "string",
+          "description": "目标ID"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "数据类型"
+        },
+        "dataSchema": {
+          "type": "string",
+          "description": "数据Schema ID"
+        },
+        "transformationRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ruleId": {"type": "string"},
+              "description": {"type": "string"},
+              "transformation": {"type": "string"},
+              "conditions": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "required": ["ruleId", "transformation"]
+          },
+          "description": "数据转换规则"
+        },
+        "frequency": {
+          "type": "string",
+          "enum": ["REAL_TIME", "BATCH", "SCHEDULED", "EVENT_DRIVEN"],
+          "description": "数据流频率"
+        },
+        "volume": {
+          "type": "object",
+          "properties": {
+            "estimated": {"type": "string"},
+            "peak": {"type": "string"},
+            "unit": {"type": "string", "enum": ["RECORDS_PER_SECOND", "MB_PER_SECOND", "GB_PER_HOUR"]}
+          },
+          "description": "数据量估算"
+        },
+        "latencyRequirement": {
+          "type": "string",
+          "description": "延迟要求"
+        },
+        "qualityRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ruleId": {"type": "string"},
+              "type": {"type": "string", "enum": ["COMPLETENESS", "ACCURACY", "CONSISTENCY", "TIMELINESS"]},
+              "criteria": {"type": "string"},
+              "threshold": {"type": "string"}
+            },
+            "required": ["ruleId", "type", "criteria"]
+          },
+          "description": "数据质量规则"
+        },
+        "monitoringPoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pointId": {"type": "string"},
+              "location": {"type": "string"},
+              "metrics": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "required": ["pointId", "location"]
+          },
+          "description": "监控点"
+        }
+      },
+      "required": ["flowId", "name", "sourceType", "sourceId", "targetType", "targetId"],
+      "additionalProperties": false
+    },
+    "screenDefinition": {
+      "$ref": "./screen-definition.schemas/full/screen-definition.schema.json",
+      "description": "屏幕定义 - 通用的屏幕界面结构和布局规范"
+    },
+    "amisScreenDefinition": {
+      "$ref": "./screen-definition.schemas/full/amis-screen-definition.schema.json",
+      "description": "Amis屏幕定义 - 基于Amis框架的具体屏幕实现配置"
+    },
+    "formDefinition": {
+      "type": "object",
+      "properties": {
+        "formId": {
+          "type": "string",
+          "pattern": "^form_[a-zA-Z0-9_]+$",
+          "description": "表单ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "表单名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "表单描述"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fieldId": {"type": "string"},
+              "label": {"type": "string"},
+              "type": {"type": "string"},
+              "required": {"type": "boolean"},
+              "validation": {"type": "object"}
+            },
+            "required": ["fieldId", "label", "type"]
+          },
+          "description": "表单字段"
+        },
+        "layout": {
+          "type": "string",
+          "enum": ["horizontal", "vertical", "inline"],
+          "description": "表单布局"
+        },
+        "submitAction": {
+          "type": "string",
+          "description": "提交动作"
+        }
+      },
+      "required": ["formId", "name", "fields"],
+      "additionalProperties": false
+    },
+    "layoutDefinition": {
+      "type": "object",
+      "properties": {
+        "layoutId": {
+          "type": "string",
+          "pattern": "^layout_[a-zA-Z0-9_]+$",
+          "description": "布局ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "布局名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "布局描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["grid", "flex", "absolute", "flow"],
+          "description": "布局类型"
+        },
+        "containers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "containerId": {"type": "string"},
+              "position": {"type": "object"},
+              "size": {"type": "object"},
+              "style": {"type": "object"}
+            },
+            "required": ["containerId"]
+          },
+          "description": "容器定义"
+        },
+        "responsive": {
+          "type": "object",
+          "properties": {
+            "breakpoints": {"type": "object"},
+            "rules": {"type": "array"}
+          },
+          "description": "响应式设计规则"
+        }
+      },
+      "required": ["layoutId", "name", "type"],
+      "additionalProperties": false
+    },
+    "componentDefinition": {
+      "type": "object",
+      "properties": {
+        "componentId": {
+          "type": "string",
+          "pattern": "^comp_[a-zA-Z0-9_]+$",
+          "description": "组件ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "组件名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "组件描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["button", "input", "select", "table", "chart", "custom"],
+          "description": "组件类型"
+        },
+        "properties": {
+          "type": "object",
+          "description": "组件属性"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "eventType": {"type": "string"},
+              "handler": {"type": "string"},
+              "parameters": {"type": "object"}
+            },
+            "required": ["eventType", "handler"]
+          },
+          "description": "事件定义"
+        },
+        "style": {
+          "type": "object",
+          "description": "样式定义"
+        },
+        "validation": {
+          "type": "object",
+          "description": "验证规则"
+        }
+      },
+      "required": ["componentId", "name", "type"],
       "additionalProperties": false
     }
   }

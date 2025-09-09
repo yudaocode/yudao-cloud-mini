@@ -1,0 +1,661 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "domain-event-fields.schema.json",
+  "version": "3.0.0",
+  "title": "Domain Event Field Components",
+  "description": "Reusable field components for domain event schemas",
+  "type": "object",
+  "$defs": {
+    "EventIdentifier": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+      "minLength": 3,
+      "maxLength": 50,
+      "description": "Standard format for event identifiers"
+    },
+    "EventName": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 100,
+      "description": "Human-readable event name"
+    },
+    "EventVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version for event schema"
+    },
+    "EventTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp"
+    },
+    "EventCategory": {
+      "type": "string",
+      "enum": [
+        "domain",
+        "integration", 
+        "application",
+        "infrastructure",
+        "system",
+        "user_interaction",
+        "business_process",
+        "data_change",
+        "security",
+        "audit"
+      ],
+      "description": "Categorization of domain events"
+    },
+    "EventPriority": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical", "emergency"],
+      "description": "Priority level for event processing"
+    },
+    "EventType": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated", 
+        "deleted",
+        "status_changed",
+        "workflow_started",
+        "workflow_completed",
+        "workflow_failed",
+        "business_rule_triggered",
+        "validation_failed",
+        "integration_event",
+        "notification_sent",
+        "calculation_completed",
+        "audit_logged",
+        "security_breach",
+        "performance_threshold_exceeded",
+        "custom"
+      ],
+      "description": "Standard event types in DDD"
+    },
+    "AggregateIdentifier": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/AggregateType"
+        },
+        "id": {
+          "$ref": "#/$defs/UniqueIdentifier"
+        },
+        "version": {
+          "$ref": "#/$defs/AggregateVersion"
+        }
+      },
+      "required": ["type", "id"],
+      "description": "Identifier for aggregate root that produces events"
+    },
+    "AggregateType": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*$",
+      "minLength": 2,
+      "maxLength": 50,
+      "description": "Aggregate root type name in PascalCase"
+    },
+    "AggregateVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Version of aggregate when event was produced"
+    },
+    "UniqueIdentifier": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID format identifier"
+        },
+        {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Alphanumeric identifier with underscores and hyphens"
+        },
+        {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Positive integer identifier"
+        }
+      ]
+    },
+    "CorrelationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID for correlating related events across boundaries"
+    },
+    "CausationId": {
+      "type": "string",
+      "format": "uuid", 
+      "description": "UUID identifying the direct cause of this event"
+    },
+    "BusinessRuleId": {
+      "type": "string",
+      "pattern": "^BR_[A-Z0-9_]+$",
+      "description": "Business rule identifier with BR_ prefix"
+    },
+    "EventHandler": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/EventIdentifier"
+        },
+        "name": {
+          "$ref": "#/$defs/EventName"
+        },
+        "type": {
+          "$ref": "#/$defs/HandlerType"
+        },
+        "implementation": {
+          "$ref": "#/$defs/HandlerImplementation"
+        },
+        "configuration": {
+          "$ref": "#/$defs/HandlerConfiguration"
+        }
+      },
+      "required": ["id", "name", "type", "implementation"]
+    },
+    "HandlerType": {
+      "type": "string",
+      "enum": [
+        "business_logic",
+        "projection",
+        "saga",
+        "notification",
+        "integration",
+        "audit",
+        "monitoring",
+        "compensation",
+        "validation",
+        "calculation"
+      ],
+      "description": "Type of event handler"
+    },
+    "HandlerImplementation": {
+      "type": "object",
+      "properties": {
+        "class": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9._]*$",
+          "description": "Fully qualified class name"
+        },
+        "method": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "description": "Handler method name"
+        },
+        "async": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether handler executes asynchronously"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Handler configuration parameters"
+        }
+      },
+      "required": ["class", "method"]
+    },
+    "HandlerConfiguration": {
+      "type": "object",
+      "properties": {
+        "timeout": {
+          "$ref": "#/$defs/Duration"
+        },
+        "retryPolicy": {
+          "$ref": "#/$defs/RetryPolicy"
+        },
+        "errorHandling": {
+          "$ref": "#/$defs/ErrorHandling"
+        },
+        "performance": {
+          "$ref": "#/$defs/PerformanceConfig"
+        }
+      }
+    },
+    "Duration": {
+      "type": "string",
+      "pattern": "^\\d+[smhd]$",
+      "description": "Duration format: number followed by s(econds), m(inutes), h(ours), or d(ays)"
+    },
+    "RetryPolicy": {
+      "type": "object",
+      "properties": {
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3
+        },
+        "backoffStrategy": {
+          "type": "string",
+          "enum": ["fixed", "exponential", "linear", "custom"],
+          "default": "exponential"
+        },
+        "initialDelay": {
+          "$ref": "#/$defs/Duration"
+        },
+        "maxDelay": {
+          "$ref": "#/$defs/Duration"
+        },
+        "jitter": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add random jitter to retry delays"
+        }
+      }
+    },
+    "ErrorHandling": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "retry",
+            "dead_letter",
+            "ignore",
+            "compensate",
+            "escalate",
+            "circuit_breaker"
+          ],
+          "default": "retry"
+        },
+        "deadLetterQueue": {
+          "type": "string",
+          "description": "Dead letter queue name for failed events"
+        },
+        "compensation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "handler": {
+              "type": "string",
+              "description": "Compensation handler implementation"
+            }
+          }
+        },
+        "escalation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "threshold": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "recipients": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "email"
+              }
+            }
+          }
+        }
+      }
+    },
+    "PerformanceConfig": {
+      "type": "object",
+      "properties": {
+        "batchSize": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 1,
+          "description": "Number of events to process in a batch"
+        },
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 1,
+          "description": "Maximum concurrent handler executions"
+        },
+        "bufferSize": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 10000,
+          "default": 100,
+          "description": "Event buffer size"
+        },
+        "processingTimeout": {
+          "$ref": "#/$defs/Duration"
+        }
+      }
+    },
+    "EventCondition": {
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Boolean expression for condition evaluation"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["SPEL", "MVEL", "JAVASCRIPT", "GROOVY", "JEXL", "JSONPath"],
+          "default": "SPEL",
+          "description": "Expression language for condition"
+        },
+        "variables": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Variables available in expression context"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "External dependencies required for evaluation"
+        }
+      },
+      "required": ["expression"]
+    },
+    "EventMetrics": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "standardMetrics": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "boolean",
+              "default": true,
+              "description": "Track event count"
+            },
+            "processingTime": {
+              "type": "boolean",
+              "default": true,
+              "description": "Track processing duration"
+            },
+            "errorRate": {
+              "type": "boolean",
+              "default": true,
+              "description": "Track error rate"
+            },
+            "throughput": {
+              "type": "boolean",
+              "default": true,
+              "description": "Track events per second"
+            }
+          }
+        },
+        "customMetrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["counter", "gauge", "histogram", "timer", "summary"]
+              },
+              "description": {
+                "type": "string"
+              },
+              "labels": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "extractor": {
+                "type": "string",
+                "description": "Expression to extract metric value from event"
+              }
+            },
+            "required": ["name", "type", "extractor"]
+          }
+        }
+      }
+    },
+    "EventSecurity": {
+      "type": "object",
+      "properties": {
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": ["AES-256", "RSA-2048", "ChaCha20-Poly1305"],
+              "default": "AES-256"
+            },
+            "keyManagement": {
+              "type": "string",
+              "enum": ["static", "rotating", "vault"],
+              "default": "vault"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields to encrypt in event payload"
+            }
+          }
+        },
+        "authentication": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": false
+            },
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["JWT", "OAuth2", "API_KEY", "CERTIFICATE"]
+              }
+            }
+          }
+        },
+        "authorization": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "permissions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required permissions to process event"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required roles to process event"
+            }
+          }
+        },
+        "audit": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": true
+            },
+            "level": {
+              "type": "string",
+              "enum": ["basic", "detailed", "comprehensive"],
+              "default": "basic"
+            },
+            "includePayload": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    },
+    "EventRouting": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "broadcast",
+            "round_robin", 
+            "topic_based",
+            "content_based",
+            "hash_based",
+            "priority_based",
+            "location_based"
+          ],
+          "default": "broadcast"
+        },
+        "routingKey": {
+          "type": "string",
+          "description": "Key used for routing decisions"
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "$ref": "#/$defs/EventCondition"
+              },
+              "target": {
+                "type": "string",
+                "description": "Target destination for filtered events"
+              },
+              "priority": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Filter priority (lower numbers evaluated first)"
+              }
+            },
+            "required": ["condition", "target"]
+          }
+        },
+        "loadBalancing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": ["round_robin", "weighted", "least_connections", "random"],
+              "default": "round_robin"
+            },
+            "weights": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "EventValidation": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "schemaValidation": {
+          "type": "object",
+          "properties": {
+            "strict": {
+              "type": "boolean",
+              "default": true
+            },
+            "allowAdditionalProperties": {
+              "type": "boolean",
+              "default": false
+            },
+            "validateFormats": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "businessValidation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "condition": {
+                    "$ref": "#/$defs/EventCondition"
+                  },
+                  "errorMessage": {
+                    "type": "string"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": ["error", "warning", "info"],
+                    "default": "error"
+                  }
+                },
+                "required": ["name", "condition", "errorMessage"]
+              }
+            }
+          }
+        },
+        "customValidators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "implementation": {
+                "type": "string",
+                "description": "Validator implementation class"
+              },
+              "configuration": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "required": ["name", "implementation"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.ddd-platform.com/performance-monitoring/performance-monitoring-core.schema.json",
+  "title": "性能监控核心Schema",
+  "description": "简化的性能监控Schema - 适用于基本监控需求",
+  "type": "object",
+  "version": "3.0.0",
+  "properties": {
+    "monitoringDefinition": {
+      "$ref": "#/$defs/CoreMonitoringDefinition"
+    }
+  },
+  "required": ["monitoringDefinition"],
+  "$defs": {
+    "CoreMonitoringDefinition": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "fields/performance-monitoring-fields.schema.json#/$defs/MetricIdentifier"
+            },
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": ["id", "name", "version"]
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CoreMetric"
+          },
+          "description": "核心度量定义"
+        },
+        "alerts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CoreAlert"
+          },
+          "description": "核心告警定义"
+        },
+        "dashboard": {
+          "$ref": "#/$defs/CoreDashboard",
+          "description": "核心仪表板"
+        },
+        "configuration": {
+          "type": "object",
+          "properties": {
+            "collectionInterval": {
+              "type": "string",
+              "enum": ["1s", "5s", "10s", "30s", "1m"],
+              "default": "10s"
+            },
+            "storage": {
+              "type": "string",
+              "enum": ["PROMETHEUS", "INFLUXDB", "MEMORY"],
+              "default": "PROMETHEUS"
+            },
+            "retention": {
+              "type": "string",
+              "default": "7d"
+            }
+          }
+        }
+      },
+      "required": ["metadata", "metrics"],
+      "description": "核心监控定义"
+    },
+    
+    "CoreMetric": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "fields/performance-monitoring-fields.schema.json#/$defs/MetricName"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["COUNTER", "GAUGE", "HISTOGRAM", "TIMER"],
+          "description": "度量类型"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["SECONDS", "MILLISECONDS", "COUNT", "BYTES", "PERCENT"],
+          "description": "度量单位"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "标签"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": ["name", "type", "unit"],
+      "description": "核心度量定义"
+    },
+    
+    "CoreAlert": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "告警名称"
+        },
+        "metricName": {
+          "$ref": "fields/performance-monitoring-fields.schema.json#/$defs/MetricName"
+        },
+        "condition": {
+          "type": "object",
+          "properties": {
+            "operator": {
+              "type": "string",
+              "enum": ["GT", "LT", "EQ", "NEQ"],
+              "description": "比较操作符"
+            },
+            "threshold": {
+              "type": "number",
+              "description": "阈值"
+            },
+            "duration": {
+              "type": "string",
+              "default": "5m",
+              "description": "持续时间"
+            }
+          },
+          "required": ["operator", "threshold"]
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["INFO", "WARNING", "CRITICAL"],
+          "default": "WARNING"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "notifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["EMAIL", "SLACK", "WEBHOOK"]
+              },
+              "target": {
+                "type": "string"
+              }
+            },
+            "required": ["type", "target"]
+          }
+        }
+      },
+      "required": ["name", "metricName", "condition", "severity"],
+      "description": "核心告警定义"
+    },
+    
+    "CoreDashboard": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "仪表板标题"
+        },
+        "charts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["line", "bar", "gauge", "stat"]
+              },
+              "metricName": {
+                "$ref": "fields/performance-monitoring-fields.schema.json#/$defs/MetricName"
+              },
+              "aggregation": {
+                "type": "string",
+                "enum": ["avg", "sum", "max", "min"],
+                "default": "avg"
+              },
+              "timeRange": {
+                "type": "string",
+                "enum": ["5m", "15m", "1h", "6h", "1d"],
+                "default": "1h"
+              }
+            },
+            "required": ["title", "type", "metricName"]
+          }
+        },
+        "refreshInterval": {
+          "type": "string",
+          "enum": ["5s", "10s", "30s", "1m", "5m"],
+          "default": "30s"
+        }
+      },
+      "required": ["title", "charts"],
+      "description": "核心仪表板定义"
+    }
+  }
+}

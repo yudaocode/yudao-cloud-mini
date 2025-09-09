@@ -1,0 +1,392 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.ddd-platform.com/performance-monitoring/fields/performance-monitoring-fields.schema.json",
+  "title": "性能监控字段组件",
+  "description": "性能监控系统的可复用字段组件库",
+  "type": "object",
+  "$defs": {
+    "MetricIdentifier": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_.-]*$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "度量标识符"
+    },
+    
+    "MetricName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_.-]*$",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "度量名称"
+    },
+    
+    "MetricType": {
+      "type": "string",
+      "enum": [
+        "COUNTER",
+        "GAUGE", 
+        "HISTOGRAM",
+        "TIMER",
+        "DISTRIBUTION_SUMMARY",
+        "FUNCTION_COUNTER",
+        "FUNCTION_TIMER",
+        "TIME_GAUGE"
+      ],
+      "description": "度量类型"
+    },
+    
+    "MetricUnit": {
+      "type": "string",
+      "enum": [
+        "NANOSECONDS",
+        "MICROSECONDS", 
+        "MILLISECONDS",
+        "SECONDS",
+        "MINUTES",
+        "HOURS",
+        "DAYS",
+        "BYTES",
+        "KILOBYTES",
+        "MEGABYTES",
+        "GIGABYTES",
+        "TERABYTES",
+        "BITS",
+        "KILOBITS",
+        "MEGABITS",
+        "GIGABITS",
+        "PERCENT",
+        "COUNT",
+        "EVENTS",
+        "REQUESTS",
+        "OPERATIONS",
+        "NONE"
+      ],
+      "description": "度量单位"
+    },
+    
+    "AlertSeverity": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARNING", 
+        "CRITICAL",
+        "FATAL"
+      ],
+      "description": "告警严重等级"
+    },
+    
+    "AlertState": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "RESOLVED",
+        "SUPPRESSED", 
+        "PENDING"
+      ],
+      "description": "告警状态"
+    },
+    
+    "SamplingStrategy": {
+      "type": "string",
+      "enum": [
+        "FIXED_RATE",
+        "ADAPTIVE",
+        "PROBABILISTIC",
+        "RATE_LIMITING", 
+        "RESERVOIR"
+      ],
+      "description": "采样策略"
+    },
+    
+    "AggregationFunction": {
+      "type": "string",
+      "enum": [
+        "SUM",
+        "COUNT", 
+        "AVG",
+        "MIN",
+        "MAX",
+        "MEDIAN",
+        "P95",
+        "P99",
+        "P999",
+        "STDDEV",
+        "RATE",
+        "INCREASE"
+      ],
+      "description": "聚合函数"
+    },
+    
+    "TimeWindow": {
+      "type": "object",
+      "properties": {
+        "duration": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "时间窗口长度"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["SECONDS", "MINUTES", "HOURS", "DAYS"],
+          "description": "时间单位"
+        },
+        "sliding": {
+          "type": "boolean",
+          "description": "是否为滑动窗口"
+        },
+        "offset": {
+          "type": "integer",
+          "description": "偏移量"
+        }
+      },
+      "required": ["duration", "unit"],
+      "description": "时间窗口定义"
+    },
+    
+    "Threshold": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "description": "阈值"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["GT", "GTE", "LT", "LTE", "EQ", "NEQ"],
+          "description": "比较操作符"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用"
+        }
+      },
+      "required": ["value", "operator"],
+      "description": "阈值定义"
+    },
+    
+    "MetricTags": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "度量标签键值对"
+    },
+    
+    "DataRetention": {
+      "type": "object",
+      "properties": {
+        "shortTerm": {
+          "type": "object",
+          "properties": {
+            "duration": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["HOURS", "DAYS"]
+            },
+            "resolution": {
+              "type": "string",
+              "enum": ["1s", "5s", "10s", "30s", "1m", "5m"]
+            }
+          },
+          "required": ["duration", "unit", "resolution"]
+        },
+        "longTerm": {
+          "type": "object", 
+          "properties": {
+            "duration": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["DAYS", "WEEKS", "MONTHS", "YEARS"]
+            },
+            "resolution": {
+              "type": "string",
+              "enum": ["1m", "5m", "15m", "1h", "1d"]
+            }
+          },
+          "required": ["duration", "unit", "resolution"]
+        }
+      },
+      "description": "数据保留策略"
+    },
+    
+    "NotificationChannel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["EMAIL", "SLACK", "WEBHOOK", "SMS", "PAGERDUTY", "TEAMS"]
+        },
+        "target": {
+          "type": "string",
+          "description": "通知目标（邮箱、URL等）"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "configuration": {
+          "type": "object",
+          "description": "通知渠道特定配置"
+        }
+      },
+      "required": ["type", "target"],
+      "description": "通知渠道定义"
+    },
+    
+    "PerformanceBaseline": {
+      "type": "object",
+      "properties": {
+        "metricName": {
+          "$ref": "#/$defs/MetricName"
+        },
+        "baselineValue": {
+          "type": "number",
+          "description": "基线值"
+        },
+        "tolerance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "容忍度 (0-1)"
+        },
+        "calculationMethod": {
+          "type": "string",
+          "enum": ["HISTORICAL_AVERAGE", "PERCENTILE", "MOVING_AVERAGE", "EXPONENTIAL_SMOOTHING"],
+          "description": "计算方法"
+        },
+        "timeWindow": {
+          "$ref": "#/$defs/TimeWindow"
+        },
+        "autoUpdate": {
+          "type": "boolean",
+          "description": "是否自动更新基线"
+        }
+      },
+      "required": ["metricName", "baselineValue", "calculationMethod"],
+      "description": "性能基线定义"
+    },
+    
+    "SLAObjective": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "SLA目标名称"
+        },
+        "metricName": {
+          "$ref": "#/$defs/MetricName"
+        },
+        "targetValue": {
+          "type": "number",
+          "description": "目标值"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["GT", "GTE", "LT", "LTE"],
+          "description": "比较操作符"
+        },
+        "timeWindow": {
+          "$ref": "#/$defs/TimeWindow"
+        },
+        "compliance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "合规百分比 (0-1)"
+        },
+        "errorBudget": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "错误预算 (0-1)"
+        }
+      },
+      "required": ["name", "metricName", "targetValue", "operator", "timeWindow"],
+      "description": "SLA目标定义"
+    },
+    
+    "TraceConfiguration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "samplingRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "采样率 (0-1)"
+        },
+        "samplingStrategy": {
+          "$ref": "#/$defs/SamplingStrategy"
+        },
+        "exportFormat": {
+          "type": "string",
+          "enum": ["JAEGER", "ZIPKIN", "OTLP", "DATADOG"],
+          "description": "导出格式"
+        },
+        "spanAttributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Span属性"
+        },
+        "maxSpanCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最大Span数量"
+        }
+      },
+      "description": "分布式追踪配置"
+    },
+    
+    "LoggingConfiguration": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"],
+          "default": "INFO"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["JSON", "LOGFMT", "PLAIN"],
+          "default": "JSON"
+        },
+        "includeStackTrace": {
+          "type": "boolean",
+          "default": false
+        },
+        "maxFileSize": {
+          "type": "string",
+          "pattern": "^\\d+[KMGT]?B$",
+          "description": "最大文件大小"
+        },
+        "retention": {
+          "type": "object",
+          "properties": {
+            "days": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxFiles": {
+              "type": "integer", 
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "description": "日志配置"
+    }
+  }
+}

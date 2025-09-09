@@ -1,0 +1,753 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/ddd-metamodel/3.0/ubiquitous-language/business-rule.schema.json",
+  "title": "业务规则定义",
+  "description": "DDD元数据平台中的业务规则完整定义，包括规约、策略、不变式等",
+  "version": "3.0.0",
+  "type": "object",
+  "properties": {
+    "businessRules": {
+      "type": "array",
+      "description": "业务规则列表",
+      "items": {
+        "$ref": "#/$defs/businessRule"
+      }
+    },
+    "specifications": {
+      "type": "array",
+      "description": "规约列表",
+      "items": {
+        "$ref": "#/$defs/specification"
+      }
+    },
+    "policies": {
+      "type": "array",
+      "description": "策略列表",
+      "items": {
+        "$ref": "#/$defs/policy"
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "description": "不变式列表",
+      "items": {
+        "$ref": "#/$defs/invariant"
+      }
+    },
+    "validationRules": {
+      "type": "array",
+      "description": "验证规则列表",
+      "items": {
+        "$ref": "#/$defs/validationRule"
+      }
+    },
+    "calculationRules": {
+      "type": "array",
+      "description": "计算规则列表",
+      "items": {
+        "$ref": "#/$defs/calculationRule"
+      }
+    },
+    "authorizationRules": {
+      "type": "array",
+      "description": "授权规则列表",
+      "items": {
+        "$ref": "#/$defs/authorizationRule"
+      }
+    },
+    "workflowRules": {
+      "type": "array",
+      "description": "工作流规则列表",
+      "items": {
+        "$ref": "#/$defs/workflowRule"
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "description": "业务规则间的关系",
+      "items": {
+        "$ref": "#/$defs/ruleRelationship"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "businessRule": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "pattern": "^rule_[a-zA-Z0-9_]+$",
+          "description": "业务规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "业务规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "业务规则描述"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["VALIDATION", "CALCULATION", "AUTHORIZATION", "WORKFLOW", "CONSTRAINT"],
+          "description": "业务规则类别"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+          "description": "规则优先级"
+        },
+        "implementationType": {
+          "type": "string",
+          "enum": ["SPECIFICATION", "POLICY", "INVARIANT", "HANDLER"],
+          "description": "实现类型"
+        },
+        "implementationId": {
+          "type": "string",
+          "description": "实现对象ID（规约、策略、不变式等）"
+        },
+        "appliedContexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "应用的限界上下文ID列表"
+        },
+        "affectedEntities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "影响的实体ID列表"
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "前置条件列表"
+        },
+        "postconditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "后置条件列表"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活",
+          "default": true
+        },
+        "effectiveDate": {
+          "type": "string",
+          "format": "date",
+          "description": "生效日期"
+        },
+        "expirationDate": {
+          "type": "string",
+          "format": "date",
+          "description": "失效日期"
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["ruleId", "name", "category", "implementationType"],
+      "additionalProperties": false
+    },
+    "specification": {
+      "type": "object",
+      "properties": {
+        "specificationId": {
+          "type": "string",
+          "pattern": "^spec_[a-zA-Z0-9_]+$",
+          "description": "规约ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "规约名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "规约描述"
+        },
+        "expression": {
+          "type": "string",
+          "description": "规约表达式"
+        },
+        "expressionLanguage": {
+          "type": "string",
+          "enum": ["RULE_ENGINE", "SQL", "JAVASCRIPT", "GROOVY", "CUSTOM"],
+          "description": "表达式语言"
+        },
+        "appliesTo": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "适用的对象类型"
+        },
+        "isComposite": {
+          "type": "boolean",
+          "description": "是否为组合规约",
+          "default": false
+        },
+        "compositeType": {
+          "type": "string",
+          "enum": ["AND", "OR", "NOT"],
+          "description": "组合类型"
+        },
+        "childSpecifications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "子规约ID列表"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "required": {"type": "boolean", "default": true},
+              "defaultValue": {"type": "string"}
+            },
+            "required": ["name", "type"]
+          },
+          "description": "规约参数定义"
+        },
+        "testCases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "caseId": {"type": "string"},
+              "description": {"type": "string"},
+              "input": {"type": "object"},
+              "expectedResult": {"type": "boolean"}
+            },
+            "required": ["caseId", "input", "expectedResult"]
+          },
+          "description": "测试用例"
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["specificationId", "name", "expression"],
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string",
+          "pattern": "^policy_[a-zA-Z0-9_]+$",
+          "description": "策略ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "策略名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "策略描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["BUSINESS_RULE", "CALCULATION", "DECISION", "VALIDATION", "SELECTION"],
+          "description": "策略类型"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["DOMAIN", "SUBDOMAIN", "BOUNDED_CONTEXT", "AGGREGATE"],
+          "description": "策略作用域"
+        },
+        "decisionTable": {
+          "type": "object",
+          "properties": {
+            "conditions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "conditionId": {"type": "string"},
+                  "expression": {"type": "string"},
+                  "values": {"type": "array", "items": {"type": "string"}}
+                },
+                "required": ["conditionId", "expression"]
+              }
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "actionId": {"type": "string"},
+                  "expression": {"type": "string"},
+                  "result": {"type": "string"}
+                },
+                "required": ["actionId", "expression", "result"]
+              }
+            }
+          },
+          "description": "决策表定义"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "关联的业务规则ID列表"
+        },
+        "specifications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "使用的规约ID列表"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "依赖的其他策略ID列表"
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["policyId", "name", "type", "scope"],
+      "additionalProperties": false
+    },
+    "invariant": {
+      "type": "object",
+      "properties": {
+        "invariantId": {
+          "type": "string",
+          "pattern": "^inv_[a-zA-Z0-9_]+$",
+          "description": "不变式ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "不变式名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "不变式描述"
+        },
+        "condition": {
+          "type": "string",
+          "description": "不变式条件表达式"
+        },
+        "conditionLanguage": {
+          "type": "string",
+          "enum": ["RULE_ENGINE", "SQL", "JAVASCRIPT", "GROOVY", "CUSTOM"],
+          "description": "条件表达式语言"
+        },
+        "aggregateId": {
+          "type": "string",
+          "description": "所属聚合ID"
+        },
+        "entityId": {
+          "type": "string",
+          "description": "所属实体ID（可选）"
+        },
+        "violationMessage": {
+          "type": "string",
+          "description": "违反时的错误消息"
+        },
+        "violationLevel": {
+          "type": "string",
+          "enum": ["ERROR", "WARNING", "INFO"],
+          "description": "违反时的严重级别"
+        },
+        "checkTiming": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["BEFORE_CREATE", "AFTER_CREATE", "BEFORE_UPDATE", "AFTER_UPDATE", "BEFORE_DELETE", "CONTINUOUS"]
+          },
+          "description": "检查时机"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活",
+          "default": true
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["invariantId", "name", "condition", "aggregateId"],
+      "additionalProperties": false
+    },
+    "validationRule": {
+      "type": "object",
+      "properties": {
+        "validationId": {
+          "type": "string",
+          "pattern": "^val_[a-zA-Z0-9_]+$",
+          "description": "验证规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "验证规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "验证规则描述"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["REQUIRED", "FORMAT", "RANGE", "CUSTOM", "CROSS_FIELD", "BUSINESS_LOGIC"],
+          "description": "验证类型"
+        },
+        "expression": {
+          "type": "string",
+          "description": "验证表达式"
+        },
+        "expressionLanguage": {
+          "type": "string",
+          "enum": ["REGEX", "RULE_ENGINE", "JAVASCRIPT", "GROOVY", "CUSTOM"],
+          "description": "表达式语言"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "错误消息模板"
+        },
+        "errorCode": {
+          "type": "string",
+          "description": "错误代码"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["ERROR", "WARNING", "INFO"],
+          "description": "验证严重级别"
+        },
+        "appliesTo": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "适用的字段或对象"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "应用条件列表"
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["validationId", "name", "type", "expression"],
+      "additionalProperties": false
+    },
+    "calculationRule": {
+      "type": "object",
+      "properties": {
+        "calculationId": {
+          "type": "string",
+          "pattern": "^calc_[a-zA-Z0-9_]+$",
+          "description": "计算规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "计算规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "计算规则描述"
+        },
+        "formula": {
+          "type": "string",
+          "description": "计算公式"
+        },
+        "formulaLanguage": {
+          "type": "string",
+          "enum": ["MATHEMATICAL", "RULE_ENGINE", "JAVASCRIPT", "GROOVY", "CUSTOM"],
+          "description": "公式语言"
+        },
+        "inputParameters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "required": {"type": "boolean", "default": true},
+              "defaultValue": {"type": "string"},
+              "validationRules": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "required": ["name", "type"]
+          },
+          "description": "输入参数定义"
+        },
+        "outputType": {
+          "type": "string",
+          "description": "输出类型"
+        },
+        "precision": {
+          "type": "integer",
+          "description": "计算精度"
+        },
+        "roundingMode": {
+          "type": "string",
+          "enum": ["UP", "DOWN", "CEILING", "FLOOR", "HALF_UP", "HALF_DOWN", "HALF_EVEN"],
+          "description": "舍入模式"
+        },
+        "cacheStrategy": {
+          "type": "string",
+          "enum": ["NONE", "MEMORY", "REDIS", "DATABASE"],
+          "description": "缓存策略"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "依赖的其他计算规则ID"
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["calculationId", "name", "formula", "outputType"],
+      "additionalProperties": false
+    },
+    "authorizationRule": {
+      "type": "object",
+      "properties": {
+        "authorizationId": {
+          "type": "string",
+          "pattern": "^auth_[a-zA-Z0-9_]+$",
+          "description": "授权规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "授权规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "授权规则描述"
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "资源类型"
+        },
+        "resourceIdentifier": {
+          "type": "string",
+          "description": "资源标识符模式"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["CREATE", "READ", "UPDATE", "DELETE", "EXECUTE", "APPROVE", "CANCEL"],
+          "description": "操作类型"
+        },
+        "condition": {
+          "type": "string",
+          "description": "授权条件表达式"
+        },
+        "conditionLanguage": {
+          "type": "string",
+          "enum": ["RULE_ENGINE", "JAVASCRIPT", "GROOVY", "CUSTOM"],
+          "description": "条件表达式语言"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "适用角色列表"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "所需权限列表"
+        },
+        "isContextSensitive": {
+          "type": "boolean",
+          "description": "是否上下文敏感",
+          "default": false
+        },
+        "contextVariables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "source": {"type": "string"}
+            },
+            "required": ["name", "type", "source"]
+          },
+          "description": "上下文变量定义"
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["authorizationId", "name", "resourceType", "action"],
+      "additionalProperties": false
+    },
+    "workflowRule": {
+      "type": "object",
+      "properties": {
+        "workflowId": {
+          "type": "string",
+          "pattern": "^wf_[a-zA-Z0-9_]+$",
+          "description": "工作流规则ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "工作流规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "工作流规则描述"
+        },
+        "triggerCondition": {
+          "type": "string",
+          "description": "触发条件"
+        },
+        "triggerType": {
+          "type": "string",
+          "enum": ["EVENT", "TIMER", "MANUAL", "API_CALL"],
+          "description": "触发类型"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stepId": {"type": "string"},
+              "name": {"type": "string"},
+              "type": {
+                "type": "string",
+                "enum": ["ACTION", "DECISION", "PARALLEL", "WAIT", "SUBPROCESS"]
+              },
+              "action": {"type": "string"},
+              "condition": {"type": "string"},
+              "nextSteps": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "assignee": {"type": "string"},
+              "timeoutDuration": {"type": "string"},
+              "escalationRules": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "required": ["stepId", "name", "type"]
+          },
+          "description": "工作流步骤"
+        },
+        "globalTimeoutDuration": {
+          "type": "string",
+          "description": "全局超时时长"
+        },
+        "errorHandling": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["RETRY", "ROLLBACK", "COMPENSATE", "FAIL"]
+            },
+            "retryCount": {"type": "integer"},
+            "compensationSteps": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          },
+          "description": "错误处理策略"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string"},
+              "scope": {
+                "type": "string",
+                "enum": ["GLOBAL", "STEP", "SUBPROCESS"]
+              },
+              "defaultValue": {"type": "string"}
+            },
+            "required": ["name", "type", "scope"]
+          },
+          "description": "工作流变量定义"
+        },
+        "metadata": {
+          "$ref": "../../../root.schema.json#/$defs/metadata",
+          "description": "元数据信息"
+        }
+      },
+      "required": ["workflowId", "name", "triggerCondition", "steps"],
+      "additionalProperties": false
+    },
+    "ruleRelationship": {
+      "type": "object",
+      "properties": {
+        "relationshipId": {
+          "type": "string",
+          "pattern": "^rulerel_[a-zA-Z0-9_]+$",
+          "description": "规则关系ID"
+        },
+        "sourceRuleId": {
+          "type": "string",
+          "description": "源规则ID"
+        },
+        "targetRuleId": {
+          "type": "string",
+          "description": "目标规则ID"
+        },
+        "relationshipType": {
+          "type": "string",
+          "enum": [
+            "DEPENDS_ON", "CONFLICTS_WITH", "ENHANCES", "OVERRIDES", 
+            "PRECEDES", "FOLLOWS", "MUTUALLY_EXCLUSIVE", "COMPLEMENTARY"
+          ],
+          "description": "关系类型"
+        },
+        "strength": {
+          "type": "string",
+          "enum": ["STRONG", "MEDIUM", "WEAK"],
+          "description": "关系强度"
+        },
+        "description": {
+          "type": "string",
+          "description": "关系描述"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "是否激活",
+          "default": true
+        }
+      },
+      "required": ["relationshipId", "sourceRuleId", "targetRuleId", "relationshipType"],
+      "additionalProperties": false
+    }
+  }
+}

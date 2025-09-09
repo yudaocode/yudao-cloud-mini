@@ -1,0 +1,710 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.ddd-platform.com/performance-monitoring/operations/performance-monitoring-operations.schema.json",
+  "title": "性能监控操作定义",
+  "description": "性能监控系统的操作定义Schema",
+  "type": "object",
+  "$defs": {
+    "MetricDefinition": {
+      "type": "object",
+      "properties": {
+        "metricId": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricIdentifier"
+        },
+        "name": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricName"
+        },
+        "type": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricType"
+        },
+        "unit": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricUnit"
+        },
+        "description": {
+          "type": "string",
+          "description": "度量描述"
+        },
+        "tags": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricTags"
+        },
+        "sampling": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/SamplingStrategy"
+            },
+            "rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "采样率"
+            },
+            "reservoirSize": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "蓄水池大小"
+            }
+          }
+        },
+        "aggregation": {
+          "type": "object",
+          "properties": {
+            "functions": {
+              "type": "array",
+              "items": {
+                "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/AggregationFunction"
+              }
+            },
+            "timeWindow": {
+              "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/TimeWindow"
+            },
+            "groupBy": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "分组字段"
+            }
+          }
+        },
+        "retention": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/DataRetention"
+        },
+        "baseline": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/PerformanceBaseline"
+        }
+      },
+      "required": ["metricId", "name", "type", "unit"],
+      "description": "度量定义"
+    },
+    
+    "AlertRule": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricIdentifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "告警规则名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "告警规则描述"
+        },
+        "metricName": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricName"
+        },
+        "condition": {
+          "type": "object",
+          "properties": {
+            "aggregation": {
+              "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/AggregationFunction"
+            },
+            "timeWindow": {
+              "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/TimeWindow"
+            },
+            "threshold": {
+              "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/Threshold"
+            },
+            "expression": {
+              "type": "string",
+              "description": "条件表达式"
+            }
+          },
+          "required": ["threshold"]
+        },
+        "severity": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/AlertSeverity"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "suppressDuration": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "抑制持续时间（秒）"
+        },
+        "evaluationInterval": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "评估间隔（秒）"
+        },
+        "notifications": {
+          "type": "array",
+          "items": {
+            "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/NotificationChannel"
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "runbook": {
+              "type": "string",
+              "description": "运维手册链接"
+            },
+            "team": {
+              "type": "string",
+              "description": "负责团队"
+            },
+            "escalation": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer"
+                  },
+                  "duration": {
+                    "type": "integer"
+                  },
+                  "contacts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["ruleId", "name", "metricName", "condition", "severity"],
+      "description": "告警规则定义"
+    },
+    
+    "Dashboard": {
+      "type": "object",
+      "properties": {
+        "dashboardId": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricIdentifier"
+        },
+        "title": {
+          "type": "string",
+          "description": "仪表板标题"
+        },
+        "description": {
+          "type": "string",
+          "description": "仪表板描述"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "panels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DashboardPanel"
+          }
+        },
+        "layout": {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 24
+            },
+            "rows": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "timeRange": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "开始时间"
+            },
+            "to": {
+              "type": "string",
+              "description": "结束时间"
+            },
+            "refresh": {
+              "type": "string",
+              "enum": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h"],
+              "description": "刷新间隔"
+            }
+          }
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["constant", "query", "datasource", "interval"]
+              },
+              "query": {
+                "type": "string"
+              },
+              "default": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": ["dashboardId", "title", "panels"],
+      "description": "仪表板定义"
+    },
+    
+    "DashboardPanel": {
+      "type": "object",
+      "properties": {
+        "panelId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["graph", "gauge", "stat", "table", "heatmap", "log", "piechart"]
+        },
+        "gridPos": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "y": {
+              "type": "integer", 
+              "minimum": 0
+            },
+            "w": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 24
+            },
+            "h": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["x", "y", "w", "h"]
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "metricName": {
+                "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricName"
+              },
+              "aggregation": {
+                "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/AggregationFunction"
+              },
+              "filters": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "alias": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "thresholds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "color": {
+                "type": "string"
+              },
+              "op": {
+                "type": "string",
+                "enum": ["gt", "lt"]
+              }
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "description": "面板特定选项"
+        }
+      },
+      "required": ["panelId", "title", "type", "gridPos"],
+      "description": "仪表板面板定义"
+    },
+    
+    "SLADefinition": {
+      "type": "object",
+      "properties": {
+        "slaId": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricIdentifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "SLA名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "SLA描述"
+        },
+        "service": {
+          "type": "string",
+          "description": "服务名称"
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/SLAObjective"
+          }
+        },
+        "indicators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "metricName": {
+                "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricName"
+              },
+              "query": {
+                "type": "string",
+                "description": "查询表达式"
+              },
+              "goodEvents": {
+                "type": "string",
+                "description": "成功事件查询"
+              },
+              "totalEvents": {
+                "type": "string",
+                "description": "总事件查询"
+              }
+            }
+          }
+        },
+        "reportingPeriod": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/TimeWindow"
+        },
+        "alerting": {
+          "type": "object",
+          "properties": {
+            "burnRateRules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "short": {
+                    "type": "object",
+                    "properties": {
+                      "window": {
+                        "type": "string"
+                      },
+                      "threshold": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "long": {
+                    "type": "object",
+                    "properties": {
+                      "window": {
+                        "type": "string"
+                      },
+                      "threshold": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "severity": {
+                    "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/AlertSeverity"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["slaId", "name", "service", "objectives", "indicators"],
+      "description": "SLA定义"
+    },
+    
+    "PerformanceProfile": {
+      "type": "object",
+      "properties": {
+        "profileId": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricIdentifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "性能配置文件名称"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "testing", "staging", "production"],
+          "description": "环境类型"
+        },
+        "applicationMetrics": {
+          "type": "object",
+          "properties": {
+            "requestRate": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "samplingRate": {
+                  "type": "number"
+                }
+              }
+            },
+            "responseTime": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "percentiles": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "errorRate": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "threshold": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "systemMetrics": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "interval": {
+                  "type": "string"
+                }
+              }
+            },
+            "memory": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "interval": {
+                  "type": "string"
+                }
+              }
+            },
+            "disk": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "interval": {
+                  "type": "string"
+                }
+              }
+            },
+            "network": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "interval": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "businessMetrics": {
+          "type": "object",
+          "properties": {
+            "customMetrics": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/MetricDefinition"
+              }
+            },
+            "domainEvents": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "eventTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["profileId", "name", "environment"],
+      "description": "性能监控配置文件"
+    },
+    
+    "LoadTestScenario": {
+      "type": "object",
+      "properties": {
+        "scenarioId": {
+          "$ref": "../fields/performance-monitoring-fields.schema.json#/$defs/MetricIdentifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "负载测试场景名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "场景描述"
+        },
+        "loadPattern": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["constant", "ramp-up", "spike", "step", "soak"]
+            },
+            "users": {
+              "type": "object",
+              "properties": {
+                "initial": {
+                  "type": "integer"
+                },
+                "peak": {
+                  "type": "integer"
+                },
+                "rampUpDuration": {
+                  "type": "string"
+                },
+                "sustainDuration": {
+                  "type": "string"
+                },
+                "rampDownDuration": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "endpoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "parameters": {
+                "type": "object"
+              },
+              "headers": {
+                "type": "object"
+              },
+              "expectedResponse": {
+                "type": "object",
+                "properties": {
+                  "statusCode": {
+                    "type": "integer"
+                  },
+                  "responseTime": {
+                    "type": "number"
+                  },
+                  "bodyContains": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "performanceCriteria": {
+          "type": "object",
+          "properties": {
+            "responseTime": {
+              "type": "object",
+              "properties": {
+                "average": {
+                  "type": "number"
+                },
+                "p95": {
+                  "type": "number"
+                },
+                "p99": {
+                  "type": "number"
+                }
+              }
+            },
+            "throughput": {
+              "type": "number",
+              "description": "每秒请求数"
+            },
+            "errorRate": {
+              "type": "number",
+              "maximum": 1,
+              "description": "最大错误率"
+            },
+            "resourceUtilization": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "number",
+                  "maximum": 1
+                },
+                "memory": {
+                  "type": "number",
+                  "maximum": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["scenarioId", "name", "loadPattern", "endpoints"],
+      "description": "负载测试场景定义"
+    }
+  }
+}

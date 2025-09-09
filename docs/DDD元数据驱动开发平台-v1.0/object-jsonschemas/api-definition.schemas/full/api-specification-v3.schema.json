@@ -1,0 +1,1656 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "api-specification-v3.schema.json",
+  "version": "3.0.0",
+  "title": "DDD API Specification v3.0",
+  "description": "Enhanced API specification schema with DDD integration, OpenAPI 3.0 support, version management, contract testing, and performance monitoring",
+  "type": "object",
+  "properties": {
+    "apiSpecification": {
+      "$ref": "#/$defs/ApiSpecificationV3"
+    }
+  },
+  "required": ["apiSpecification"],
+  "$defs": {
+    "ApiSpecificationV3": {
+      "type": "object",
+      "description": "Complete API specification with DDD domain integration",
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/ApiMetadata"
+        },
+        "openApiDefinition": {
+          "$ref": "#/$defs/OpenApiDefinition"
+        },
+        "domainIntegration": {
+          "$ref": "#/$defs/DomainIntegration"
+        },
+        "versionManagement": {
+          "$ref": "#/$defs/VersionManagement"
+        },
+        "contractTesting": {
+          "$ref": "#/$defs/ContractTesting"
+        },
+        "performanceMonitoring": {
+          "$ref": "#/$defs/PerformanceMonitoring"
+        },
+        "securityDefinition": {
+          "$ref": "#/$defs/SecurityDefinition"
+        },
+        "documentationGeneration": {
+          "$ref": "#/$defs/DocumentationGeneration"
+        }
+      },
+      "required": ["metadata", "openApiDefinition", "domainIntegration"],
+      "additionalProperties": false
+    },
+    "ApiMetadata": {
+      "type": "object",
+      "description": "Metadata for API specification",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+          "description": "Unique API identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable API name"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "API version in semantic versioning format"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed API description"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["domain_api", "application_api", "integration_api", "infrastructure_api"],
+          "description": "API category in DDD context"
+        },
+        "boundedContext": {
+          "type": "string",
+          "description": "Bounded context this API belongs to"
+        },
+        "subdomain": {
+          "type": "string",
+          "description": "Subdomain this API serves"
+        },
+        "owner": {
+          "type": "object",
+          "properties": {
+            "team": {
+              "type": "string",
+              "description": "Owning team"
+            },
+            "contact": {
+              "type": "string",
+              "format": "email",
+              "description": "Contact email"
+            },
+            "repository": {
+              "type": "string",
+              "format": "uri",
+              "description": "Source code repository"
+            }
+          }
+        },
+        "lifecycle": {
+          "type": "string",
+          "enum": ["development", "testing", "staging", "production", "deprecated"],
+          "description": "API lifecycle stage"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for API categorization"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "name", "version", "category", "boundedContext"]
+    },
+    "OpenApiDefinition": {
+      "type": "object",
+      "description": "OpenAPI 3.0 specification definition",
+      "properties": {
+        "openapi": {
+          "type": "string",
+          "enum": ["3.0.0", "3.0.1", "3.0.2", "3.0.3", "3.1.0"],
+          "default": "3.0.3",
+          "description": "OpenAPI specification version"
+        },
+        "info": {
+          "$ref": "#/$defs/ApiInfo"
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ServerDefinition"
+          },
+          "description": "Server definitions for different environments"
+        },
+        "paths": {
+          "type": "object",
+          "patternProperties": {
+            "^/.*": {
+              "$ref": "#/$defs/PathItemDefinition"
+            }
+          },
+          "description": "API path definitions"
+        },
+        "components": {
+          "$ref": "#/$defs/ComponentsDefinition"
+        },
+        "security": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Global security requirements"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TagDefinition"
+          },
+          "description": "Tag definitions for API organization"
+        },
+        "externalDocs": {
+          "$ref": "#/$defs/ExternalDocumentation"
+        }
+      },
+      "required": ["openapi", "info", "paths"]
+    },
+    "ApiInfo": {
+      "type": "object",
+      "description": "API information object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "API title"
+        },
+        "description": {
+          "type": "string",
+          "description": "API description"
+        },
+        "termsOfService": {
+          "type": "string",
+          "format": "uri",
+          "description": "Terms of service URL"
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        },
+        "license": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": ["name"]
+        },
+        "version": {
+          "type": "string",
+          "description": "API version"
+        }
+      },
+      "required": ["title", "version"]
+    },
+    "ServerDefinition": {
+      "type": "object",
+      "description": "Server configuration",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Server URL"
+        },
+        "description": {
+          "type": "string",
+          "description": "Server description"
+        },
+        "variables": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9._-]+$": {
+              "$ref": "#/$defs/ServerVariable"
+            }
+          }
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "testing", "staging", "production"],
+          "description": "Environment type"
+        },
+        "region": {
+          "type": "string",
+          "description": "Geographical region"
+        }
+      },
+      "required": ["url"]
+    },
+    "ServerVariable": {
+      "type": "object",
+      "properties": {
+        "enum": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "default": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": ["default"]
+    },
+    "PathItemDefinition": {
+      "type": "object",
+      "description": "Path item definition",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "get": {
+          "$ref": "#/$defs/OperationDefinition"
+        },
+        "put": {
+          "$ref": "#/$defs/OperationDefinition"
+        },
+        "post": {
+          "$ref": "#/$defs/OperationDefinition"
+        },
+        "delete": {
+          "$ref": "#/$defs/OperationDefinition"
+        },
+        "options": {
+          "$ref": "#/$defs/OperationDefinition"
+        },
+        "head": {
+          "$ref": "#/$defs/OperationDefinition"
+        },
+        "patch": {
+          "$ref": "#/$defs/OperationDefinition"
+        },
+        "trace": {
+          "$ref": "#/$defs/OperationDefinition"
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ServerDefinition"
+          }
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParameterDefinition"
+          }
+        }
+      }
+    },
+    "OperationDefinition": {
+      "type": "object",
+      "description": "Operation definition with DDD integration",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "externalDocs": {
+          "$ref": "#/$defs/ExternalDocumentation"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParameterDefinition"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/$defs/RequestBodyDefinition"
+        },
+        "responses": {
+          "type": "object",
+          "patternProperties": {
+            "^[1-5][0-9][0-9]$|^default$": {
+              "$ref": "#/$defs/ResponseDefinition"
+            }
+          }
+        },
+        "callbacks": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/CallbackDefinition"
+          }
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "security": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ServerDefinition"
+          }
+        },
+        "domainMapping": {
+          "$ref": "#/$defs/OperationDomainMapping"
+        }
+      },
+      "required": ["operationId", "responses"]
+    },
+    "OperationDomainMapping": {
+      "type": "object",
+      "description": "Mapping between API operation and domain concepts",
+      "properties": {
+        "aggregate": {
+          "type": "string",
+          "description": "Target aggregate for this operation"
+        },
+        "entity": {
+          "type": "string",
+          "description": "Target entity for this operation"
+        },
+        "domainService": {
+          "type": "string",
+          "description": "Domain service handling this operation"
+        },
+        "applicationService": {
+          "type": "string",
+          "description": "Application service coordinating this operation"
+        },
+        "command": {
+          "type": "string",
+          "description": "Command pattern implementation"
+        },
+        "query": {
+          "type": "string",
+          "description": "Query pattern implementation"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Domain events triggered by this operation"
+        },
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Business rules applied in this operation"
+        }
+      }
+    },
+    "ParameterDefinition": {
+      "type": "object",
+      "description": "Parameter definition",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "in": {
+          "type": "string",
+          "enum": ["query", "header", "path", "cookie"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "allowEmptyValue": {
+          "type": "boolean",
+          "default": false
+        },
+        "style": {
+          "type": "string",
+          "enum": ["matrix", "label", "form", "simple", "spaceDelimited", "pipeDelimited", "deepObject"]
+        },
+        "explode": {
+          "type": "boolean"
+        },
+        "allowReserved": {
+          "type": "boolean",
+          "default": false
+        },
+        "schema": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "example": {},
+        "examples": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ExampleDefinition"
+          }
+        }
+      },
+      "required": ["name", "in"]
+    },
+    "RequestBodyDefinition": {
+      "type": "object",
+      "description": "Request body definition",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "content": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$": {
+              "$ref": "#/$defs/MediaTypeDefinition"
+            }
+          }
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": ["content"]
+    },
+    "ResponseDefinition": {
+      "type": "object",
+      "description": "Response definition",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/HeaderDefinition"
+          }
+        },
+        "content": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$": {
+              "$ref": "#/$defs/MediaTypeDefinition"
+            }
+          }
+        },
+        "links": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/LinkDefinition"
+          }
+        }
+      },
+      "required": ["description"]
+    },
+    "MediaTypeDefinition": {
+      "type": "object",
+      "description": "Media type definition",
+      "properties": {
+        "schema": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "example": {},
+        "examples": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ExampleDefinition"
+          }
+        },
+        "encoding": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/EncodingDefinition"
+          }
+        }
+      }
+    },
+    "SchemaDefinition": {
+      "type": "object",
+      "description": "JSON Schema definition with DDD extensions",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["null", "boolean", "object", "array", "number", "string", "integer"]
+        },
+        "format": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "items": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enum": {
+          "type": "array"
+        },
+        "const": {},
+        "multipleOf": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "exclusiveMaximum": {
+          "type": "number"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "exclusiveMinimum": {
+          "type": "number"
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pattern": {
+          "type": "string",
+          "format": "regex"
+        },
+        "maxItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "uniqueItems": {
+          "type": "boolean",
+          "default": false
+        },
+        "maxProperties": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minProperties": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/$defs/SchemaDefinition"
+            }
+          ]
+        },
+        "allOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "oneOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "anyOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "not": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "default": {},
+        "example": {},
+        "examples": {
+          "type": "array"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "default": false
+        },
+        "writeOnly": {
+          "type": "boolean",
+          "default": false
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "domainType": {
+          "type": "string",
+          "enum": ["entity", "value_object", "aggregate_id", "domain_event", "command", "query_result"],
+          "description": "Domain type this schema represents"
+        },
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Business rules associated with this schema"
+        }
+      }
+    },
+    "ComponentsDefinition": {
+      "type": "object",
+      "description": "Reusable components",
+      "properties": {
+        "schemas": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/SchemaDefinition"
+          }
+        },
+        "responses": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ResponseDefinition"
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ParameterDefinition"
+          }
+        },
+        "examples": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ExampleDefinition"
+          }
+        },
+        "requestBodies": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/RequestBodyDefinition"
+          }
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/HeaderDefinition"
+          }
+        },
+        "securitySchemes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/SecuritySchemeDefinition"
+          }
+        },
+        "links": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/LinkDefinition"
+          }
+        },
+        "callbacks": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/CallbackDefinition"
+          }
+        }
+      }
+    },
+    "DomainIntegration": {
+      "type": "object",
+      "description": "Integration with DDD domain concepts",
+      "properties": {
+        "boundedContextMapping": {
+          "type": "object",
+          "properties": {
+            "upstream": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Upstream bounded contexts"
+            },
+            "downstream": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Downstream bounded contexts"
+            },
+            "integrationPatterns": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["shared_kernel", "customer_supplier", "conformist", "anticorruption_layer", "separate_ways", "open_host_service", "published_language"]
+              }
+            }
+          }
+        },
+        "aggregateMapping": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "operations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "API operations that interact with this aggregate"
+              },
+              "events": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Domain events produced by operations on this aggregate"
+              }
+            }
+          }
+        },
+        "eventIntegration": {
+          "type": "object",
+          "properties": {
+            "publishedEvents": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "eventType": {
+                    "type": "string"
+                  },
+                  "operations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "schema": {
+                    "$ref": "#/$defs/SchemaDefinition"
+                  }
+                }
+              }
+            },
+            "consumedEvents": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "eventType": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "handler": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "businessRuleIntegration": {
+          "type": "object",
+          "properties": {
+            "validationRules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ruleId": {
+                    "type": "string"
+                  },
+                  "operations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "enforcement": {
+                    "type": "string",
+                    "enum": ["api_gateway", "application_layer", "domain_layer"]
+                  }
+                }
+              }
+            },
+            "businessPolicies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "policyId": {
+                    "type": "string"
+                  },
+                  "operations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "VersionManagement": {
+      "type": "object",
+      "description": "API version management and evolution",
+      "properties": {
+        "versioningStrategy": {
+          "type": "string",
+          "enum": ["url_path", "query_parameter", "header", "content_negotiation"],
+          "default": "url_path",
+          "description": "API versioning strategy"
+        },
+        "supportedVersions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d+\\.\\d+$"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["development", "current", "deprecated", "sunset"]
+              },
+              "deprecationDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "sunsetDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "changeLog": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["added", "changed", "deprecated", "removed", "fixed", "security"]
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "breaking": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "migrationGuides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fromVersion": {
+                "type": "string"
+              },
+              "toVersion": {
+                "type": "string"
+              },
+              "documentationUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "automatedMigration": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        },
+        "backwardCompatibility": {
+          "type": "object",
+          "properties": {
+            "policy": {
+              "type": "string",
+              "enum": ["strict", "relaxed", "best_effort"]
+            },
+            "minSupportedVersion": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            }
+          }
+        }
+      }
+    },
+    "ContractTesting": {
+      "type": "object",
+      "description": "API contract testing configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "testingFramework": {
+          "type": "string",
+          "enum": ["pact", "spring_cloud_contract", "postman", "custom"],
+          "default": "pact"
+        },
+        "consumerContracts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "consumer": {
+                "type": "string",
+                "description": "Consumer service name"
+              },
+              "contractFile": {
+                "type": "string",
+                "description": "Path to contract file"
+              },
+              "testCases": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "operation": {
+                      "type": "string"
+                    },
+                    "request": {
+                      "type": "object"
+                    },
+                    "expectedResponse": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "providerVerification": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "testSuite": {
+              "type": "string",
+              "description": "Provider verification test suite"
+            },
+            "stateSetup": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string"
+                  },
+                  "setupMethod": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mockGeneration": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "mockFramework": {
+              "type": "string",
+              "enum": ["wiremock", "mockoon", "json_server"]
+            },
+            "dynamicMocks": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    },
+    "PerformanceMonitoring": {
+      "type": "object",
+      "description": "API performance monitoring configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "slaDefinition": {
+          "type": "object",
+          "properties": {
+            "responseTime": {
+              "type": "object",
+              "properties": {
+                "p50": {
+                  "type": "number",
+                  "description": "50th percentile response time in ms"
+                },
+                "p95": {
+                  "type": "number",
+                  "description": "95th percentile response time in ms"
+                },
+                "p99": {
+                  "type": "number",
+                  "description": "99th percentile response time in ms"
+                }
+              }
+            },
+            "availability": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Availability percentage"
+            },
+            "throughput": {
+              "type": "number",
+              "description": "Requests per second"
+            },
+            "errorRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Maximum error rate percentage"
+            }
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "metrics": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["response_time", "throughput", "error_rate", "concurrent_users", "payload_size"]
+              }
+            },
+            "alerting": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "thresholds": {
+                  "type": "object",
+                  "properties": {
+                    "responseTime": {
+                      "type": "number"
+                    },
+                    "errorRate": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "channels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["email", "slack", "pagerduty", "webhook"]
+                  }
+                }
+              }
+            },
+            "dashboards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["grafana", "kibana", "datadog", "custom"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "loadTesting": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "tool": {
+              "type": "string",
+              "enum": ["jmeter", "gatling", "k6", "artillery"]
+            },
+            "scenarios": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "virtualUsers": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "duration": {
+                    "type": "string",
+                    "pattern": "^\\d+[smh]$"
+                  },
+                  "rampUp": {
+                    "type": "string",
+                    "pattern": "^\\d+[smh]$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "SecurityDefinition": {
+      "type": "object",
+      "description": "API security configuration",
+      "properties": {
+        "authentication": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": true
+            },
+            "schemes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/SecuritySchemeDefinition"
+              }
+            }
+          }
+        },
+        "authorization": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "model": {
+              "type": "string",
+              "enum": ["rbac", "abac", "oauth_scopes"],
+              "default": "rbac"
+            },
+            "permissions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "operation": {
+                    "type": "string"
+                  },
+                  "requiredRoles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "requiredPermissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "dataProtection": {
+          "type": "object",
+          "properties": {
+            "encryptionInTransit": {
+              "type": "boolean",
+              "default": true
+            },
+            "encryptionAtRest": {
+              "type": "boolean",
+              "default": false
+            },
+            "sensitiveDataHandling": {
+              "type": "object",
+              "properties": {
+                "piiFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "maskingRules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "strategy": {
+                        "type": "string",
+                        "enum": ["mask", "hash", "encrypt", "remove"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "rateLimiting": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "global": {
+              "type": "object",
+              "properties": {
+                "requestsPerSecond": {
+                  "type": "integer"
+                },
+                "requestsPerMinute": {
+                  "type": "integer"
+                },
+                "requestsPerHour": {
+                  "type": "integer"
+                }
+              }
+            },
+            "perOperation": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "requestsPerSecond": {
+                    "type": "integer"
+                  },
+                  "requestsPerMinute": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "DocumentationGeneration": {
+      "type": "object",
+      "description": "API documentation generation configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "format": {
+          "type": "string",
+          "enum": ["swagger_ui", "redoc", "slate", "gitiles", "custom"],
+          "default": "swagger_ui"
+        },
+        "customization": {
+          "type": "object",
+          "properties": {
+            "theme": {
+              "type": "string"
+            },
+            "logo": {
+              "type": "string",
+              "format": "uri"
+            },
+            "customCss": {
+              "type": "string"
+            },
+            "favicon": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "includeExamples": {
+          "type": "boolean",
+          "default": true
+        },
+        "generateCodeSamples": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "languages": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["javascript", "python", "java", "csharp", "php", "go", "ruby"]
+              }
+            }
+          }
+        },
+        "publishing": {
+          "type": "object",
+          "properties": {
+            "autoPublish": {
+              "type": "boolean",
+              "default": false
+            },
+            "publishUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "accessControl": {
+              "type": "string",
+              "enum": ["public", "internal", "restricted"]
+            }
+          }
+        }
+      }
+    },
+    "ExampleDefinition": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {},
+        "externalValue": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "HeaderDefinition": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "allowEmptyValue": {
+          "type": "boolean",
+          "default": false
+        },
+        "style": {
+          "type": "string",
+          "enum": ["simple"]
+        },
+        "explode": {
+          "type": "boolean"
+        },
+        "allowReserved": {
+          "type": "boolean",
+          "default": false
+        },
+        "schema": {
+          "$ref": "#/$defs/SchemaDefinition"
+        },
+        "example": {},
+        "examples": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/ExampleDefinition"
+          }
+        }
+      }
+    },
+    "LinkDefinition": {
+      "type": "object",
+      "properties": {
+        "operationRef": {
+          "type": "string"
+        },
+        "operationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "requestBody": {},
+        "description": {
+          "type": "string"
+        },
+        "server": {
+          "$ref": "#/$defs/ServerDefinition"
+        }
+      }
+    },
+    "CallbackDefinition": {
+      "type": "object",
+      "patternProperties": {
+        "^.*": {
+          "$ref": "#/$defs/PathItemDefinition"
+        }
+      }
+    },
+    "EncodingDefinition": {
+      "type": "object",
+      "properties": {
+        "contentType": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/HeaderDefinition"
+          }
+        },
+        "style": {
+          "type": "string",
+          "enum": ["form", "spaceDelimited", "pipeDelimited", "deepObject"]
+        },
+        "explode": {
+          "type": "boolean"
+        },
+        "allowReserved": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "SecuritySchemeDefinition": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["apiKey", "http", "oauth2", "openIdConnect"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "in": {
+          "type": "string",
+          "enum": ["query", "header", "cookie"]
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "bearerFormat": {
+          "type": "string"
+        },
+        "flows": {
+          "$ref": "#/$defs/OAuthFlowsDefinition"
+        },
+        "openIdConnectUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": ["type"]
+    },
+    "OAuthFlowsDefinition": {
+      "type": "object",
+      "properties": {
+        "implicit": {
+          "$ref": "#/$defs/OAuthFlowDefinition"
+        },
+        "password": {
+          "$ref": "#/$defs/OAuthFlowDefinition"
+        },
+        "clientCredentials": {
+          "$ref": "#/$defs/OAuthFlowDefinition"
+        },
+        "authorizationCode": {
+          "$ref": "#/$defs/OAuthFlowDefinition"
+        }
+      }
+    },
+    "OAuthFlowDefinition": {
+      "type": "object",
+      "properties": {
+        "authorizationUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "tokenUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "refreshUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "scopes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["scopes"]
+    },
+    "TagDefinition": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "externalDocs": {
+          "$ref": "#/$defs/ExternalDocumentation"
+        }
+      },
+      "required": ["name"]
+    },
+    "ExternalDocumentation": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": ["url"]
+    }
+  }
+}

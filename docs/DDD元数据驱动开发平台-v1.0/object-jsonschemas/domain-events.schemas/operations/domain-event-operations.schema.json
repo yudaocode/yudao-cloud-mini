@@ -1,0 +1,883 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "domain-event-operations.schema.json",
+  "version": "3.0.0",
+  "title": "Domain Event Operations Schema",
+  "description": "Operations and actions that can be performed with domain events",
+  "type": "object",
+  "$defs": {
+    "EventOperation": {
+      "type": "object",
+      "description": "Base definition for event operations",
+      "properties": {
+        "operationType": {
+          "$ref": "#/$defs/OperationType"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "description": "Unique identifier for the operation"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable operation name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the operation"
+        },
+        "implementation": {
+          "$ref": "#/$defs/OperationImplementation"
+        },
+        "configuration": {
+          "$ref": "#/$defs/OperationConfiguration"
+        },
+        "security": {
+          "$ref": "#/$defs/OperationSecurity"
+        }
+      },
+      "required": ["operationType", "operationId", "name", "implementation"]
+    },
+    "OperationType": {
+      "type": "string",
+      "enum": [
+        "event_publishing",
+        "event_consumption",
+        "event_routing",
+        "event_transformation",
+        "event_validation",
+        "event_filtering",
+        "event_aggregation",
+        "event_projection",
+        "event_replay",
+        "event_archiving",
+        "rule_execution",
+        "saga_coordination",
+        "compensation",
+        "notification",
+        "audit_logging",
+        "monitoring",
+        "alerting"
+      ],
+      "description": "Type of operation that can be performed on events"
+    },
+    "OperationImplementation": {
+      "type": "object",
+      "properties": {
+        "handler": {
+          "type": "string",
+          "description": "Handler class or function implementing the operation"
+        },
+        "method": {
+          "type": "string",
+          "description": "Specific method to invoke"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["java", "javascript", "python", "csharp", "go", "kotlin"],
+          "default": "java"
+        },
+        "framework": {
+          "type": "string",
+          "enum": ["spring", "axon", "akka", "eventuate", "express", "fastapi", "custom"],
+          "description": "Framework used for implementation"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Static parameters for operation execution"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "External dependencies required for operation"
+        }
+      },
+      "required": ["handler"]
+    },
+    "OperationConfiguration": {
+      "type": "object",
+      "properties": {
+        "execution": {
+          "$ref": "#/$defs/ExecutionConfig"
+        },
+        "performance": {
+          "$ref": "#/$defs/PerformanceConfig"
+        },
+        "reliability": {
+          "$ref": "#/$defs/ReliabilityConfig"
+        },
+        "monitoring": {
+          "$ref": "#/$defs/MonitoringConfig"
+        }
+      }
+    },
+    "ExecutionConfig": {
+      "type": "object",
+      "properties": {
+        "async": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether operation executes asynchronously"
+        },
+        "timeout": {
+          "type": "string",
+          "pattern": "^\\d+[smhd]$",
+          "default": "30s",
+          "description": "Maximum execution time"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5,
+          "description": "Execution priority (1=highest)"
+        },
+        "scheduling": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["immediate", "delayed", "scheduled", "cron"],
+              "default": "immediate"
+            },
+            "delay": {
+              "type": "string",
+              "pattern": "^\\d+[smhd]$",
+              "description": "Delay before execution"
+            },
+            "cronExpression": {
+              "type": "string",
+              "description": "Cron expression for scheduled execution"
+            }
+          }
+        }
+      }
+    },
+    "PerformanceConfig": {
+      "type": "object",
+      "properties": {
+        "batchProcessing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "batchSize": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 10
+            },
+            "flushInterval": {
+              "type": "string",
+              "pattern": "^\\d+[smhd]$",
+              "default": "5s"
+            }
+          }
+        },
+        "parallelization": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "maxConcurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 5
+            },
+            "partitioning": {
+              "type": "object",
+              "properties": {
+                "strategy": {
+                  "type": "string",
+                  "enum": ["hash", "round_robin", "range", "custom"],
+                  "default": "hash"
+                },
+                "partitionKey": {
+                  "type": "string",
+                  "description": "Field used for partitioning"
+                }
+              }
+            }
+          }
+        },
+        "caching": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "strategy": {
+              "type": "string",
+              "enum": ["lru", "lfu", "ttl", "write_through", "write_behind"],
+              "default": "lru"
+            },
+            "ttl": {
+              "type": "string",
+              "pattern": "^\\d+[smhd]$",
+              "default": "5m"
+            },
+            "maxSize": {
+              "type": "integer",
+              "minimum": 10,
+              "default": 1000
+            }
+          }
+        }
+      }
+    },
+    "ReliabilityConfig": {
+      "type": "object",
+      "properties": {
+        "retryPolicy": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "default": 3
+            },
+            "backoffStrategy": {
+              "type": "string",
+              "enum": ["fixed", "exponential", "linear", "custom"],
+              "default": "exponential"
+            },
+            "initialDelay": {
+              "type": "string",
+              "pattern": "^\\d+[smhd]$",
+              "default": "1s"
+            },
+            "maxDelay": {
+              "type": "string",
+              "pattern": "^\\d+[smhd]$",
+              "default": "30s"
+            },
+            "jitter": {
+              "type": "boolean",
+              "default": true
+            },
+            "retryableExceptions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Exceptions that trigger retry"
+            }
+          }
+        },
+        "circuitBreaker": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "failureThreshold": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 5,
+              "description": "Number of failures to open circuit"
+            },
+            "recoveryTimeout": {
+              "type": "string",
+              "pattern": "^\\d+[smhd]$",
+              "default": "30s"
+            },
+            "halfOpenMaxCalls": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 3
+            }
+          }
+        },
+        "deadLetterHandling": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "deadLetterQueue": {
+              "type": "string",
+              "description": "Dead letter queue name"
+            },
+            "maxRetentionPeriod": {
+              "type": "string",
+              "pattern": "^\\d+[smhd]$",
+              "default": "7d"
+            }
+          }
+        }
+      }
+    },
+    "MonitoringConfig": {
+      "type": "object",
+      "properties": {
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "standardMetrics": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "execution_count",
+                  "execution_time", 
+                  "success_rate",
+                  "error_rate",
+                  "throughput",
+                  "latency_percentiles",
+                  "queue_depth",
+                  "resource_utilization"
+                ]
+              },
+              "default": ["execution_count", "execution_time", "success_rate", "error_rate"]
+            },
+            "customMetrics": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["counter", "gauge", "histogram", "timer"]
+                  },
+                  "extractor": {
+                    "type": "string",
+                    "description": "Expression to extract metric value"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tracing": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "samplingRate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.1
+            },
+            "propagationHeaders": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["trace-id", "span-id", "correlation-id"]
+            }
+          }
+        },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "level": {
+              "type": "string",
+              "enum": ["debug", "info", "warn", "error"],
+              "default": "info"
+            },
+            "includePayload": {
+              "type": "boolean",
+              "default": false
+            },
+            "sanitization": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "sensitiveFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": ["password", "ssn", "creditCard", "token"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "OperationSecurity": {
+      "type": "object",
+      "properties": {
+        "authentication": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "default": false
+            },
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["JWT", "OAuth2", "API_KEY", "CERTIFICATE", "BASIC_AUTH"]
+              }
+            },
+            "tokenValidation": {
+              "type": "object",
+              "properties": {
+                "validateExpiry": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "validateSignature": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "validateAudience": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            }
+          }
+        },
+        "authorization": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "permissions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required permissions for operation execution"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required roles for operation execution"
+            },
+            "resourceAccess": {
+              "type": "object",
+              "properties": {
+                "checkOwnership": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "ownershipField": {
+                  "type": "string",
+                  "description": "Field containing resource owner information"
+                }
+              }
+            }
+          }
+        },
+        "encryption": {
+          "type": "object",
+          "properties": {
+            "inTransit": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "protocol": {
+                  "type": "string",
+                  "enum": ["TLS1.2", "TLS1.3"],
+                  "default": "TLS1.3"
+                }
+              }
+            },
+            "atRest": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "algorithm": {
+                  "type": "string",
+                  "enum": ["AES-256", "ChaCha20"],
+                  "default": "AES-256"
+                },
+                "keyRotation": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "interval": {
+                      "type": "string",
+                      "pattern": "^\\d+[smhd]$",
+                      "default": "30d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "rateLimiting": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "strategy": {
+              "type": "string",
+              "enum": ["token_bucket", "leaky_bucket", "fixed_window", "sliding_window"],
+              "default": "token_bucket"
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "requestsPerSecond": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 100
+                },
+                "requestsPerMinute": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 6000
+                },
+                "requestsPerHour": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 360000
+                }
+              }
+            },
+            "scope": {
+              "type": "string",
+              "enum": ["global", "user", "ip", "api_key"],
+              "default": "user"
+            }
+          }
+        }
+      }
+    },
+    "EventPublishingOperation": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/EventOperation"
+        },
+        {
+          "properties": {
+            "operationType": {
+              "const": "event_publishing"
+            },
+            "publishingConfig": {
+              "type": "object",
+              "properties": {
+                "channel": {
+                  "type": "string",
+                  "description": "Publishing channel or topic"
+                },
+                "durability": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Whether events are persisted"
+                },
+                "partitioning": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "partitionKey": {
+                      "type": "string"
+                    },
+                    "partitionCount": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "default": 1
+                    }
+                  }
+                },
+                "ordering": {
+                  "type": "object",
+                  "properties": {
+                    "guaranteed": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "orderingKey": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "deduplication": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "idempotencyKey": {
+                      "type": "string",
+                      "description": "Field to use for deduplication"
+                    },
+                    "window": {
+                      "type": "string",
+                      "pattern": "^\\d+[smhd]$",
+                      "default": "1h"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "EventConsumptionOperation": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/EventOperation"
+        },
+        {
+          "properties": {
+            "operationType": {
+              "const": "event_consumption"
+            },
+            "consumptionConfig": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "description": "Event source or subscription"
+                },
+                "consumerGroup": {
+                  "type": "string",
+                  "description": "Consumer group for load balancing"
+                },
+                "offsetManagement": {
+                  "type": "object",
+                  "properties": {
+                    "strategy": {
+                      "type": "string",
+                      "enum": ["earliest", "latest", "stored", "timestamp"],
+                      "default": "latest"
+                    },
+                    "autoCommit": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "commitInterval": {
+                      "type": "string",
+                      "pattern": "^\\d+[smhd]$",
+                      "default": "5s"
+                    }
+                  }
+                },
+                "filtering": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "operator": {
+                            "type": "string",
+                            "enum": ["eq", "ne", "in", "nin", "regex", "exists"]
+                          },
+                          "value": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "EventTransformationOperation": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/EventOperation"
+        },
+        {
+          "properties": {
+            "operationType": {
+              "const": "event_transformation"
+            },
+            "transformationConfig": {
+              "type": "object",
+              "properties": {
+                "transformationType": {
+                  "type": "string",
+                  "enum": ["mapping", "enrichment", "aggregation", "filtering", "formatting", "splitting"],
+                  "description": "Type of transformation to apply"
+                },
+                "mappingRules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "sourceField": {
+                        "type": "string"
+                      },
+                      "targetField": {
+                        "type": "string"
+                      },
+                      "transformation": {
+                        "type": "string",
+                        "description": "Transformation expression"
+                      }
+                    }
+                  }
+                },
+                "enrichmentSources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "enum": ["database", "cache", "external_api", "static"]
+                      },
+                      "query": {
+                        "type": "string"
+                      },
+                      "mapping": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "outputFormat": {
+                  "type": "string",
+                  "enum": ["json", "avro", "protobuf", "xml"],
+                  "default": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RuleExecutionOperation": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/EventOperation"
+        },
+        {
+          "properties": {
+            "operationType": {
+              "const": "rule_execution"
+            },
+            "ruleConfig": {
+              "type": "object",
+              "properties": {
+                "ruleEngine": {
+                  "type": "string",
+                  "enum": ["drools", "easy_rules", "custom"],
+                  "default": "drools"
+                },
+                "ruleSet": {
+                  "type": "string",
+                  "description": "Rule set identifier"
+                },
+                "executionMode": {
+                  "type": "string",
+                  "enum": ["sequential", "parallel", "conditional"],
+                  "default": "sequential"
+                },
+                "contextData": {
+                  "type": "object",
+                  "properties": {
+                    "includeEventData": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "includeAggregateState": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "externalData": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "type": "string"
+                          },
+                          "query": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "resultHandling": {
+                  "type": "object",
+                  "properties": {
+                    "publishResults": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "storeResults": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "resultEventType": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

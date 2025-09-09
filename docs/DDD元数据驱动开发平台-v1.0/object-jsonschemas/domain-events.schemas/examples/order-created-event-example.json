@@ -1,0 +1,498 @@
+{
+  "$schema": "../full/domain-event-rule.schema.json",
+  "domainEventWithRules": {
+    "metadata": {
+      "id": "order_created",
+      "name": "Order Created Event",
+      "version": "1.0.0",
+      "description": "Event published when a new order is created in the system",
+      "category": "domain",
+      "priority": "high",
+      "tags": ["order", "creation", "e-commerce"],
+      "createdAt": "2025-09-08T10:00:00Z",
+      "modifiedAt": "2025-09-08T10:00:00Z"
+    },
+    "definition": {
+      "eventType": "created",
+      "aggregateRoot": {
+        "type": "Order",
+        "id": "order-123",
+        "version": 1
+      },
+      "causedBy": {
+        "command": "CreateOrderCommand",
+        "user": "customer-456",
+        "correlationId": "uuid-correlation-123"
+      },
+      "occuredAt": "2025-09-08T10:00:00Z",
+      "immutable": true
+    },
+    "payload": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "string"
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "price": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "totalAmount": {
+            "type": "number"
+          },
+          "orderDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["orderId", "customerId", "orderItems", "totalAmount"]
+      },
+      "dataTypes": {
+        "orderId": "uuid",
+        "customerId": "uuid",
+        "totalAmount": "number",
+        "orderDate": "datetime"
+      },
+      "serialization": {
+        "format": "json",
+        "compression": "none",
+        "encryption": {
+          "enabled": false
+        }
+      },
+      "validation": {
+        "strict": true,
+        "customValidators": [
+          {
+            "name": "validateOrderAmount",
+            "function": "validatePositiveAmount",
+            "errorMessage": "Order amount must be positive"
+          }
+        ]
+      }
+    },
+    "businessRuleIntegration": {
+      "triggeredRules": [
+        {
+          "ruleId": "BR_ORDER_DISCOUNT",
+          "condition": {
+            "expression": "totalAmount > 100",
+            "language": "SPEL"
+          },
+          "priority": 1,
+          "async": false,
+          "retryPolicy": {
+            "maxAttempts": 3,
+            "backoffStrategy": "exponential",
+            "initialDelay": "1s"
+          }
+        },
+        {
+          "ruleId": "BR_INVENTORY_CHECK",
+          "condition": {
+            "expression": "true",
+            "language": "SPEL"
+          },
+          "priority": 2,
+          "async": true,
+          "compensation": {
+            "enabled": true,
+            "action": "rollback",
+            "customAction": "releaseInventoryReservation"
+          }
+        }
+      ],
+      "ruleEvaluationContext": {
+        "eventData": true,
+        "aggregateState": true,
+        "historicalData": {
+          "include": true,
+          "timeWindow": "30d"
+        },
+        "externalData": [
+          {
+            "source": "customer_service",
+            "query": "getCustomerProfile",
+            "cacheable": true
+          }
+        ]
+      },
+      "ruleExecutionStrategy": {
+        "mode": "synchronous",
+        "parallelExecution": false,
+        "failureHandling": "stop_on_first_failure",
+        "timeout": "30s"
+      },
+      "resultHandling": {
+        "aggregateResults": true,
+        "publishResults": true,
+        "storeResults": true
+      }
+    },
+    "ruleIntegration": {
+      "preEventRules": [
+        {
+          "ruleId": "PRE_ORDER_VALIDATION",
+          "name": "Pre-Order Validation Rule",
+          "condition": {
+            "expression": "customerId != null && totalAmount > 0",
+            "language": "SPEL",
+            "dependencies": ["customerService"]
+          },
+          "validation": {
+            "type": "pre_condition",
+            "severity": "blocking",
+            "errorHandling": {
+              "action": "abort",
+              "customHandler": "OrderValidationErrorHandler"
+            }
+          },
+          "execution": {
+            "timeout": "5s",
+            "retryPolicy": {
+              "maxAttempts": 2,
+              "backoffStrategy": "fixed",
+              "initialDelay": "1s"
+            },
+            "priority": 1
+          }
+        }
+      ],
+      "postEventRules": [
+        {
+          "ruleId": "POST_ORDER_NOTIFICATIONS",
+          "name": "Order Notification Rule",
+          "triggers": [
+            {
+              "eventType": "order_created",
+              "condition": "totalAmount > 50",
+              "delay": "0s"
+            }
+          ],
+          "actions": [
+            {
+              "type": "notification",
+              "implementation": {
+                "handler": "EmailNotificationHandler",
+                "parameters": {
+                  "template": "order_confirmation",
+                  "recipient": "customer.email"
+                }
+              },
+              "execution": {
+                "async": true,
+                "timeout": "10s",
+                "retryPolicy": {
+                  "maxAttempts": 3,
+                  "backoffStrategy": "exponential",
+                  "initialDelay": "2s"
+                }
+              }
+            }
+          ],
+          "compensation": {
+            "enabled": false
+          },
+          "monitoring": {
+            "trackExecution": true,
+            "alertOnFailure": true,
+            "metricsCollection": true
+          }
+        }
+      ],
+      "cascadingRules": [
+        {
+          "ruleId": "CASCADE_INVENTORY_RESERVATION",
+          "name": "Inventory Reservation Cascade",
+          "cascadeDefinition": {
+            "events": [
+              {
+                "eventType": "inventory_reservation_requested",
+                "payloadTemplate": "{ \"orderId\": \"${orderId}\", \"items\": ${orderItems} }",
+                "condition": "orderItems.size() > 0",
+                "delay": "0s"
+              }
+            ],
+            "rules": [
+              {
+                "ruleId": "BR_PAYMENT_PROCESSING",
+                "context": {
+                  "source": "order_created"
+                },
+                "condition": "totalAmount > 0"
+              }
+            ]
+          },
+          "cascadeControl": {
+            "maxDepth": 3,
+            "circuitBreaker": {
+              "enabled": true,
+              "failureThreshold": 5,
+              "recoveryTimeout": "30s"
+            }
+          }
+        }
+      ],
+      "sagaIntegration": {
+        "enabled": true,
+        "sagaDefinition": {
+          "id": "order_processing_saga",
+          "steps": [
+            {
+              "stepId": "reserve_inventory",
+              "action": "ReserveInventoryAction",
+              "compensationAction": "ReleaseInventoryAction",
+              "condition": "orderItems.size() > 0"
+            },
+            {
+              "stepId": "process_payment",
+              "action": "ProcessPaymentAction",
+              "compensationAction": "RefundPaymentAction",
+              "condition": "totalAmount > 0"
+            }
+          ],
+          "timeout": "1h"
+        },
+        "coordination": {
+          "pattern": "orchestration",
+          "coordinator": "OrderProcessingSagaCoordinator"
+        }
+      },
+      "ruleVersioning": {
+        "currentVersion": "1.0.0",
+        "migrationStrategy": "gradual",
+        "compatibilityMode": "backward_compatible",
+        "rollbackCapability": true
+      }
+    },
+    "eventDrivenValidation": {
+      "validationRules": [
+        {
+          "ruleId": "VAL_ORDER_INTEGRITY",
+          "name": "Order Data Integrity Validation",
+          "validationType": "data_integrity",
+          "severity": "error",
+          "condition": {
+            "eventTypes": ["order_created"],
+            "expression": "totalAmount == orderItems.sum(item -> item.quantity * item.price)",
+            "language": "SPEL"
+          },
+          "remediation": {
+            "autoFix": false,
+            "suggestions": [
+              "Recalculate total amount",
+              "Verify order item prices",
+              "Check quantity calculations"
+            ],
+            "escalation": {
+              "enabled": true,
+              "threshold": 3,
+              "recipients": ["order-admin@company.com"]
+            }
+          }
+        }
+      ],
+      "validationContext": {
+        "scope": "event",
+        "dataSource": ["event_payload", "aggregate_state"],
+        "caching": {
+          "enabled": true,
+          "ttl": "5m"
+        }
+      },
+      "validationExecution": {
+        "timing": "pre_event",
+        "batchValidation": false,
+        "parallelValidation": true
+      }
+    },
+    "asyncProcessing": {
+      "enabled": true,
+      "processingStrategy": {
+        "mode": "queue_based",
+        "partitioning": {
+          "enabled": true,
+          "partitionKey": "customerId",
+          "partitionCount": 5
+        },
+        "ordering": {
+          "guaranteed": true,
+          "scope": "partition"
+        }
+      },
+      "backpressure": {
+        "strategy": "buffer",
+        "bufferSize": 1000,
+        "backoffPolicy": {
+          "initialDelay": "100ms",
+          "maxDelay": "5s",
+          "multiplier": 2
+        }
+      },
+      "deadLetterHandling": {
+        "enabled": true,
+        "maxRetries": 3,
+        "retryDelay": "5s",
+        "deadLetterQueue": "order-events-dlq"
+      }
+    },
+    "processing": {
+      "handlers": [
+        {
+          "id": "order_projection_handler",
+          "name": "Order Projection Handler",
+          "type": "projection",
+          "implementation": {
+            "class": "com.example.handlers.OrderProjectionHandler",
+            "method": "handle",
+            "async": true,
+            "parameters": {
+              "projectionStore": "order_read_model"
+            }
+          },
+          "errorHandling": {
+            "strategy": "retry",
+            "maxRetries": 3,
+            "deadLetterQueue": "projection-dlq"
+          },
+          "performance": {
+            "batchSize": 10,
+            "concurrency": 2,
+            "timeout": "30s"
+          }
+        }
+      ],
+      "routing": {
+        "strategy": "topic_based",
+        "routingKey": "order.created",
+        "filters": [
+          {
+            "condition": "totalAmount > 1000",
+            "target": "high_value_orders"
+          }
+        ]
+      },
+      "ordering": {
+        "guaranteed": true,
+        "partitionKey": "customerId"
+      },
+      "durability": {
+        "persistent": true,
+        "replication": 3,
+        "retention": "30d"
+      }
+    },
+    "eventSourcingExtended": {
+      "enabled": true,
+      "eventStore": {
+        "type": "database",
+        "configuration": {
+          "connectionString": "jdbc:postgresql://localhost:5432/eventstore",
+          "tableName": "domain_events"
+        }
+      },
+      "snapshotting": {
+        "enabled": true,
+        "frequency": 10,
+        "compression": true
+      },
+      "eventVersioning": {
+        "strategy": "event_upcasting",
+        "migrationRules": [
+          {
+            "fromVersion": "1.0.0",
+            "toVersion": "1.1.0",
+            "migrationFunction": "OrderEventMigration.migrateV1ToV1_1"
+          }
+        ]
+      },
+      "projection": {
+        "readModels": [
+          {
+            "name": "OrderSummary",
+            "eventTypes": ["order_created", "order_updated", "order_cancelled"],
+            "projectionFunction": "OrderSummaryProjection.project",
+            "storage": "database"
+          }
+        ],
+        "rebuildStrategy": "incremental"
+      }
+    },
+    "monitoring": {
+      "metrics": {
+        "enabled": true,
+        "customMetrics": [
+          {
+            "name": "order_value_histogram",
+            "type": "histogram",
+            "description": "Distribution of order values",
+            "labels": ["customerId", "region"],
+            "extractor": "totalAmount"
+          }
+        ]
+      },
+      "tracing": {
+        "enabled": true,
+        "samplingRate": 0.1,
+        "propagation": ["jaeger", "b3"]
+      },
+      "logging": {
+        "enabled": true,
+        "level": "info",
+        "includePayload": false,
+        "sensitiveFields": ["creditCardNumber", "ssn"]
+      },
+      "alerting": {
+        "enabled": true,
+        "rules": [
+          {
+            "condition": "processing_time > 5000",
+            "threshold": 5000,
+            "severity": "high",
+            "notification": {
+              "channels": ["email", "slack"],
+              "recipients": ["ops-team@company.com"]
+            }
+          }
+        ]
+      }
+    },
+    "auditTrail": {
+      "enabled": true,
+      "auditLevel": "detailed",
+      "auditData": {
+        "eventMetadata": true,
+        "eventPayload": false,
+        "ruleExecutions": true,
+        "performanceMetrics": true,
+        "errorDetails": true
+      },
+      "retention": {
+        "period": "1y",
+        "archiveStrategy": "archive"
+      },
+      "compliance": {
+        "standards": ["GDPR", "SOX"],
+        "dataClassification": "internal",
+        "encryptionRequired": false
+      }
+    }
+  }
+}

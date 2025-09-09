@@ -1,0 +1,464 @@
+{
+  "calculationModule": {
+    "moduleId": "calc_module_financial_demo",
+    "name": "财务计算演示模块",
+    "version": "1.0.0",
+    "description": "演示财务计算规则和公式的使用",
+    "configuration": {
+      "defaultExecutor": "executor_mathematical",
+      "defaultLanguage": "MATHEMATICAL",
+      "cacheEnabled": true,
+      "validationEnabled": true,
+      "auditEnabled": true,
+      "performanceMonitoring": true
+    },
+    "integrations": {
+      "businessRules": {
+        "enabled": true,
+        "endpoint": "https://api.example.com/business-rules",
+        "syncMode": "REAL_TIME"
+      },
+      "domainEvents": {
+        "enabled": true,
+        "eventBus": "kafka",
+        "publishEvents": ["CALCULATION_COMPLETED", "CALCULATION_FAILED"],
+        "subscribeEvents": ["BUSINESS_RULE_UPDATED"]
+      }
+    }
+  },
+  "calculationRules": [
+    {
+      "calculationId": "calc_compound_interest",
+      "name": "复利计算",
+      "description": "计算复利投资收益",
+      "category": "FINANCIAL",
+      "complexity": "MODERATE",
+      "formula": {
+        "formulaId": "formula_compound_interest",
+        "expression": "principal * Math.pow(1 + rate / 100, time)",
+        "language": "JAVASCRIPT",
+        "syntax": "FUNCTIONAL",
+        "variables": [
+          {
+            "name": "principal",
+            "type": "DECIMAL",
+            "scope": "PARAMETER",
+            "source": "input.principal"
+          },
+          {
+            "name": "rate",
+            "type": "DECIMAL",
+            "scope": "PARAMETER",
+            "source": "input.rate"
+          },
+          {
+            "name": "time",
+            "type": "DECIMAL",
+            "scope": "PARAMETER",
+            "source": "input.time"
+          }
+        ],
+        "functions": [
+          {
+            "name": "Math.pow",
+            "type": "BUILT_IN",
+            "signature": "pow(base: number, exponent: number): number"
+          }
+        ],
+        "compilation": {
+          "enabled": true,
+          "target": "BYTECODE",
+          "optimization": "BASIC",
+          "caching": true
+        }
+      },
+      "inputParameters": [
+        {
+          "parameterId": "param_principal",
+          "name": "principal",
+          "type": "DECIMAL",
+          "required": true,
+          "constraints": {
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 10000000
+          },
+          "description": "投资本金",
+          "examples": [10000, 50000, 100000]
+        },
+        {
+          "parameterId": "param_rate",
+          "name": "rate",
+          "type": "DECIMAL",
+          "required": true,
+          "constraints": {
+            "minimum": 0,
+            "maximum": 50
+          },
+          "description": "年利率（百分比）",
+          "examples": [3.5, 5.0, 7.2]
+        },
+        {
+          "parameterId": "param_time",
+          "name": "time",
+          "type": "DECIMAL",
+          "required": true,
+          "constraints": {
+            "minimum": 0,
+            "maximum": 100
+          },
+          "description": "投资年限",
+          "examples": [1, 5, 10, 20]
+        }
+      ],
+      "outputDefinition": {
+        "type": "DECIMAL",
+        "precision": 2,
+        "roundingMode": "HALF_UP",
+        "unit": "currency",
+        "range": {
+          "min": 0,
+          "inclusiveMin": false
+        },
+        "nullHandling": "THROW_EXCEPTION",
+        "metadata": {
+          "confidence": 1.0,
+          "timestamp": "2025-09-08T10:00:00Z",
+          "version": "1.0.0"
+        }
+      },
+      "preconditions": [
+        {
+          "conditionId": "precond_positive_values",
+          "expression": "principal > 0 && rate >= 0 && time >= 0",
+          "description": "所有输入值必须为非负数，本金必须大于0",
+          "errorMessage": "投资本金必须大于0，利率和年限不能为负数"
+        }
+      ],
+      "postconditions": [
+        {
+          "conditionId": "postcond_result_greater_than_principal",
+          "expression": "result >= principal",
+          "description": "复利结果应该大于等于本金",
+          "action": "ALERT"
+        }
+      ],
+      "errorHandling": {
+        "strategy": "RETRY",
+        "retryPolicy": {
+          "maxAttempts": 3,
+          "delay": 1000,
+          "backoffMultiplier": 2.0,
+          "exceptions": ["CALCULATION_ERROR", "TIMEOUT_ERROR"]
+        },
+        "timeouts": {
+          "execution": 5000,
+          "compilation": 10000,
+          "validation": 1000
+        },
+        "logging": {
+          "level": "INFO",
+          "includeStackTrace": false,
+          "includeParameters": true,
+          "format": "{timestamp} [{level}] {message}"
+        }
+      },
+      "performance": {
+        "expectedComplexity": "O(1)",
+        "maxExecutionTime": 100,
+        "memoryUsage": "LOW",
+        "cacheStrategy": {
+          "type": "MEMORY",
+          "ttl": 3600,
+          "maxSize": 1000,
+          "evictionPolicy": "LRU",
+          "keyPattern": "compound_interest_{principal}_{rate}_{time}"
+        },
+        "monitoring": {
+          "enabled": true,
+          "metrics": ["EXECUTION_TIME", "MEMORY_USAGE", "CACHE_HIT_RATE"],
+          "sampling": 0.1,
+          "alertThresholds": {
+            "executionTime": 200,
+            "errorRate": 0.05
+          }
+        }
+      },
+      "security": {
+        "accessControl": {
+          "requiredRoles": ["FINANCIAL_ANALYST", "PORTFOLIO_MANAGER"],
+          "requiredPermissions": ["CALCULATE_INTEREST"],
+          "restrictions": ["RATE_LIMIT_100_PER_MINUTE"]
+        },
+        "encryption": {
+          "encryptInput": false,
+          "encryptOutput": false,
+          "algorithm": "AES",
+          "keySize": 256
+        },
+        "audit": {
+          "enabled": true,
+          "events": ["EXECUTION", "ERROR"],
+          "storage": "DATABASE",
+          "retention": 365
+        }
+      },
+      "testing": {
+        "enabled": true,
+        "testSuites": ["suite_compound_interest"],
+        "coverage": {
+          "enabled": true,
+          "target": 95,
+          "types": ["STATEMENT", "BRANCH", "FUNCTION"]
+        }
+      },
+      "lifecycle": {
+        "version": "1.0.0",
+        "status": "ACTIVE",
+        "changeLog": [
+          {
+            "version": "1.0.0",
+            "date": "2025-09-08",
+            "type": "FEATURE",
+            "description": "初始版本的复利计算规则",
+            "author": "AI Assistant"
+          }
+        ]
+      }
+    },
+    {
+      "calculationId": "calc_monthly_payment",
+      "name": "月还款金额计算",
+      "description": "计算贷款的月还款金额",
+      "category": "FINANCIAL",
+      "complexity": "SIMPLE",
+      "formula": {
+        "formulaId": "formula_monthly_payment",
+        "expression": "(principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1)",
+        "language": "JAVASCRIPT",
+        "syntax": "FUNCTIONAL",
+        "variables": [
+          {
+            "name": "principal",
+            "type": "DECIMAL",
+            "scope": "PARAMETER"
+          },
+          {
+            "name": "monthlyRate",
+            "type": "DECIMAL",
+            "scope": "LOCAL",
+            "transformation": "rate / 100 / 12"
+          },
+          {
+            "name": "months",
+            "type": "INTEGER",
+            "scope": "PARAMETER"
+          }
+        ]
+      },
+      "inputParameters": [
+        {
+          "parameterId": "param_loan_principal",
+          "name": "principal",
+          "type": "DECIMAL",
+          "required": true,
+          "constraints": {
+            "minimum": 1000,
+            "maximum": 10000000
+          },
+          "description": "贷款本金"
+        },
+        {
+          "parameterId": "param_annual_rate",
+          "name": "rate",
+          "type": "DECIMAL",
+          "required": true,
+          "constraints": {
+            "minimum": 0.1,
+            "maximum": 30
+          },
+          "description": "年利率（百分比）"
+        },
+        {
+          "parameterId": "param_loan_months",
+          "name": "months",
+          "type": "INTEGER",
+          "required": true,
+          "constraints": {
+            "minimum": 1,
+            "maximum": 480
+          },
+          "description": "贷款月数"
+        }
+      ],
+      "outputDefinition": {
+        "type": "DECIMAL",
+        "precision": 2,
+        "roundingMode": "HALF_UP",
+        "unit": "currency"
+      }
+    }
+  ],
+  "formulaDefinitions": [
+    {
+      "formulaId": "formula_tax_calculation",
+      "expression": "income * taxRate - deductions",
+      "language": "MATHEMATICAL",
+      "syntax": "INFIX",
+      "variables": [
+        {
+          "name": "income",
+          "type": "DECIMAL",
+          "scope": "PARAMETER"
+        },
+        {
+          "name": "taxRate",
+          "type": "DECIMAL",
+          "scope": "PARAMETER"
+        },
+        {
+          "name": "deductions",
+          "type": "DECIMAL",
+          "scope": "PARAMETER"
+        }
+      ],
+      "constants": {
+        "PI": 3.14159,
+        "E": 2.71828
+      }
+    }
+  ],
+  "expressionParsers": [
+    {
+      "parserId": "parser_mathematical",
+      "name": "数学表达式解析器",
+      "language": "MATHEMATICAL",
+      "grammar": "/* ANTLR数学表达式语法 */",
+      "configuration": {
+        "caseSensitive": false,
+        "allowUndefinedVariables": false,
+        "strictMode": true
+      }
+    }
+  ],
+  "calculationContexts": [
+    {
+      "contextId": "context_financial",
+      "name": "财务计算上下文",
+      "scope": "SESSION",
+      "variables": {
+        "currentExchangeRate": 6.85,
+        "inflationRate": 0.03,
+        "riskFreeRate": 0.02
+      },
+      "functions": [
+        {
+          "name": "convertCurrency",
+          "implementation": "function convertCurrency(amount, rate) { return amount * rate; }",
+          "parameters": [
+            {"name": "amount", "type": "DECIMAL", "required": true},
+            {"name": "rate", "type": "DECIMAL", "required": true}
+          ],
+          "returnType": "DECIMAL"
+        }
+      ]
+    }
+  ],
+  "testSuites": [
+    {
+      "suiteId": "suite_compound_interest",
+      "name": "复利计算测试套件",
+      "calculationRuleId": "calc_compound_interest",
+      "testCases": [
+        {
+          "caseId": "case_standard_compound",
+          "name": "标准复利计算",
+          "description": "测试标准的复利计算场景",
+          "category": "POSITIVE",
+          "inputs": {
+            "principal": 10000,
+            "rate": 5.0,
+            "time": 10
+          },
+          "expectedOutput": 16288.95,
+          "tolerance": 0.01,
+          "timeout": 1000,
+          "priority": "HIGH",
+          "tags": ["basic", "compound", "financial"]
+        },
+        {
+          "caseId": "case_zero_rate",
+          "name": "零利率测试",
+          "description": "测试零利率情况",
+          "category": "BOUNDARY",
+          "inputs": {
+            "principal": 10000,
+            "rate": 0,
+            "time": 10
+          },
+          "expectedOutput": 10000,
+          "tolerance": 0.01,
+          "priority": "MEDIUM",
+          "tags": ["boundary", "zero-rate"]
+        },
+        {
+          "caseId": "case_negative_principal",
+          "name": "负本金测试",
+          "description": "测试负本金的错误处理",
+          "category": "NEGATIVE",
+          "inputs": {
+            "principal": -1000,
+            "rate": 5.0,
+            "time": 10
+          },
+          "expectedOutput": "VALIDATION_ERROR",
+          "priority": "HIGH",
+          "tags": ["negative", "validation"]
+        }
+      ],
+      "configuration": {
+        "parallel": false,
+        "retryFailedTests": true,
+        "maxRetries": 2,
+        "reporting": {
+          "formats": ["JUNIT", "JSON"],
+          "outputDirectory": "/test-results",
+          "includeDetails": true
+        }
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "dependencyId": "dep_compound_to_simple",
+      "source": "calc_compound_interest",
+      "target": "calc_simple_interest",
+      "type": "CONDITIONAL",
+      "condition": "time == 1",
+      "strength": "WEAK",
+      "description": "当投资期为1年时，复利计算退化为单利计算"
+    }
+  ],
+  "integrations": {
+    "enabled": true,
+    "mappings": [
+      {
+        "calculationRuleId": "calc_compound_interest",
+        "businessRuleId": "rule_investment_validation",
+        "relationship": "VALIDATES",
+        "configuration": {
+          "validationLevel": "STRICT"
+        }
+      }
+    ],
+    "synchronization": {
+      "mode": "REAL_TIME",
+      "conflictResolution": "CALCULATION_WINS"
+    },
+    "validation": {
+      "enabled": true,
+      "rules": ["CONSISTENCY_CHECK", "DEPENDENCY_CHECK"],
+      "onFailure": "WARN"
+    }
+  }
+}

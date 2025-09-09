@@ -1,0 +1,1070 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "domain-event-rule.schema.json",
+  "version": "3.0.0",
+  "title": "DDD Domain Event with Business Rule Integration",
+  "description": "Complete schema for domain events with integrated business rule triggering and event-driven validation mechanisms",
+  "type": "object",
+  "properties": {
+    "domainEventWithRules": {
+      "$ref": "#/$defs/DomainEventWithRules"
+    }
+  },
+  "required": ["domainEventWithRules"],
+  "$defs": {
+    "DomainEventWithRules": {
+      "type": "object",
+      "description": "Domain event with comprehensive business rule integration",
+      "properties": {
+        "metadata": {
+          "$ref": "../domain-event.schema.json#/$defs/EventMetadata"
+        },
+        "definition": {
+          "$ref": "../domain-event.schema.json#/$defs/EventDefinition"
+        },
+        "payload": {
+          "$ref": "../domain-event.schema.json#/$defs/EventPayload"
+        },
+        "businessRuleIntegration": {
+          "$ref": "../domain-event.schema.json#/$defs/BusinessRuleIntegration"
+        },
+        "eventSourcing": {
+          "$ref": "../domain-event.schema.json#/$defs/EventSourcing"
+        },
+        "processing": {
+          "$ref": "../domain-event.schema.json#/$defs/EventProcessing"
+        },
+        "monitoring": {
+          "$ref": "../domain-event.schema.json#/$defs/EventMonitoring"
+        },
+        "ruleIntegration": {
+          "$ref": "#/$defs/AdvancedRuleIntegration"
+        },
+        "eventDrivenValidation": {
+          "$ref": "#/$defs/EventDrivenValidation"
+        },
+        "asyncProcessing": {
+          "$ref": "#/$defs/AsyncEventProcessing"
+        },
+        "eventSourcingExtended": {
+          "$ref": "#/$defs/ExtendedEventSourcing"
+        },
+        "auditTrail": {
+          "$ref": "#/$defs/EventAuditTrail"
+        }
+      },
+      "required": ["metadata", "definition", "payload"],
+      "additionalProperties": false
+    },
+    "AdvancedRuleIntegration": {
+      "type": "object",
+      "description": "Advanced integration between domain events and business rules",
+      "properties": {
+        "preEventRules": {
+          "type": "array",
+          "description": "Rules executed before the event is published",
+          "items": {
+            "$ref": "#/$defs/PreEventRule"
+          }
+        },
+        "postEventRules": {
+          "type": "array",
+          "description": "Rules executed after the event is published",
+          "items": {
+            "$ref": "#/$defs/PostEventRule"
+          }
+        },
+        "conditionalRules": {
+          "type": "array",
+          "description": "Rules with complex conditions and dependencies",
+          "items": {
+            "$ref": "#/$defs/ConditionalRule"
+          }
+        },
+        "cascadingRules": {
+          "type": "array",
+          "description": "Rules that trigger other events/rules in a cascade",
+          "items": {
+            "$ref": "#/$defs/CascadingRule"
+          }
+        },
+        "sagaIntegration": {
+          "$ref": "#/$defs/SagaIntegration"
+        },
+        "ruleChaining": {
+          "$ref": "#/$defs/RuleChaining"
+        },
+        "ruleVersioning": {
+          "$ref": "#/$defs/RuleVersioning"
+        }
+      }
+    },
+    "PreEventRule": {
+      "type": "object",
+      "description": "Rule executed before event publication",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "description": "Unique identifier for the pre-event rule"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the rule"
+        },
+        "condition": {
+          "type": "object",
+          "properties": {
+            "expression": {
+              "type": "string",
+              "description": "Boolean expression to determine if rule should execute"
+            },
+            "language": {
+              "type": "string",
+              "enum": ["SPEL", "MVEL", "JAVASCRIPT", "GROOVY", "JEXL"],
+              "default": "SPEL"
+            },
+            "dependencies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "External dependencies required for condition evaluation"
+            }
+          }
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["pre_condition", "business_invariant", "security_check", "data_quality"]
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["blocking", "warning", "informational"],
+              "default": "blocking"
+            },
+            "errorHandling": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": ["abort", "continue_with_warning", "modify_event", "escalate"]
+                },
+                "customHandler": {
+                  "type": "string",
+                  "description": "Custom error handler implementation"
+                }
+              }
+            }
+          }
+        },
+        "execution": {
+          "type": "object",
+          "properties": {
+            "timeout": {
+              "type": "string",
+              "default": "5s",
+              "description": "Maximum execution time"
+            },
+            "retryPolicy": {
+              "$ref": "#/$defs/RetryPolicy"
+            },
+            "priority": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Execution priority"
+            }
+          }
+        }
+      },
+      "required": ["ruleId", "name", "condition"]
+    },
+    "PostEventRule": {
+      "type": "object",
+      "description": "Rule executed after event publication",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "description": "Unique identifier for the post-event rule"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the rule"
+        },
+        "triggers": {
+          "type": "array",
+          "description": "Conditions that trigger this rule",
+          "items": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "description": "Type of event that triggers this rule"
+              },
+              "condition": {
+                "type": "string",
+                "description": "Additional condition for rule triggering"
+              },
+              "delay": {
+                "type": "string",
+                "description": "Delay before rule execution (e.g., '5m', '1h')"
+              }
+            }
+          }
+        },
+        "actions": {
+          "type": "array",
+          "description": "Actions to execute when rule is triggered",
+          "items": {
+            "$ref": "#/$defs/RuleAction"
+          }
+        },
+        "compensation": {
+          "type": "object",
+          "description": "Compensation actions if rule execution fails",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "strategy": {
+              "type": "string",
+              "enum": ["rollback", "retry", "manual_intervention", "ignore"]
+            },
+            "maxCompensationAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 3
+            }
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "properties": {
+            "trackExecution": {
+              "type": "boolean",
+              "default": true
+            },
+            "alertOnFailure": {
+              "type": "boolean",
+              "default": true
+            },
+            "metricsCollection": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        }
+      },
+      "required": ["ruleId", "name", "triggers", "actions"]
+    },
+    "ConditionalRule": {
+      "type": "object",
+      "description": "Rule with complex conditional logic",
+      "properties": {
+        "ruleId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "conditionTree": {
+          "$ref": "#/$defs/ConditionTree"
+        },
+        "contextDependencies": {
+          "type": "array",
+          "description": "External context required for rule evaluation",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": ["aggregate", "external_service", "database", "cache", "session"]
+              },
+              "query": {
+                "type": "string",
+                "description": "Query to retrieve dependency data"
+              },
+              "cacheable": {
+                "type": "boolean",
+                "default": true
+              },
+              "timeout": {
+                "type": "string",
+                "default": "2s"
+              }
+            }
+          }
+        },
+        "executionStrategy": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["eager", "lazy", "conditional"],
+              "default": "conditional"
+            },
+            "parallelization": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "maxConcurrency": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 5
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["ruleId", "name", "conditionTree"]
+    },
+    "CascadingRule": {
+      "type": "object",
+      "description": "Rule that triggers additional events or rules",
+      "properties": {
+        "ruleId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "cascadeDefinition": {
+          "type": "object",
+          "properties": {
+            "events": {
+              "type": "array",
+              "description": "Events to trigger as result of this rule",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "eventType": {
+                    "type": "string"
+                  },
+                  "payloadTemplate": {
+                    "type": "string",
+                    "description": "Template for generating event payload"
+                  },
+                  "condition": {
+                    "type": "string",
+                    "description": "Condition for triggering this event"
+                  },
+                  "delay": {
+                    "type": "string",
+                    "description": "Delay before triggering event"
+                  }
+                }
+              }
+            },
+            "rules": {
+              "type": "array",
+              "description": "Rules to trigger as result of this rule",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ruleId": {
+                    "type": "string"
+                  },
+                  "context": {
+                    "type": "object",
+                    "description": "Additional context to pass to triggered rule"
+                  },
+                  "condition": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "cascadeControl": {
+          "type": "object",
+          "properties": {
+            "maxDepth": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 5,
+              "description": "Maximum cascade depth to prevent infinite loops"
+            },
+            "circuitBreaker": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "failureThreshold": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 5
+                },
+                "recoveryTimeout": {
+                  "type": "string",
+                  "default": "30s"
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["ruleId", "name", "cascadeDefinition"]
+    },
+    "ConditionTree": {
+      "type": "object",
+      "description": "Hierarchical condition structure for complex rule logic",
+      "properties": {
+        "operator": {
+          "type": "string",
+          "enum": ["AND", "OR", "NOT", "XOR", "IMPLIES"]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ConditionTree"
+              },
+              {
+                "$ref": "#/$defs/LeafCondition"
+              }
+            ]
+          }
+        }
+      },
+      "required": ["operator", "conditions"]
+    },
+    "LeafCondition": {
+      "type": "object",
+      "description": "Atomic condition in the condition tree",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Field to evaluate"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["eq", "ne", "gt", "gte", "lt", "lte", "in", "nin", "contains", "regex", "exists"]
+        },
+        "value": {
+          "description": "Value to compare against"
+        },
+        "function": {
+          "type": "string",
+          "description": "Custom function to apply before comparison"
+        }
+      },
+      "required": ["field", "operator"]
+    },
+    "RuleAction": {
+      "type": "object",
+      "description": "Action to execute as result of rule",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["command", "event", "notification", "calculation", "external_call", "saga_start"]
+        },
+        "implementation": {
+          "type": "object",
+          "properties": {
+            "handler": {
+              "type": "string",
+              "description": "Action handler implementation"
+            },
+            "parameters": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Parameters for action execution"
+            },
+            "template": {
+              "type": "string",
+              "description": "Template for dynamic parameter generation"
+            }
+          }
+        },
+        "execution": {
+          "type": "object",
+          "properties": {
+            "async": {
+              "type": "boolean",
+              "default": false
+            },
+            "timeout": {
+              "type": "string",
+              "default": "30s"
+            },
+            "retryPolicy": {
+              "$ref": "#/$defs/RetryPolicy"
+            }
+          }
+        }
+      },
+      "required": ["type", "implementation"]
+    },
+    "SagaIntegration": {
+      "type": "object",
+      "description": "Integration with saga pattern for long-running transactions",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "sagaDefinition": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier for the saga"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "stepId": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "compensationAction": {
+                    "type": "string"
+                  },
+                  "condition": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "timeout": {
+              "type": "string",
+              "default": "1h"
+            }
+          }
+        },
+        "coordination": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "enum": ["orchestration", "choreography"],
+              "default": "orchestration"
+            },
+            "coordinator": {
+              "type": "string",
+              "description": "Saga coordinator implementation"
+            }
+          }
+        }
+      }
+    },
+    "RuleChaining": {
+      "type": "object",
+      "description": "Configuration for chaining multiple rules",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "chainDefinition": {
+          "type": "object",
+          "properties": {
+            "sequential": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Rules to execute sequentially"
+            },
+            "parallel": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Rules to execute in parallel"
+            },
+            "conditional": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": "Conditional rule execution based on conditions"
+            }
+          }
+        },
+        "failureHandling": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["stop_on_failure", "continue_on_failure", "compensate_on_failure"]
+            },
+            "compensation": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "RuleVersioning": {
+      "type": "object",
+      "description": "Version management for business rules",
+      "properties": {
+        "currentVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "migrationStrategy": {
+          "type": "string",
+          "enum": ["immediate", "gradual", "blue_green", "canary"],
+          "default": "gradual"
+        },
+        "compatibilityMode": {
+          "type": "string",
+          "enum": ["strict", "backward_compatible", "forward_compatible"],
+          "default": "backward_compatible"
+        },
+        "rollbackCapability": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "EventDrivenValidation": {
+      "type": "object",
+      "description": "Event-driven validation mechanisms",
+      "properties": {
+        "validationRules": {
+          "type": "array",
+          "description": "Validation rules triggered by events",
+          "items": {
+            "$ref": "#/$defs/EventValidationRule"
+          }
+        },
+        "validationContext": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "type": "string",
+              "enum": ["event", "aggregate", "bounded_context", "global"],
+              "default": "event"
+            },
+            "dataSource": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["event_payload", "aggregate_state", "external_service", "cache"]
+              }
+            },
+            "caching": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "ttl": {
+                  "type": "string",
+                  "default": "5m"
+                }
+              }
+            }
+          }
+        },
+        "validationExecution": {
+          "type": "object",
+          "properties": {
+            "timing": {
+              "type": "string",
+              "enum": ["pre_event", "post_event", "async"],
+              "default": "pre_event"
+            },
+            "batchValidation": {
+              "type": "boolean",
+              "default": false
+            },
+            "parallelValidation": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "EventValidationRule": {
+      "type": "object",
+      "description": "Validation rule triggered by domain events",
+      "properties": {
+        "ruleId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "validationType": {
+          "type": "string",
+          "enum": ["business_rule", "data_integrity", "security", "compliance", "performance"]
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning", "info"],
+          "default": "error"
+        },
+        "condition": {
+          "type": "object",
+          "properties": {
+            "eventTypes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Event types that trigger this validation"
+            },
+            "expression": {
+              "type": "string",
+              "description": "Validation expression"
+            },
+            "language": {
+              "type": "string",
+              "enum": ["SPEL", "MVEL", "JAVASCRIPT"],
+              "default": "SPEL"
+            }
+          }
+        },
+        "remediation": {
+          "type": "object",
+          "properties": {
+            "autoFix": {
+              "type": "boolean",
+              "default": false
+            },
+            "suggestions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "escalation": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "threshold": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "recipients": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["ruleId", "name", "validationType", "condition"]
+    },
+    "AsyncEventProcessing": {
+      "type": "object",
+      "description": "Asynchronous event processing configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "processingStrategy": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["queue_based", "stream_based", "actor_based"],
+              "default": "queue_based"
+            },
+            "partitioning": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "partitionKey": {
+                  "type": "string"
+                },
+                "partitionCount": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 1
+                }
+              }
+            },
+            "ordering": {
+              "type": "object",
+              "properties": {
+                "guaranteed": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "scope": {
+                  "type": "string",
+                  "enum": ["global", "partition", "aggregate"],
+                  "default": "partition"
+                }
+              }
+            }
+          }
+        },
+        "backpressure": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["drop", "buffer", "backoff", "circuit_breaker"],
+              "default": "buffer"
+            },
+            "bufferSize": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1000
+            },
+            "backoffPolicy": {
+              "type": "object",
+              "properties": {
+                "initialDelay": {
+                  "type": "string",
+                  "default": "100ms"
+                },
+                "maxDelay": {
+                  "type": "string",
+                  "default": "5s"
+                },
+                "multiplier": {
+                  "type": "number",
+                  "minimum": 1,
+                  "default": 2
+                }
+              }
+            }
+          }
+        },
+        "deadLetterHandling": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "maxRetries": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3
+            },
+            "retryDelay": {
+              "type": "string",
+              "default": "5s"
+            },
+            "deadLetterQueue": {
+              "type": "string",
+              "description": "Dead letter queue configuration"
+            }
+          }
+        }
+      }
+    },
+    "ExtendedEventSourcing": {
+      "type": "object",
+      "description": "Extended event sourcing capabilities",
+      "allOf": [
+        {
+          "$ref": "../domain-event.schema.json#/$defs/EventSourcing"
+        },
+        {
+          "properties": {
+            "eventVersioning": {
+              "type": "object",
+              "properties": {
+                "strategy": {
+                  "type": "string",
+                  "enum": ["event_upcasting", "event_downcasting", "version_mapping"],
+                  "default": "event_upcasting"
+                },
+                "migrationRules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fromVersion": {
+                        "type": "string"
+                      },
+                      "toVersion": {
+                        "type": "string"
+                      },
+                      "migrationFunction": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "projection": {
+              "type": "object",
+              "properties": {
+                "readModels": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "eventTypes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "projectionFunction": {
+                        "type": "string"
+                      },
+                      "storage": {
+                        "type": "string",
+                        "enum": ["database", "cache", "search_index"]
+                      }
+                    }
+                  }
+                },
+                "rebuildStrategy": {
+                  "type": "string",
+                  "enum": ["full_rebuild", "incremental", "parallel"],
+                  "default": "incremental"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "EventAuditTrail": {
+      "type": "object",
+      "description": "Comprehensive audit trail for events and rule executions",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "auditLevel": {
+          "type": "string",
+          "enum": ["basic", "detailed", "comprehensive"],
+          "default": "detailed"
+        },
+        "auditData": {
+          "type": "object",
+          "properties": {
+            "eventMetadata": {
+              "type": "boolean",
+              "default": true
+            },
+            "eventPayload": {
+              "type": "boolean",
+              "default": false
+            },
+            "ruleExecutions": {
+              "type": "boolean",
+              "default": true
+            },
+            "performanceMetrics": {
+              "type": "boolean",
+              "default": true
+            },
+            "errorDetails": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "retention": {
+          "type": "object",
+          "properties": {
+            "period": {
+              "type": "string",
+              "default": "1y",
+              "description": "Audit data retention period"
+            },
+            "archiveStrategy": {
+              "type": "string",
+              "enum": ["delete", "archive", "compress"],
+              "default": "archive"
+            }
+          }
+        },
+        "compliance": {
+          "type": "object",
+          "properties": {
+            "standards": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["GDPR", "SOX", "HIPAA", "PCI_DSS", "ISO_27001"]
+              }
+            },
+            "dataClassification": {
+              "type": "string",
+              "enum": ["public", "internal", "confidential", "restricted"],
+              "default": "internal"
+            },
+            "encryptionRequired": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    },
+    "RetryPolicy": {
+      "type": "object",
+      "description": "Retry policy configuration",
+      "properties": {
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3
+        },
+        "backoffStrategy": {
+          "type": "string",
+          "enum": ["fixed", "exponential", "linear", "custom"],
+          "default": "exponential"
+        },
+        "initialDelay": {
+          "type": "string",
+          "default": "1s"
+        },
+        "maxDelay": {
+          "type": "string",
+          "default": "30s"
+        },
+        "jitter": {
+          "type": "boolean",
+          "default": true
+        },
+        "retryableExceptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

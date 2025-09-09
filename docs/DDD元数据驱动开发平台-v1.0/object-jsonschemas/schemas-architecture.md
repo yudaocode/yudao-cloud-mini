@@ -1,419 +1,543 @@
-# 📐 DDD元数据平台 - Schema架构层级关系
+# 📐 DDD元数据平台 - Schema架构层级├── 🖥️ 用户├── 📡 通信接口域 (Communication Domain) - 对外暴露接口
+│   ├── SDK (Software Development Kit)
+│   ├── API (Application Programming Interface)
+│   ├── DTO (Data Transfer Object)
+│   ├── DTO映射 (DTO Mapping)
+│   └── 性能监控 (Performance Monitoring)ser Interface Domain) - 用户交互界面
+│   ├── 屏幕定义 (Screen Definition)
+│   ├── Amis屏幕定义 (Amis Screen Definition)
+│   ├── 表单定义 (Form Definition)
+│   ├── 布局定义 (Layout Definition)
+│   └── 组件定义 (Component Definition)
+├── 📡 通信接口域 (Communication Domain) - 对外暴露接口 对象层级关系 - 项目驱动的分层分区架构
 
-## 🎯 当前问题分析
-
-### ❌ **概念混淆问题**
-1. **战略设计、战术设计被误认为数据对象** - 实际上它们是**过程性活动**，应该体现在API/UI层，而不是Schema层
-2. **层级关系不清晰** - 项目、领域、限界上下文、子域之间的关系模糊
-3. **术语作用域混乱** - 没有明确区分全局、项目、领域、上下文级别的术语
-
-## 📊 当前Schema对象清单
-
-### 🗂️ **1. project-metadata.schemas/**
+### 🎯 **核心层级关系澄清**
 ```
-project-metadata.schemas/
-├── full/
-│   ├── project-metadata.schema.json    ← 项目元数据聚合根
-│   └── domain.schema.json              ← 领域定义
-├── fields/
-│   ├── project-fields.schema.json
-│   ├── domain-fields.schema.json
-│   ├── business-fields.schema.json
-│   ├── team-fields.schema.json
-│   └── technical-fields.schema.json
-└── operations/
-    ├── create/, update/, delete/, read/, patch/, bulk/
-```
-
-### 🗂️ **2. strategic-design.schemas/** ⚠️ **可能需要重构**
-```
-strategic-design.schemas/
-├── full/
-│   ├── strategic-design.schema.json    ← ❌ 过程性活动，不应该是数据对象
-│   ├── bounded-context.schema.json     ← ✅ 限界上下文实体
-│   └── subdomain.schema.json          ← ✅ 子域实体
-├── fields/
-│   ├── bounded-context-fields.schema.json
-│   └── subdomain-fields.schema.json
-└── operations/
-```
-
-### 🗂️ **3. tactical-design.schemas/** ⚠️ **可能需要重构**
-```
-tactical-design.schemas/
-├── full/
-│   ├── tactical-design.schema.json     ← ❌ 过程性活动，不应该是数据对象
-│   ├── aggregate.schema.json          ← ✅ 聚合根实体
-│   ├── entity.schema.json            ← ✅ 实体对象
-│   └── value-object.schema.json       ← ✅ 值对象
-├── fields/
-│   ├── aggregate-fields.schema.json
-│   ├── entity-fields.schema.json
-│   └── value-object-fields.schema.json
-└── operations/
-```
-
-### 🗂️ **4. ubiquitous-language.schemas/**
-```
-ubiquitous-language.schemas/
-├── full/
-│   ├── ubiquitous-language.schema.json ← 统一语言聚合根
-│   ├── business-term.schema.json      ← ✅ 业务术语
-│   ├── business-attribute.schema.json ← ✅ 业务属性
-│   └── constraints.schema.json        ← ✅ 约束条件
-├── fields/
-│   ├── term-fields.schema.json
-│   └── attribute-fields.schema.json
-└── operations/
+📁 项目 (Project) - 顶级视角
+├── 🗣️ 统一语言 (Ubiquitous Language) - 项目级术语体系
+│   ├── 业务术语 (Business Terms)
+│   ├── 业务属性 (Business Properties)
+│   ├── 约束条件 (Constraints)
+│   ├── 业务规则 (Business Rules)
+│   ├── 验证规则 (Validation Rules)
+│   ├── 计算规则 (Calculation Rules)
+│   └── 领域事件定义 (Domain Event Definitions)
+├── 🎯 问题域 (Problem Domain) - 要解决的业务问题
+│   ├── 领域 (Domain) + 策略 (Policy)
+│   ├── 子域 (Subdomain) + 规约 (Specification)
+│   └── 聚合 (Aggregate) + 实体 (Entity) + 值对象 (Value Object) + 不变式 (Invariant)
+├── ⚡ 解决方案域 (Solution Domain) - 技术实现方案
+│   ├── 模块 (Module)
+│   ├── 限界上下文 (Bounded Context)
+│   ├── 领域服务 (Domain Service)
+│   ├── 应用服务 (Application Service)
+│   ├── 适配器 (Adapter) + 防腐网关 (Anti-Corruption Layer)
+│   └── 外部系统 (External System)
+├── �️ 用户界面域 (User Interface Domain) - 用户交互界面
+│   ├── 界面定义 (Screen Definition)
+│   ├── Amis界面定义 (Amis Screen Definition)
+│   ├── 组件库 (Component Library)
+│   ├── 界面主题 (UI Theme)
+│   └── 用户体验配置 (UX Configuration)
+├── �📡 通信接口域 (Communication Domain) - 对外暴露接口
+│   ├── SDK (Software Development Kit)
+│   ├── API (Application Programming Interface)
+│   ├── DTO (Data Transfer Object)
+│   ├── DTO映射 (DTO Mapping)
+│   └── 性能监控 (Performance Monitoring)
+└── 🏗️ 基础设施域 (Infrastructure Domain) - 技术支撑服务
+    ├── 持久化服务 (Persistence Services)
+    ├── 通信服务 (Communication Services)
+    ├── 集成服务 (Integration Services)
+    └── 技术服务 (Technical Services)
 ```
 
-### 🗂️ **5. data-transfer-objects.schemas/**
-```
-data-transfer-objects.schemas/
-├── full/
-│   ├── data-transfer-objects.schema.json   ← DTO管理聚合根
-│   ├── data-transfer-object.schema.json    ← ✅ 单个DTO实体
-│   ├── dto-attribute.schema.json          ← ✅ DTO属性
-│   ├── dto-mapping.schema.json            ← ✅ DTO映射
-│   ├── field-mapping.schema.json          ← ✅ 字段映射
-│   ├── serialization.schema.json          ← ✅ 序列化配置
-│   ├── transformation-rule.schema.json    ← ✅ 转换规则
-│   ├── validation-rule.schema.json        ← ✅ 验证规则
-│   ├── usage-status.schema.json           ← ✅ 使用状态
-│   ├── constraints.schema.json            ← ✅ 约束条件
-│   └── attribute-serialization.schema.json ← ✅ 属性序列化
-├── fields/
-│   ├── dto-fields.schema.json
-│   ├── attribute-fields.schema.json
-│   ├── mapping-fields.schema.json
-│   ├── serialization-fields.schema.json
-│   ├── validation-fields.schema.json
-│   ├── collection-fields.schema.json
-│   └── common-fields.schema.json
-└── operations/
-```
-
-### 🗂️ **6. api-definition.schemas/**
-```
-api-definition.schemas/
-├── full/
-│   └── api-specification.schema.json   ← ✅ API规范定义
-├── fields/
-│   ├── endpoint-fields.schema.json
-│   ├── parameter-fields.schema.json
-│   ├── response-fields.schema.json
-│   └── common-fields.schema.json
-└── operations/
-```
-
-### 🗂️ **7. implementation-mapping.schemas/**
-```
-implementation-mapping.schemas/
-├── full/
-│   ├── implementation-mapping.schema.json  ← 实现映射聚合根
-│   ├── architecture-mapping.schema.json   ← ✅ 架构映射
-│   ├── persistence-mapping.schema.json    ← ✅ 持久化映射
-│   └── integration-mapping.schema.json    ← ✅ 集成映射
-├── fields/
-│   ├── architecture-fields.schema.json
-│   ├── persistence-fields.schema.json
-│   ├── integration-fields.schema.json
-│   ├── mapping-fields.schema.json
-│   ├── validation-fields.schema.json
-│   └── common-fields.schema.json
-└── operations/
-```
-
-### 🗂️ **8. screen-definition.schemas/**
-```
-screen-definition.schemas/
-├── full/
-│   ├── screen-definition.schema.json   ← 界面定义聚合根
-│   ├── screen.schema.json             ← ✅ 界面实体
-│   ├── component.schema.json          ← ✅ 组件实体
-│   ├── action.schema.json             ← ✅ 操作实体
-│   └── permission.schema.json         ← ✅ 权限实体
-├── fields/
-└── operations/
-```
----
-
-```mermaid
-
-```
-
-
-### 🗂️ **9. validation.schemas/**
-```
-validation.schemas/
-├── full/
-│   ├── validation-configuration.schema.json ← 验证配置聚合根
-│   └── validation-rule.schema.json         ← ✅ 验证规则实体
-├── fields/
-└── operations/
-```
-
-##  对象层级关系 - 分层分区架构
+### 🏗️ **第一层：项目架构总览图**
 ```mermaid
 graph TB
-    %% 样式定义 - 采用选项A的详细样式
-    classDef problem fill:#42a5f5,stroke:#01579b,stroke-width:2px,color:black;
-    classDef solution fill:#66bb6a,stroke:#33691e,stroke-width:2px,color:black;
+    %% 样式定义
+    classDef project fill:#ff9800,stroke:#e65100,stroke-width:4px,color:white;
+    classDef languageZone fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:black;
+    classDef problemZone fill:#e3f2fd,stroke:#0d47a1,stroke-width:3px,color:black;
+    classDef solutionZone fill:#e8f5e9,stroke:#1b5e20,stroke-width:3px,color:black;
+    classDef uiZone fill:#fce4ec,stroke:#880e4f,stroke-width:3px,color:black;
+    classDef communicationZone fill:#f3e5f5,stroke:#4a148c,stroke-width:3px,color:black;
+    classDef infrastructureZone fill:#f5f5f5,stroke:#424242,stroke-width:3px,color:black;
+
+    %% 项目作为顶级容器
+    PROJECT[📁 项目 Project<br/>顶级业务上下文]:::project
+    
+    %% 项目包含的六大域
+    LANGUAGE_DOMAIN[🗣️ 统一语言域<br/>Ubiquitous Language Domain]:::languageZone
+    PROBLEM_DOMAIN[🎯 问题域<br/>Problem Domain]:::problemZone
+    SOLUTION_DOMAIN[⚡ 解决方案域<br/>Solution Domain]:::solutionZone
+    UI_DOMAIN[🖥️ 用户界面域<br/>User Interface Domain]:::uiZone
+    COMMUNICATION_DOMAIN[📡 通信接口域<br/>Communication Domain]:::communicationZone
+    INFRASTRUCTURE_DOMAIN[🏗️ 基础设施域<br/>Infrastructure Domain]:::infrastructureZone
+
+    %% 项目包含关系
+    PROJECT -->|定义| LANGUAGE_DOMAIN
+    PROJECT -->|分析| PROBLEM_DOMAIN
+    PROJECT -->|设计| SOLUTION_DOMAIN
+    PROJECT -->|呈现| UI_DOMAIN
+    PROJECT -->|暴露| COMMUNICATION_DOMAIN
+    PROJECT -->|依赖| INFRASTRUCTURE_DOMAIN
+    
+    %% 域间核心关系
+    LANGUAGE_DOMAIN -.->|术语定义| PROBLEM_DOMAIN
+    LANGUAGE_DOMAIN -.->|术语定义| SOLUTION_DOMAIN
+    LANGUAGE_DOMAIN -.->|术语定义| UI_DOMAIN
+    LANGUAGE_DOMAIN -.->|术语定义| COMMUNICATION_DOMAIN
+    
+    PROBLEM_DOMAIN -->|映射到| SOLUTION_DOMAIN
+    SOLUTION_DOMAIN -->|呈现到| UI_DOMAIN
+    SOLUTION_DOMAIN -->|暴露| COMMUNICATION_DOMAIN
+    UI_DOMAIN -->|调用| COMMUNICATION_DOMAIN
+    SOLUTION_DOMAIN -->|依赖| INFRASTRUCTURE_DOMAIN
+    UI_DOMAIN -->|依赖| INFRASTRUCTURE_DOMAIN
+    COMMUNICATION_DOMAIN -->|依赖| INFRASTRUCTURE_DOMAIN
+```
+
+### 🔍 **第二层：域详细图**
+
+#### 📁 **0. 项目容器层 - Project Container**
+```mermaid
+graph TB
+    classDef project fill:#ff9800,stroke:#e65100,stroke-width:3px,color:white;
+    classDef domain fill:#ffcc80,stroke:#f57c00,stroke-width:2px,color:black;
+    classDef metadata fill:#ffe0b2,stroke:#ff8f00,stroke-width:1px,color:black;
+    
+    %% 项目容器
+    PROJECT(项目容器<br/>Project Container):::project
+    
+    %% 项目元数据
+    subgraph PROJECT_META [项目元数据区]
+        PROJ_INFO(项目信息<br/>Project Information):::metadata
+        PROJ_CONFIG(项目配置<br/>Project Configuration):::metadata
+        PROJ_TEAM(项目团队<br/>Project Team):::metadata
+    end
+    
+    %% 项目包含的六大域
+    LANG_DOMAIN[🗣️ 统一语言域]:::domain
+    PROB_DOMAIN[🎯 问题域]:::domain
+    SOLU_DOMAIN[⚡ 解决方案域]:::domain
+    UI_DOMAIN[🖥️ 用户界面域]:::domain
+    COMM_DOMAIN[📡 通信接口域]:::domain
+    INFRA_DOMAIN[🏗️ 基础设施域]:::domain
+    
+    %% 项目包含关系
+    PROJECT -.-> PROJECT_META
+    PROJECT -->|管理| LANG_DOMAIN
+    PROJECT -->|定义| PROB_DOMAIN
+    PROJECT -->|实现| SOLU_DOMAIN
+    PROJECT -->|呈现| UI_DOMAIN
+    PROJECT -->|暴露| COMM_DOMAIN
+    PROJECT -->|依赖| INFRA_DOMAIN
+```
+
+#### 🗣️ **1. 统一语言域 - Ubiquitous Language Domain**
+```mermaid
+graph TB
     classDef language fill:#ffa726,stroke:#ff6f00,stroke-width:2px,color:black;
+    classDef scope fill:#ffcc80,stroke:#f57c00,stroke-width:1px,color:black;
+    classDef external fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5,color:gray;
+
+    %% 本域核心对象
+    UL_ROOT(统一语言根<br/>Ubiquitous Language Root):::language
+    
+    %% 术语作用域层级
+    subgraph UL_SCOPES [术语作用域层级]
+        GLOBAL_TERMS(全局术语<br/>Global Terms):::scope
+        PROJECT_TERMS(项目术语<br/>Project Terms):::scope
+        DOMAIN_TERMS(领域术语<br/>Domain Terms):::scope
+        CONTEXT_TERMS(上下文术语<br/>Context Terms):::scope
+    end
+    
+    %% 术语实现
+    TERM(业务术语<br/>Business Term):::language
+    PROP(业务属性<br/>Business Property):::language
+    CONSTRAINT(约束条件<br/>Constraint):::language
+    BIZ_RULE(业务规则<br/>Business Rule):::language
+    VALIDATION(验证规则<br/>Validation Rule):::language
+    CALC_RULE(计算规则<br/>Calculation Rule):::language
+    DOMAIN_EVENT_DEF(领域事件定义<br/>Domain Event Definition):::language
+    
+    %% 外部域引用节点
+    PROJECT_EXT[项目容器]:::external
+    DOMAIN_EXT[领域]:::external
+    BC_EXT[限界上下文]:::external
+    
+    %% 本域内部关系
+    UL_ROOT -->|管理| GLOBAL_TERMS
+    PROJECT_EXT -->|定义| PROJECT_TERMS
+    DOMAIN_EXT -->|定义| DOMAIN_TERMS
+    BC_EXT -->|定义| CONTEXT_TERMS
+    
+    %% 术语层级关系
+    GLOBAL_TERMS -->|继承到| PROJECT_TERMS
+    PROJECT_TERMS -->|继承到| DOMAIN_TERMS
+    DOMAIN_TERMS -->|继承到| CONTEXT_TERMS
+    
+    %% 术语实现关系
+    PROJECT_TERMS -->|包含| TERM
+    DOMAIN_TERMS -->|包含| TERM
+    CONTEXT_TERMS -->|包含| TERM
+    TERM -->|定义| PROP
+    TERM -->|约束| CONSTRAINT
+    TERM -->|规定| BIZ_RULE
+    BIZ_RULE -->|实现为| VALIDATION
+    BIZ_RULE -->|实现为| CALC_RULE
+    UL_ROOT -->|定义模板| DOMAIN_EVENT_DEF
+```
+
+#### 🎯 **2. 问题域 - Problem Domain**
+```mermaid
+graph TB
+    classDef problem fill:#42a5f5,stroke:#01579b,stroke-width:2px,color:black;
+    classDef hierarchy fill:#81c784,stroke:#388e3c,stroke-width:1px,color:black;
+    classDef external fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5,color:gray;
+    
+    %% 本域核心对象 - 业务层级结构
+    subgraph PD_HIERARCHY [业务层级结构]
+        DOM(领域<br/>Domain):::problem
+        SUB(子域<br/>Subdomain):::problem
+    end
+    
+    %% 本域核心对象 - 领域建模对象
+    subgraph PD_MODELING [领域建模对象]
+        AGG(聚合<br/>Aggregate):::problem
+        AR(聚合根<br/>Aggregate Root):::problem
+        ENT(实体<br/>Entity):::problem
+        VO(值对象<br/>Value Object):::problem
+        DE(领域事件<br/>Domain Event):::problem
+    end
+    
+    %% 本域核心对象 - 业务规则对象
+    subgraph PD_BUSINESS_RULES [业务规则对象]
+        SPEC(规约<br/>Specification):::problem
+        POLICY(策略<br/>Policy):::problem
+        INVARIANT(不变式<br/>Invariant):::problem
+    end
+    
+    %% 外部域引用节点
+    PROJECT_EXT[项目容器]:::external
+    TERM_EXT[业务术语]:::external
+    PROP_EXT[业务属性]:::external
+    BIZ_RULE_EXT[业务规则]:::external
+    BC_EXT[限界上下文]:::external
+    
+    %% 项目包含问题域
+    PROJECT_EXT -->|分析| DOM
+    
+    %% 本域内部层级关系
+    DOM -->|分解为| SUB
+    SUB -->|包含| AGG
+    AGG -->|有且只有一个| AR
+    AR -->|包含| ENT
+    AR -->|包含| VO
+    AR -->|发布| DE
+    
+    %% 业务规则层级关系
+    DOM -->|定义| POLICY
+    SUB -->|定义| SPEC
+    AGG -->|保证| INVARIANT
+    AR -->|验证| SPEC
+    ENT -->|验证| SPEC
+    VO -->|验证| SPEC
+    
+    %% 跨域关系 - 术语定义
+    TERM_EXT -->|定义| DOM
+    TERM_EXT -->|定义| SUB
+    PROP_EXT -.->|构成| AR
+    PROP_EXT -.->|构成| ENT
+    PROP_EXT -.->|构成| VO
+    BIZ_RULE_EXT -->|实现为| SPEC
+    BIZ_RULE_EXT -->|实现为| POLICY
+    BIZ_RULE_EXT -->|实现为| INVARIANT
+    
+    %% 跨域关系 - 解决方案映射
+    SUB -.->|映射到| BC_EXT
+```
+
+#### ⚡ **3. 解决方案域 - Solution Domain**
+```mermaid
+graph TB
+    classDef solution fill:#66bb6a,stroke:#33691e,stroke-width:2px,color:black;
     classDef integration fill:#66bb6a,stroke:#2e7d32,stroke-width:1px,stroke-dasharray: 5 5,color:black;
-    classDef infrastructure fill:#616161,stroke:#424242,stroke-width:1px,color:white;
-    classDef method fill:#e53935,stroke:#d32f2f,stroke-width:1px,color:white;
-    classDef communication fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:black;
-
-    %% ==================== 第1层：统一语言层 (Language Layer) ====================
-    subgraph L1 [🗣️ 统一语言层 - Language Layer]
-        UL(统一语言<br/>Unified Language):::language
-        TERM(术语<br/>Terminology):::language
-        PROP(属性<br/>Property):::language
-        
-        UL -.-> TERM
-        TERM -->|实现为| PROP
+    classDef external fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5,color:gray;
+    
+    %% 本域核心对象 - 技术组织结构
+    subgraph SD_ORGANIZATION [技术组织结构]
+        MOD(模块<br/>Module):::solution
+        BC(限界上下文<br/>Bounded Context):::solution
     end
-
-    %% ==================== 第2层：问题空间层 (Problem Space Layer) ====================
-    subgraph L2 [🎯 问题空间层 - Problem Space Layer]
-        %% 问题空间分区 - 领域分析区
-        subgraph PS_DOMAIN [领域分析区]
-            DOM(领域<br/>Domain):::problem
-            SUB(子域<br/>Subdomain):::problem
-        end
-        
-        %% 问题空间分区 - 聚合设计区
-        subgraph PS_AGGREGATE [聚合设计区]
-            AGG(聚合<br/>Aggregate):::problem
-            AR(聚合根<br/>Aggregate Root):::problem
-            ENT(实体<br/>Entity):::problem
-            VO(值对象<br/>Value Object):::problem
-        end
-        
-        %% 问题空间内部关系
-        DOM -->|包含| SUB
-        SUB -->|包含| AGG
-        AGG -->|有且只有一个| AR
-        AR -->|包含| ENT
-        AR -->|包含| VO
+    
+    %% 本域核心对象 - 服务层
+    subgraph SD_SERVICES [服务层]
+        DS(领域服务<br/>Domain Service):::solution
+        APP_S(应用服务<br/>Application Service):::solution
     end
-
-    %% ==================== 第3层：解决方案空间层 (Solution Space Layer) ====================
-    subgraph L3 [⚡ 解决方案空间层 - Solution Space Layer]
-        %% 解决方案分区 - 项目组织区
-        subgraph SS_PROJECT [项目组织区]
-            PROJ(项目<br/>Project):::solution
-            MOD(模块<br/>Module):::solution
-        end
-        
-        %% 解决方案分区 - 上下文实现区
-        subgraph SS_CONTEXT [上下文实现区]
-            BC(限界上下文<br/>Bounded Context):::solution
-            DS(领域服务<br/>Domain Service):::solution
-            APP_S(应用服务<br/>App Service):::solution
-        end
-        
-        %% 解决方案分区 - 事件与集成区
-        subgraph SS_EVENT [事件与集成区]
-            DE(领域事件<br/>Domain Event):::solution
-            ADPT(适配器<br/>Adapter):::solution
-            GATEWAY(防腐网关<br/>ACL Gateway):::integration
-        end
-        
-        %% 解决方案空间内部关系
-        PROJ -->|包含| MOD
-        PROJ -->|管理| BC
-        BC -->|实现| SUB
-        BC -->|包含| DS
-        BC -->|包含| APP_S
-        AR -->|发布| DE
-        ADPT -->|实现为| GATEWAY
-        MOD -->|包含| APP_S
-        MOD -->|包含| ADPT
+    
+    %% 本域核心对象 - 集成层
+    subgraph SD_INTEGRATION [集成层]
+        ADPT(适配器<br/>Adapter):::solution
+        GATEWAY(防腐网关<br/>Anti-Corruption Layer):::solution
+        EXT_SYSTEM(外部系统<br/>External System):::integration
     end
-
-    %% ==================== 第4层：通信接口层 (Communication Layer) ====================
-    subgraph L4 [📡 通信接口层 - Communication Layer]
-        %% 通信分区 - API接口区
-        subgraph CI_API [API接口区]
-            SDK(客户端SDK<br/>Client SDK):::communication
-            API(API端点<br/>API Endpoint):::communication
-            S_METH(服务方法<br/>Service Method):::communication
-        end
-        
-        %% 通信分区 - 数据传输区
-        subgraph CI_DTO [数据传输区]
-            DTO(数据传输对象<br/>Data Transfer Object):::communication
-        end
-        
-        %% 通信接口内部关系
-        BC -->|暴露| SDK
-        SDK -->|提供| API
-        SDK -->|定义| DTO
-        API -->|定义| S_METH
-        APP_S -->|实现| API
-        S_METH -->|输入| DTO
-        S_METH -->|输出| DTO
-    end
-
-    %% ==================== 第5层：方法细节层 (Method Details Layer) ====================
-    subgraph L5 [🔧 方法细节层 - Method Details Layer]
-        %% 方法分区 - 领域方法区
-        subgraph MD_DOMAIN [领域方法区]
-            AR_METH(聚合根方法<br/>AggregateRoot Method):::method
-            ENT_METH(实体方法<br/>Entity Method):::method
-            VO_METH(值对象方法<br/>ValueObject Method):::method
-            DS_METH(领域服务方法<br/>DomainService Method):::method
-        end
-        
-        %% 方法分区 - 参数返回区
-        subgraph MD_PARAM [参数返回区]
-            PARAM(参数<br/>Parameter):::method
-            RETURN(返回值<br/>Return Value):::method
-        end
-        
-        %% 方法细节内部关系
-        AR -->|包含| AR_METH
-        ENT -->|包含| ENT_METH
-        VO -->|包含| VO_METH
-        DS -->|包含| DS_METH
-        
-        AR_METH -->|有| PARAM
-        AR_METH -->|有| RETURN
-        ENT_METH -->|有| PARAM
-        ENT_METH -->|有| RETURN
-        VO_METH -->|有| PARAM
-        VO_METH -->|有| RETURN
-        DS_METH -->|有| PARAM
-        DS_METH -->|有| RETURN
-        
-        %% 参数和返回值都是DTO
-        PARAM -->|是| DTO
-        RETURN -->|是| DTO
-    end
-
-    %% ==================== 第6层：基础设施层 (Infrastructure Layer) ====================
-    subgraph L6 [🏗️ 基础设施层 - Infrastructure Layer]
-        %% 基础设施分区 - 仓储区
-        subgraph INFRA_REPO [仓储区]
-            REPO_IFACE(仓储接口<br/>Repository Interface):::infrastructure
-            REPO_IMPL(仓储实现<br/>Repository Implementation):::infrastructure
-        end
-        
-        %% 基础设施内部关系
-        REPO_IFACE -.->|被实现| REPO_IMPL
-        AR -->|被持久化| REPO_IFACE
-        DS -->|依赖| REPO_IFACE
-    end
-
-    %% ==================== 跨层关系：上下文映射 ====================
-    BC_A[限界上下文A<br/>Bounded Context A]:::solution
-    BC_B[限界上下文B<br/>Bounded Context B]:::solution
-    BC_A -->|上游关系<br/>Upstream| BC_B
-    BC_B -->|下游关系<br/>Downstream| BC_A
-
-    %% ==================== 跨层关系：术语作用域 ====================
-    TERM -->|项目级定义| PROJ
-    TERM -->|领域级定义| DOM
-    TERM -->|上下文级定义| BC
-
-    %% ==================== 跨层关系：属性构成 ====================
-    PROP -.->|构成| AR
-    PROP -.->|构成| ENT
-    PROP -.->|构成| VO
-    PROP -.->|构成| DTO
-    DE -->|包含| PROP
-
-    %% ==================== 应用层使用关系 ====================
-    APP_S -->|使用| DS
-    APP_S -->|操作| AR
-
+    
+    %% 外部域引用节点
+    PROJECT_EXT[项目容器]:::external
+    SUB_EXT[子域]:::external
+    TERM_EXT[业务术语]:::external
+    AR_EXT[聚合根]:::external
+    DE_EXT[领域事件]:::external
+    SDK_EXT[SDK]:::external
+    API_EXT[API]:::external
+    REPO_EXT[仓储接口]:::external
+    
+    %% 项目包含解决方案域
+    PROJECT_EXT -->|设计| MOD
+    PROJECT_EXT -->|管理| BC
+    
+    %% 本域内部关系
+    MOD -->|包含| BC
+    BC -->|包含| DS
+    BC -->|包含| APP_S
+    BC -->|包含| ADPT
+    BC -->|定义| GATEWAY
+    
+    %% 集成层内部关系
+    GATEWAY -->|使用| ADPT
+    ADPT -->|转换调用| EXT_SYSTEM
+    
+    %% 上下文映射关系（同级）
+    BC_A[限界上下文A]:::solution
+    BC_B[限界上下文B]:::solution
+    BC_A -->|上游/下游| BC_B
+    
+    %% 跨域关系 - 问题域映射
+    SUB_EXT -->|实现为| BC
+    TERM_EXT -->|定义| BC
+    TERM_EXT -->|定义| DS
+    
+    %% 跨域关系 - 通信接口暴露
+    BC -->|暴露| SDK_EXT
+    APP_S -->|实现| API_EXT
+    
+    %% 跨域关系 - 领域对象操作
+    APP_S -->|编排| DS
+    APP_S -->|操作| AR_EXT
+    DS -->|操作| AR_EXT
+    
+    %% 跨域关系 - 基础设施依赖
+    DS -->|依赖| REPO_EXT
+    DE_EXT -->|通过适配器| ADPT
+    
+    %% 跨域关系 - 外部系统集成
+    DS -->|通过防腐网关| GATEWAY
+    APP_S -->|通过防腐网关| GATEWAY
 ```
 
-## 🎯 **需要矫正的层级关系**
+#### �️ **4. 用户界面域 - User Interface Domain**
 
-### **❓ 问题1: 项目与领域关系**
-- **当前**: project-metadata包含domains数组
-- **关系**: Project 1:N Domain ✅ 这个是对的
+用户界面域负责定义与用户交互的各种界面组件和表现形式。
 
-### **❓ 问题2: 领域与限界上下文关系**
-- **当前**: domain包含boundedContexts ID数组
-- **关系**: Domain 1:N BoundedContext 
-- **疑问**: 这个关系对吗？还是应该是 BoundedContext可以跨多个Domain？
-
-### **❓ 问题3: 领域与子域关系**
-- **当前**: domain包含subdomains数组，subdomain引用strategic-design
-- **关系**: Domain 1:N Subdomain
-- **疑问**: 这个关系对吗？
-
-### **❓ 问题4: 限界上下文与子域关系**
-- **当前**: 没有明确的关系定义
-- **疑问**: 1个限界上下文通常有多个子域？还是1个子域可以属于多个限界上下文？
-
-### **❓ 问题5: 术语的作用域层级**
-- **当前**: ubiquitous-language是全局的
-- **需要**: 明确术语的作用域：全局 → 项目 → 领域 → 上下文
-
-### **❓ 问题6: 战略设计和战术设计的定位**
-- **当前**: 作为数据对象Schema
-- **实际**: 应该是过程性活动，在API/UI层体现
-- **疑问**: 是否应该完全移除这两个Schema？
-
-### **❓ 问题7: 聚合根的归属**
-- **当前**: aggregate在tactical-design.schemas下
-- **疑问**: aggregate应该属于哪个限界上下文？如何建立这个关系？
-
-### **❓ 问题8: 实体和值对象的归属**
-- **当前**: entity和value-object在tactical-design.schemas下
-- **疑问**: 它们应该属于哪个聚合根？如何建立这个关系？
-
-### **❓ 问题9: DTO的归属**
-- **当前**: DTO是独立的管理单元
-- **疑问**: DTO应该与哪个领域或上下文关联？
-
-### **❓ 问题10: API的归属**
-- **当前**: API是独立的规范定义
-- **疑问**: API应该与哪个限界上下文关联？
-
-## 🎯 **待矫正的核心问题**
-
-### **1. 清晰的层级关系**
-```
-Project (项目)
-├── Domain (领域) 
-│   ├── ？→ BoundedContext (限界上下文)
-│   └── ？→ Subdomain (子域)
-├── UbiquitousLanguage (统一语言)
-│   ├── 作用域：项目级？
-│   ├── 作用域：领域级？
-│   └── 作用域：上下文级？
-└── ？→ 其他对象的归属关系
+```mermaid
+graph TB
+    classDef uiDomain fill:#2196F3,stroke:#0D47A1,stroke-width:2px,color:white;
+    classDef external fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5,color:gray;
+    
+    %% 本域核心对象 - 界面定义层
+    subgraph UI_DEFINITION [界面定义层]
+        SCREEN_DEF(屏幕定义<br/>Screen Definition):::uiDomain
+        FORM_DEF(表单定义<br/>Form Definition):::uiDomain
+        LAYOUT_DEF(布局定义<br/>Layout Definition):::uiDomain
+    end
+    
+    %% 本域核心对象 - 界面实现层
+    subgraph UI_IMPLEMENTATION [界面实现层]
+        AMIS_SCREEN(Amis屏幕定义<br/>Amis Screen Definition):::uiDomain
+        COMPONENT_DEF(组件定义<br/>Component Definition):::uiDomain
+        EVENT_HANDLER(事件处理器<br/>Event Handler):::uiDomain
+    end
+    
+    %% 本域内关系
+    SCREEN_DEF -->|包含| FORM_DEF
+    SCREEN_DEF -->|使用| LAYOUT_DEF
+    SCREEN_DEF -->|实现为| AMIS_SCREEN
+    FORM_DEF -->|组成| COMPONENT_DEF
+    COMPONENT_DEF -->|绑定| EVENT_HANDLER
+    
+    %% 项目包含用户界面域
+    PROJECT([项目容器<br/>Project Container]):::external
+    PROJECT -->|呈现| UI_DEFINITION
+    PROJECT -->|渲染| UI_IMPLEMENTATION
 ```
 
-### **2. 战略设计和战术设计的处理**
-- **选项A**: 完全移除，作为API/UI层的过程性活动
-- **选项B**: 保留为工作流程记录
-- **选项C**: 重新定义为设计决策记录
+**用户界面域组件说明:**
 
-### **3. 对象归属关系**
-- Aggregate 归属于哪个 BoundedContext？
-- Entity 归属于哪个 Aggregate？
-- ValueObject 归属于哪个 Aggregate？
-- DTO 归属于哪个 Domain 或 BoundedContext？
-- API 归属于哪个 BoundedContext？
+- **屏幕定义**: 定义通用的屏幕界面结构和布局规范
+- **表单定义**: 定义数据输入表单的结构和验证规则  
+- **布局定义**: 定义界面的排版和视觉呈现方式
+- **Amis屏幕定义**: 基于Amis框架的具体屏幕实现配置
+- **组件定义**: 定义可复用的UI组件和其属性
+- **事件处理器**: 定义用户交互事件的处理逻辑
 
-## 📝 **请矫正以下内容**
+#### �📡 **5. 通信接口域 - Communication Domain**
+```mermaid
+graph TB
+    classDef communication fill:#9c27b0,stroke:#4a148c,stroke-width:2px,color:white;
+    classDef external fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5,color:gray;
+    
+    %% 本域核心对象 - 接口规范层
+    subgraph CD_SPECIFICATION [接口规范层]
+        SDK(客户端SDK<br/>Client SDK):::communication
+        API_SPEC(API规范<br/>API Specification):::communication
+    end
+    
+    %% 本域核心对象 - 接口实现层
+    subgraph CD_IMPLEMENTATION [接口实现层]
+        API_ENDPOINT(API端点<br/>API Endpoint):::communication
+        SERVICE_METHOD(服务方法<br/>Service Method):::communication
+        METHOD_PARAM(方法参数<br/>Method Parameter):::communication
+        METHOD_RETURN(方法返回值<br/>Method Return):::communication
+    end
+    
+    %% 本域核心对象 - 数据传输层
+    subgraph CD_DATA_TRANSFER [数据传输层]
+        DTO(数据传输对象<br/>Data Transfer Object):::communication
+        DTO_ATTR(DTO属性<br/>DTO Attribute):::communication
+        DTO_MAPPING(DTO映射<br/>DTO Mapping):::communication
+    end
+    
+    %% 本域核心对象 - 监控度量层
+    subgraph CD_MONITORING [监控度量层]
+        PERF_MONITOR(性能监控<br/>Performance Monitoring):::communication
+    end
+    
+    %% 外部域引用节点
+    PROJECT_EXT[项目容器]:::external
+    BC_EXT[限界上下文]:::external
+    APP_S_EXT[应用服务]:::external
+    PROP_EXT[业务属性]:::external
+    AR_EXT[聚合根]:::external
+    ENT_EXT[实体]:::external
+    VO_EXT[值对象]:::external
+    
+    %% 项目包含通信接口域
+    PROJECT_EXT -->|暴露| SDK
+    PROJECT_EXT -->|定义| API_SPEC
+    PROJECT_EXT -->|监控| PERF_MONITOR
+    
+    %% 本域内部关系
+    SDK -->|定义| API_SPEC
+    API_SPEC -->|包含| API_ENDPOINT
+    API_ENDPOINT -->|包含| SERVICE_METHOD
+    SERVICE_METHOD -->|有| METHOD_PARAM
+    SERVICE_METHOD -->|有| METHOD_RETURN
+    
+    SDK -->|定义| DTO
+    DTO -->|包含| DTO_ATTR
+    DTO -->|通过| DTO_MAPPING
+    
+    METHOD_PARAM -->|使用| DTO
+    METHOD_RETURN -->|使用| DTO
+    
+    %% 跨域关系 - 解决方案域实现
+    BC_EXT -->|暴露| SDK
+    APP_S_EXT -->|实现| API_ENDPOINT
+    
+    %% 跨域关系 - 统一语言域定义
+    PROP_EXT -.->|构成| DTO_ATTR
+    
+    %% 跨域关系 - 问题域对象映射
+    AR_EXT -.->|映射为| DTO
+    ENT_EXT -.->|映射为| DTO
+    VO_EXT -.->|映射为| DTO
+```
 
-1. **项目、领域、限界上下文、子域的正确层级关系**
-2. **术语作用域的正确层级关系**
-3. **战略设计、战术设计是否应该作为Schema对象**
-4. **聚合根、实体、值对象的归属关系**
-5. **DTO、API等技术对象的归属关系**
-6. **需要新增的Schema对象**
-7. **需要删除的Schema对象**
-8. **需要重新组织的Schema目录结构**
+#### 🏗️ **6. 基础设施域 - Infrastructure Domain**
+```mermaid
+graph LR
+    classDef infrastructure fill:#616161,stroke:#424242,stroke-width:2px,color:white;
+    classDef external fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5,color:gray;
+    
+    %% 本域核心对象 - 持久化基础设施
+    subgraph INFRA_PERSISTENCE [持久化基础设施]
+        REPO_IFACE(仓储接口<br/>Repository Interface):::infrastructure
+        REPO_IMPL(仓储实现<br/>Repository Implementation):::infrastructure
+        PERSISTENCE_MAPPING(持久化映射<br/>Persistence Mapping):::infrastructure
+    end
+    
+    %% 本域核心对象 - 通信基础设施
+    subgraph INFRA_COMMUNICATION [通信基础设施]
+        MSG_SENDER(消息发送器<br/>Message Sender):::infrastructure
+        EVENT_BUS(事件总线<br/>Event Bus):::infrastructure
+        NOTIFICATION(通知服务<br/>Notification Service):::infrastructure
+    end
+    
+    %% 本域核心对象 - 集成基础设施
+    subgraph INFRA_INTEGRATION [集成基础设施]
+        GATEWAY_IMPL(防腐网关实现<br/>Gateway Implementation):::infrastructure
+        EXT_SERVICE(外部服务客户端<br/>External Service Client):::infrastructure
+        ADAPTER_IMPL(适配器实现<br/>Adapter Implementation):::infrastructure
+        INTEGRATION_MAPPING(集成映射<br/>Integration Mapping):::infrastructure
+    end
+    
+    %% 本域核心对象 - 技术基础设施
+    subgraph INFRA_TECHNICAL [技术基础设施]
+        CACHE_SERVICE(缓存服务<br/>Cache Service):::infrastructure
+        LOG_SERVICE(日志服务<br/>Log Service):::infrastructure
+        SECURITY_SERVICE(安全服务<br/>Security Service):::infrastructure
+        ARCHITECTURE_MAPPING(架构映射<br/>Architecture Mapping):::infrastructure
+    end
+    
+    %% 外部域引用节点
+    PROJECT_EXT[项目容器]:::external
+    AR_EXT[聚合根]:::external
+    ENT_EXT[实体]:::external
+    DS_EXT[领域服务]:::external
+    DE_EXT[领域事件]:::external
+    APP_S_EXT[应用服务]:::external
+    GATEWAY_EXT[防腐网关]:::external
+    ADAPTER_EXT[适配器]:::external
+    
+    %% 项目依赖基础设施域
+    PROJECT_EXT -->|依赖| INFRA_PERSISTENCE
+    PROJECT_EXT -->|依赖| INFRA_COMMUNICATION
+    PROJECT_EXT -->|依赖| INFRA_INTEGRATION
+    PROJECT_EXT -->|依赖| INFRA_TECHNICAL
+    
+    %% 本域内部关系
+    REPO_IFACE -.->|被实现| REPO_IMPL
+    GATEWAY_EXT -.->|被实现| GATEWAY_IMPL
+    ADAPTER_EXT -.->|被实现| ADAPTER_IMPL
+    
+    %% 跨域关系 - 持久化服务
+    AR_EXT -->|被持久化| REPO_IFACE
+    ENT_EXT -->|被持久化| REPO_IFACE
+    DS_EXT -->|依赖| REPO_IFACE
+    APP_S_EXT -->|使用| PERSISTENCE_MAPPING
+    
+    %% 跨域关系 - 通信服务
+    APP_S_EXT -->|发送消息| MSG_SENDER
+    DS_EXT -->|发送消息| MSG_SENDER
+    DE_EXT -->|通过| EVENT_BUS
+    APP_S_EXT -->|发送通知| NOTIFICATION
+    
+    %% 跨域关系 - 集成服务
+    DS_EXT -->|调用外部服务| EXT_SERVICE
+    APP_S_EXT -->|通过防腐网关| GATEWAY_IMPL
+    APP_S_EXT -->|通过适配器| ADAPTER_IMPL
+    DS_EXT -->|使用| INTEGRATION_MAPPING
+    
+    %% 跨域关系 - 技术服务
+    APP_S_EXT -->|使用缓存| CACHE_SERVICE
+    DS_EXT -->|使用缓存| CACHE_SERVICE
+    APP_S_EXT -->|记录日志| LOG_SERVICE
+    DS_EXT -->|记录日志| LOG_SERVICE
+    APP_S_EXT -->|安全检查| SECURITY_SERVICE
+    DS_EXT -->|安全检查| SECURITY_SERVICE
+    PROJECT_EXT -->|架构映射| ARCHITECTURE_MAPPING
+```
 
----
-
-**请您在此基础上进行矫正，明确每个对象的层级关系和归属，我将根据您的矫正进行Schema重构。**

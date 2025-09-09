@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/ddd-metamodel/3.0/calculation/fields/calculation-fields.schema.json",
+  "title": "计算规则字段定义",
+  "description": "计算规则中可重用的字段组件定义",
+  "version": "3.0.0",
+  "$defs": {
+    "calculationId": {
+      "type": "string",
+      "pattern": "^calc_[a-zA-Z0-9_]+$",
+      "description": "计算规则唯一标识"
+    },
+    "formulaId": {
+      "type": "string",
+      "pattern": "^formula_[a-zA-Z0-9_]+$",
+      "description": "公式唯一标识"
+    },
+    "expressionString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000,
+      "description": "数学表达式字符串"
+    },
+    "formulaLanguage": {
+      "type": "string",
+      "enum": [
+        "MATHEMATICAL", "JAVASCRIPT", "GROOVY", "PYTHON", 
+        "RULE_ENGINE", "SQL", "REGEX", "CUSTOM_DSL"
+      ],
+      "description": "公式语言类型"
+    },
+    "dataType": {
+      "type": "string",
+      "enum": [
+        "INTEGER", "DECIMAL", "FLOAT", "DOUBLE", "BOOLEAN", 
+        "STRING", "DATE", "DATETIME", "TIME", "ARRAY", 
+        "OBJECT", "JSON", "BINARY", "CUSTOM"
+      ],
+      "description": "数据类型"
+    },
+    "calculationCategory": {
+      "type": "string",
+      "enum": [
+        "FINANCIAL", "MATHEMATICAL", "STATISTICAL", "BUSINESS_LOGIC", 
+        "AGGREGATION", "TRANSFORMATION", "VALIDATION", "CONDITIONAL",
+        "TEMPORAL", "GEOMETRIC", "TRIGONOMETRIC", "ALGORITHMIC"
+      ],
+      "description": "计算规则类别"
+    },
+    "complexityLevel": {
+      "type": "string",
+      "enum": ["SIMPLE", "MODERATE", "COMPLEX", "ADVANCED"],
+      "description": "计算复杂度级别"
+    },
+    "roundingMode": {
+      "type": "string",
+      "enum": [
+        "UP", "DOWN", "CEILING", "FLOOR", 
+        "HALF_UP", "HALF_DOWN", "HALF_EVEN", "UNNECESSARY"
+      ],
+      "description": "舍入模式"
+    },
+    "cacheType": {
+      "type": "string",
+      "enum": ["NONE", "MEMORY", "REDIS", "DATABASE", "DISTRIBUTED", "HYBRID"],
+      "description": "缓存类型"
+    },
+    "errorStrategy": {
+      "type": "string",
+      "enum": ["THROW", "RETURN_DEFAULT", "RETRY", "ESCALATE", "LOG_AND_CONTINUE"],
+      "description": "错误处理策略"
+    },
+    "executionComplexity": {
+      "type": "string",
+      "enum": ["O(1)", "O(log n)", "O(n)", "O(n log n)", "O(n²)", "O(2^n)", "UNKNOWN"],
+      "description": "预期计算复杂度"
+    },
+    "memoryUsageLevel": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "VERY_HIGH"],
+      "description": "内存使用级别"
+    },
+    "priorityLevel": {
+      "type": "string",
+      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+      "description": "优先级级别"
+    },
+    "lifecycleStatus": {
+      "type": "string",
+      "enum": ["DRAFT", "ACTIVE", "DEPRECATED", "RETIRED"],
+      "description": "生命周期状态"
+    },
+    "testCategory": {
+      "type": "string",
+      "enum": ["POSITIVE", "NEGATIVE", "BOUNDARY", "PERFORMANCE", "SECURITY"],
+      "description": "测试用例类别"
+    },
+    "dependencyType": {
+      "type": "string",
+      "enum": ["SEQUENTIAL", "CONDITIONAL", "PARALLEL", "CIRCULAR"],
+      "description": "依赖类型"
+    },
+    "variableScope": {
+      "type": "string",
+      "enum": ["LOCAL", "GLOBAL", "CONTEXT", "PARAMETER"],
+      "description": "变量作用域"
+    },
+    "functionType": {
+      "type": "string",
+      "enum": [
+        "BUILT_IN", "CUSTOM", "LIBRARY", "EXTERNAL", 
+        "MATHEMATICAL", "STATISTICAL", "STRING", "DATE", 
+        "AGGREGATION", "CONDITIONAL", "LOGICAL"
+      ],
+      "description": "函数类型"
+    },
+    "parameterName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "参数名称"
+    },
+    "variableName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "变量名称"
+    },
+    "functionName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "函数名称"
+    },
+    "versionNumber": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "版本号（语义化版本）"
+    },
+    "cronExpression": {
+      "type": "string",
+      "pattern": "^(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\\d+(ns|us|µs|ms|s|m|h))+)|((((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7})$",
+      "description": "Cron表达式"
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "正整数"
+    },
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "非负整数"
+    },
+    "percentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "百分比（0-100）"
+    },
+    "probability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "概率（0-1）"
+    },
+    "timeout": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 300000,
+      "description": "超时时间（毫秒）"
+    },
+    "precision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 50,
+      "description": "数值精度（小数位数）"
+    },
+    "scale": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000,
+      "description": "数值标度（总位数）"
+    },
+    "keySize": {
+      "type": "integer",
+      "enum": [128, 192, 256, 512, 1024, 2048, 4096],
+      "description": "密钥长度"
+    },
+    "threadCount": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 128,
+      "description": "线程数量"
+    },
+    "retentionDays": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3650,
+      "description": "保留天数"
+    },
+    "maxAttempts": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "最大重试次数"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "描述文本"
+    },
+    "longDescription": {
+      "type": "string",
+      "maxLength": 5000,
+      "description": "长描述文本"
+    },
+    "shortName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "短名称"
+    },
+    "longName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "长名称"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL地址"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "电子邮件地址"
+    },
+    "dateOnly": {
+      "type": "string",
+      "format": "date",
+      "description": "日期（YYYY-MM-DD格式）"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "日期时间（ISO 8601格式）"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+$",
+        "minLength": 1,
+        "maxLength": 50
+      },
+      "uniqueItems": true,
+      "maxItems": 20,
+      "description": "标签列表"
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "description": "字符串数组"
+    },
+    "keyValuePairs": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+          "type": ["string", "number", "boolean"]
+        }
+      },
+      "additionalProperties": false,
+      "description": "键值对对象"
+    },
+    "logLevel": {
+      "type": "string",
+      "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR"],
+      "description": "日志级别"
+    },
+    "encryptionAlgorithm": {
+      "type": "string",
+      "enum": ["AES", "RSA", "DES", "3DES"],
+      "description": "加密算法"
+    },
+    "optimizationLevel": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "MAXIMUM"],
+      "description": "优化级别"
+    },
+    "reportFormat": {
+      "type": "string",
+      "enum": ["JUNIT", "HTML", "JSON", "XML", "CSV"],
+      "description": "报告格式"
+    },
+    "contextScope": {
+      "type": "string",
+      "enum": ["GLOBAL", "SESSION", "REQUEST", "TRANSACTION", "LOCAL"],
+      "description": "上下文作用域"
+    },
+    "synchronizationMode": {
+      "type": "string",
+      "enum": ["REAL_TIME", "BATCH", "ON_DEMAND"],
+      "description": "同步模式"
+    },
+    "relationshipType": {
+      "type": "string",
+      "enum": ["IMPLEMENTS", "VALIDATES", "TRIGGERS", "DEPENDS_ON"],
+      "description": "关系类型"
+    },
+    "validationAction": {
+      "type": "string",
+      "enum": ["WARN", "ERROR", "BLOCK"],
+      "description": "验证失败时的处理方式"
+    }
+  }
+}

@@ -1,0 +1,608 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "api-fields.schema.json",
+  "version": "3.0.0",
+  "title": "API Field Components v3.0",
+  "description": "Reusable field components for API definitions",
+  "type": "object",
+  "$defs": {
+    "ApiIdentifier": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+      "minLength": 2,
+      "maxLength": 50,
+      "description": "Standard API identifier pattern"
+    },
+    "SemanticVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "Semantic version following semver.org standard"
+    },
+    "HttpStatusCode": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599,
+      "description": "Valid HTTP status code"
+    },
+    "HttpMethod": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "TRACE"],
+      "description": "HTTP methods"
+    },
+    "MediaType": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_]*\\/[a-zA-Z0-9][a-zA-Z0-9!#$&\\-\\^_.]*$",
+      "examples": [
+        "application/json",
+        "application/xml",
+        "text/plain",
+        "multipart/form-data"
+      ],
+      "description": "Valid media type"
+    },
+    "UriReference": {
+      "type": "string",
+      "format": "uri-reference",
+      "description": "URI reference as per RFC 3986"
+    },
+    "EmailAddress": {
+      "type": "string",
+      "format": "email",
+      "description": "Valid email address"
+    },
+    "DomainName": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$",
+      "description": "Valid domain name component"
+    },
+    "BoundedContextName": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*$",
+      "minLength": 2,
+      "maxLength": 30,
+      "description": "Bounded context name in PascalCase"
+    },
+    "AggregateName": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*$",
+      "minLength": 2,
+      "maxLength": 30,
+      "description": "Aggregate name in PascalCase"
+    },
+    "EntityName": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*$",
+      "minLength": 2,
+      "maxLength": 30,
+      "description": "Entity name in PascalCase"
+    },
+    "OperationName": {
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9]*$",
+      "minLength": 2,
+      "maxLength": 50,
+      "description": "Operation name in camelCase"
+    },
+    "EventName": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*$",
+      "minLength": 2,
+      "maxLength": 50,
+      "description": "Domain event name in PascalCase"
+    },
+    "CommandName": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*Command$",
+      "minLength": 8,
+      "maxLength": 50,
+      "description": "Command name ending with 'Command'"
+    },
+    "QueryName": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]*Query$",
+      "minLength": 6,
+      "maxLength": 50,
+      "description": "Query name ending with 'Query'"
+    },
+    "BusinessRuleId": {
+      "type": "string",
+      "pattern": "^BR_[A-Z][A-Z0-9_]*$",
+      "minLength": 4,
+      "maxLength": 50,
+      "description": "Business rule identifier with BR_ prefix"
+    },
+    "ApiCategory": {
+      "type": "string",
+      "enum": ["domain_api", "application_api", "integration_api", "infrastructure_api"],
+      "description": "API category in DDD context"
+    },
+    "Environment": {
+      "type": "string",
+      "enum": ["development", "testing", "staging", "production"],
+      "description": "Environment type"
+    },
+    "LifecycleStage": {
+      "type": "string",
+      "enum": ["development", "testing", "staging", "production", "deprecated"],
+      "description": "API lifecycle stage"
+    },
+    "DomainType": {
+      "type": "string",
+      "enum": [
+        "entity",
+        "value_object",
+        "aggregate_id",
+        "domain_event",
+        "command",
+        "query_result",
+        "specification",
+        "policy",
+        "invariant"
+      ],
+      "description": "Domain type classification"
+    },
+    "SecuritySchemeType": {
+      "type": "string",
+      "enum": ["apiKey", "http", "oauth2", "openIdConnect"],
+      "description": "Security scheme types"
+    },
+    "ParameterLocation": {
+      "type": "string",
+      "enum": ["query", "header", "path", "cookie"],
+      "description": "Parameter location in HTTP request"
+    },
+    "OpenApiVersion": {
+      "type": "string",
+      "enum": ["3.0.0", "3.0.1", "3.0.2", "3.0.3", "3.1.0"],
+      "description": "Supported OpenAPI specification versions"
+    },
+    "SchemaType": {
+      "type": "string",
+      "enum": ["null", "boolean", "object", "array", "number", "string", "integer"],
+      "description": "JSON Schema primitive types"
+    },
+    "StringFormat": {
+      "type": "string",
+      "enum": [
+        "date",
+        "date-time",
+        "time",
+        "email",
+        "hostname",
+        "ipv4",
+        "ipv6",
+        "uri",
+        "uri-reference",
+        "uuid",
+        "regex",
+        "binary",
+        "byte",
+        "password"
+      ],
+      "description": "Standard string formats"
+    },
+    "ContactInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "email": {
+          "$ref": "#/$defs/EmailAddress"
+        },
+        "url": {
+          "$ref": "#/$defs/UriReference"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Contact information structure"
+    },
+    "LicenseInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "url": {
+          "$ref": "#/$defs/UriReference"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false,
+      "description": "License information structure"
+    },
+    "ExternalDocs": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "url": {
+          "$ref": "#/$defs/UriReference"
+        }
+      },
+      "required": ["url"],
+      "additionalProperties": false,
+      "description": "External documentation reference"
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "externalDocs": {
+          "$ref": "#/$defs/ExternalDocs"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false,
+      "description": "Tag definition for API organization"
+    },
+    "ServerVariable": {
+      "type": "object",
+      "properties": {
+        "enum": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "default": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": ["default"],
+      "additionalProperties": false,
+      "description": "Server variable definition"
+    },
+    "ServerInfo": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "$ref": "#/$defs/UriReference"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "variables": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9._-]+$": {
+              "$ref": "#/$defs/ServerVariable"
+            }
+          },
+          "additionalProperties": false
+        },
+        "environment": {
+          "$ref": "#/$defs/Environment"
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        }
+      },
+      "required": ["url"],
+      "additionalProperties": false,
+      "description": "Server configuration"
+    },
+    "Example": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "value": {
+          "description": "Example value"
+        },
+        "externalValue": {
+          "$ref": "#/$defs/UriReference"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Example object"
+    },
+    "ApiVersionInfo": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "$ref": "#/$defs/SemanticVersion"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["development", "current", "deprecated", "sunset"]
+        },
+        "deprecationDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "sunsetDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "changeLog": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["added", "changed", "deprecated", "removed", "fixed", "security"]
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "breaking": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "required": ["type", "description"]
+          }
+        }
+      },
+      "required": ["version", "status"],
+      "additionalProperties": false,
+      "description": "API version information"
+    },
+    "DomainEventMapping": {
+      "type": "object",
+      "properties": {
+        "eventType": {
+          "$ref": "#/$defs/EventName"
+        },
+        "triggeringOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationName"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "aggregate": {
+          "$ref": "#/$defs/AggregateName"
+        },
+        "schema": {
+          "type": "string",
+          "description": "Reference to event schema"
+        }
+      },
+      "required": ["eventType", "triggeringOperations"],
+      "additionalProperties": false,
+      "description": "Domain event mapping"
+    },
+    "BusinessRuleMapping": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "$ref": "#/$defs/BusinessRuleId"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationName"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "enforcement": {
+          "type": "string",
+          "enum": ["api_gateway", "application_layer", "domain_layer"],
+          "default": "domain_layer"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5
+        }
+      },
+      "required": ["ruleId", "operations"],
+      "additionalProperties": false,
+      "description": "Business rule mapping"
+    },
+    "AggregateMapping": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/AggregateName"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperationName"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EventName"
+          },
+          "uniqueItems": true
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EntityName"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["name", "operations"],
+      "additionalProperties": false,
+      "description": "Aggregate mapping"
+    },
+    "PerformanceThreshold": {
+      "type": "object",
+      "properties": {
+        "p50": {
+          "type": "number",
+          "minimum": 0,
+          "description": "50th percentile response time in ms"
+        },
+        "p95": {
+          "type": "number",
+          "minimum": 0,
+          "description": "95th percentile response time in ms"
+        },
+        "p99": {
+          "type": "number",
+          "minimum": 0,
+          "description": "99th percentile response time in ms"
+        },
+        "timeout": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Request timeout in ms"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Performance threshold definitions"
+    },
+    "RateLimitConfig": {
+      "type": "object",
+      "properties": {
+        "requestsPerSecond": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "requestsPerMinute": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "requestsPerHour": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "burstAllowed": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "additionalProperties": false,
+      "description": "Rate limiting configuration"
+    },
+    "SecurityRequirement": {
+      "type": "object",
+      "properties": {
+        "scheme": {
+          "type": "string"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["scheme"],
+      "additionalProperties": false,
+      "description": "Security requirement definition"
+    },
+    "ValidationPattern": {
+      "type": "object",
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "format": "regex"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "errorCode": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        }
+      },
+      "required": ["pattern"],
+      "additionalProperties": false,
+      "description": "Validation pattern with error handling"
+    },
+    "TimestampField": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp"
+    },
+    "DateField": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date"
+    },
+    "TimeField": {
+      "type": "string",
+      "format": "time",
+      "description": "ISO 8601 time"
+    },
+    "UuidField": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID v4 format"
+    },
+    "UrlField": {
+      "type": "string",
+      "format": "uri",
+      "description": "Valid URL"
+    },
+    "RegexField": {
+      "type": "string",
+      "format": "regex",
+      "description": "Valid regular expression"
+    },
+    "Base64Field": {
+      "type": "string",
+      "format": "byte",
+      "description": "Base64 encoded data"
+    },
+    "BinaryField": {
+      "type": "string",
+      "format": "binary",
+      "description": "Binary data"
+    },
+    "PasswordField": {
+      "type": "string",
+      "format": "password",
+      "minLength": 8,
+      "maxLength": 128,
+      "description": "Password field"
+    }
+  }
+}

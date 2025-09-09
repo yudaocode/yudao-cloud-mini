@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.ddd-platform.com/dto-mapping/dto-mapping-core.schema.json",
+  "title": "DTO映射核心Schema",
+  "description": "简化的DTO映射Schema - 适用于基本映射需求",
+  "type": "object",
+  "version": "3.0.0",
+  "properties": {
+    "mappingDefinition": {
+      "$ref": "#/$defs/CoreMappingDefinition"
+    }
+  },
+  "required": ["mappingDefinition"],
+  "$defs": {
+    "CoreMappingDefinition": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "fields/dto-mapping-fields.schema.json#/$defs/MappingIdentifier"
+            },
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "$ref": "fields/dto-mapping-fields.schema.json#/$defs/MappingVersion"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": ["id", "name", "version"]
+        },
+        "sourceType": {
+          "type": "string",
+          "description": "源类型"
+        },
+        "targetType": {
+          "type": "string",
+          "description": "目标类型"
+        },
+        "fieldMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CoreFieldMapping"
+          },
+          "description": "字段映射列表"
+        },
+        "globalSettings": {
+          "type": "object",
+          "properties": {
+            "strictMode": {
+              "type": "boolean",
+              "default": false
+            },
+            "ignoreUnknownFields": {
+              "type": "boolean",
+              "default": true
+            },
+            "nullHandling": {
+              "type": "string",
+              "enum": ["IGNORE", "SET_DEFAULT", "THROW_EXCEPTION"],
+              "default": "IGNORE"
+            }
+          }
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "$ref": "fields/dto-mapping-fields.schema.json#/$defs/ValidationRule"
+              }
+            }
+          }
+        }
+      },
+      "required": ["metadata", "sourceType", "targetType", "fieldMappings"],
+      "description": "核心映射定义"
+    },
+    
+    "CoreFieldMapping": {
+      "type": "object",
+      "properties": {
+        "sourceField": {
+          "$ref": "fields/dto-mapping-fields.schema.json#/$defs/FieldPath"
+        },
+        "targetField": {
+          "$ref": "fields/dto-mapping-fields.schema.json#/$defs/FieldPath"
+        },
+        "mappingType": {
+          "type": "string",
+          "enum": ["DIRECT", "TRANSFORM", "DEFAULT"],
+          "default": "DIRECT"
+        },
+        "transform": {
+          "type": "object",
+          "properties": {
+            "function": {
+              "type": "string",
+              "description": "转换函数名称"
+            },
+            "parameters": {
+              "type": "object",
+              "description": "转换参数"
+            },
+            "expression": {
+              "type": "string",
+              "description": "转换表达式"
+            }
+          }
+        },
+        "defaultValue": {
+          "description": "默认值"
+        },
+        "required": {
+          "type": "boolean",
+          "default": false
+        },
+        "condition": {
+          "type": "string",
+          "description": "映射条件表达式"
+        }
+      },
+      "required": ["sourceField", "targetField"],
+      "description": "核心字段映射"
+    }
+  }
+}

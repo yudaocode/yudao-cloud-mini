@@ -1,0 +1,407 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.ddd-platform.com/dto-mapping/operations/dto-mapping-operations.schema.json",
+  "title": "DTO映射操作定义",
+  "description": "DTO映射系统的操作定义Schema",
+  "type": "object",
+  "$defs": {
+    "MappingOperation": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingIdentifier"
+        },
+        "operationType": {
+          "type": "string",
+          "enum": [
+            "ENTITY_TO_DTO",
+            "DTO_TO_ENTITY", 
+            "DTO_TO_DTO",
+            "AGGREGATE_TO_DTO",
+            "DTO_TO_COMMAND",
+            "EVENT_TO_DTO",
+            "QUERY_TO_DTO"
+          ]
+        },
+        "sourceType": {
+          "type": "string",
+          "description": "源类型全限定名"
+        },
+        "targetType": {
+          "type": "string",
+          "description": "目标类型全限定名"
+        },
+        "mappingStrategy": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingStrategy"
+        },
+        "fieldMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldMapping"
+          }
+        },
+        "domainIntegration": {
+          "$ref": "#/$defs/DomainIntegration"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/ValidationRule"
+          }
+        },
+        "performanceProfile": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/PerformanceProfile"
+        },
+        "securityConfig": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/SecurityConfiguration"
+        }
+      },
+      "required": ["operationId", "operationType", "sourceType", "targetType"],
+      "description": "映射操作定义"
+    },
+    
+    "FieldMapping": {
+      "type": "object",
+      "properties": {
+        "mappingId": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingIdentifier"
+        },
+        "sourceField": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/FieldPath"
+        },
+        "targetField": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/FieldPath"
+        },
+        "mappingType": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingType"
+        },
+        "transformFunction": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/TransformFunction"
+        },
+        "defaultValue": {
+          "description": "默认值"
+        },
+        "nullable": {
+          "type": "boolean",
+          "description": "是否允许空值"
+        },
+        "condition": {
+          "type": "object",
+          "properties": {
+            "expression": {
+              "type": "string",
+              "description": "条件表达式"
+            },
+            "language": {
+              "type": "string",
+              "enum": ["SPEL", "JAVASCRIPT", "GROOVY"]
+            }
+          }
+        },
+        "formatConfig": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/FormatConfiguration"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/ValidationRule"
+          }
+        }
+      },
+      "required": ["mappingId", "sourceField", "targetField", "mappingType"],
+      "description": "字段映射定义"
+    },
+    
+    "DomainIntegration": {
+      "type": "object",
+      "properties": {
+        "aggregateRoot": {
+          "type": "string",
+          "description": "聚合根类型"
+        },
+        "domainEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string"
+              },
+              "trigger": {
+                "type": "string",
+                "enum": ["BEFORE_MAPPING", "AFTER_MAPPING", "ON_ERROR"]
+              },
+              "condition": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "businessRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ruleId": {
+                "type": "string"
+              },
+              "ruleType": {
+                "type": "string",
+                "enum": ["VALIDATION", "TRANSFORMATION", "ENRICHMENT"]
+              },
+              "expression": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "contextMapping": {
+          "type": "object",
+          "properties": {
+            "boundedContext": {
+              "type": "string"
+            },
+            "relationships": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "contextName": {
+                    "type": "string"
+                  },
+                  "relationship": {
+                    "type": "string",
+                    "enum": ["SHARED_KERNEL", "CUSTOMER_SUPPLIER", "CONFORMIST", "ANTI_CORRUPTION_LAYER"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "领域集成配置"
+    },
+    
+    "BatchMappingOperation": {
+      "type": "object",
+      "properties": {
+        "batchId": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingIdentifier"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MappingOperation"
+          }
+        },
+        "batchStrategy": {
+          "type": "string",
+          "enum": ["PARALLEL", "SEQUENTIAL", "PIPELINE"]
+        },
+        "errorHandling": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "enum": ["FAIL_FAST", "CONTINUE_ON_ERROR", "COLLECT_ERRORS"]
+            },
+            "maxErrors": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "retryPolicy": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "maxAttempts": {
+                  "type": "integer"
+                },
+                "backoffDelay": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "performanceConfig": {
+          "type": "object",
+          "properties": {
+            "batchSize": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxConcurrency": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "timeout": {
+              "type": "integer",
+              "minimum": 1000
+            }
+          }
+        }
+      },
+      "required": ["batchId", "operations"],
+      "description": "批量映射操作"
+    },
+    
+    "MappingTemplate": {
+      "type": "object",
+      "properties": {
+        "templateId": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingIdentifier"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/DataType"
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "defaultValue": {},
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "mappingDefinition": {
+          "$ref": "#/$defs/MappingOperation"
+        },
+        "usage": {
+          "type": "object",
+          "properties": {
+            "examples": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "parameters": {
+                    "type": "object"
+                  },
+                  "expectedResult": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "bestPractices": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": ["templateId", "name", "mappingDefinition"],
+      "description": "映射模板定义"
+    },
+    
+    "MappingTest": {
+      "type": "object",
+      "properties": {
+        "testId": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingIdentifier"
+        },
+        "mappingOperationId": {
+          "$ref": "../fields/dto-mapping-fields.schema.json#/$defs/MappingIdentifier"
+        },
+        "testCases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "input": {
+                "type": "object",
+                "description": "测试输入数据"
+              },
+              "expectedOutput": {
+                "type": "object",
+                "description": "期望输出数据"
+              },
+              "assertions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "type": "string",
+                      "enum": ["EQUALS", "NOT_EQUALS", "CONTAINS", "NOT_NULL", "IS_NULL", "MATCHES_PATTERN"]
+                    },
+                    "expectedValue": {},
+                    "description": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["name", "input", "expectedOutput"]
+          }
+        },
+        "performanceTests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "dataSize": {
+                "type": "integer"
+              },
+              "maxLatency": {
+                "type": "number"
+              },
+              "minThroughput": {
+                "type": "number"
+              },
+              "memoryLimit": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "required": ["testId", "mappingOperationId", "testCases"],
+      "description": "映射测试定义"
+    }
+  }
+}
