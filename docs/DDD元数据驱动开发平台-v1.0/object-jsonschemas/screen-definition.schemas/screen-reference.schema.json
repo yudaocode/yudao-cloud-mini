@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/screen-reference.schema.json",
+  "title": "屏幕引用定义",
+  "description": "支持在容器中嵌入其他已定义屏幕的引用机制",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "screenReference": {
+      "type": "object",
+      "description": "屏幕引用，支持在对话框、抽屉、Tab等容器中嵌入已定义的屏幕",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "SCREEN_REFERENCE",
+          "description": "标识这是一个屏幕引用"
+        },
+        "screenId": {
+          "type": "string",
+          "pattern": "^screen_[a-zA-Z0-9_]+$",
+          "description": "要引用的目标屏幕ID"
+        },
+        "screenPath": {
+          "type": "string",
+          "description": "要引用的目标屏幕路径，支持相对路径和绝对路径"
+        },
+        "referenceMode": {
+          "type": "string",
+          "enum": ["EMBED", "IFRAME", "COMPONENT", "LAZY_LOAD"],
+          "default": "EMBED",
+          "description": "引用模式：EMBED-直接嵌入，IFRAME-iframe嵌入，COMPONENT-组件化引用，LAZY_LOAD-懒加载"
+        },
+        "containerType": {
+          "type": "string",
+          "enum": ["DIALOG", "DRAWER", "TAB", "COLLAPSE", "CARD", "MODAL", "POPOVER", "INLINE"],
+          "description": "容器类型"
+        },
+        "containerProps": {
+          "type": "object",
+          "description": "容器属性配置",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "容器标题"
+            },
+            "width": {
+              "oneOf": [
+                {"type": "string"},
+                {"type": "number"}
+              ],
+              "description": "宽度"
+            },
+            "height": {
+              "oneOf": [
+                {"type": "string"},
+                {"type": "number"}
+              ],
+              "description": "高度"
+            },
+            "maxWidth": {
+              "oneOf": [
+                {"type": "string"},
+                {"type": "number"}
+              ],
+              "description": "最大宽度"
+            },
+            "maxHeight": {
+              "oneOf": [
+                {"type": "string"},
+                {"type": "number"}
+              ],
+              "description": "最大高度"
+            },
+            "resizable": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否可调整大小"
+            },
+            "draggable": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否可拖拽"
+            },
+            "closable": {
+              "type": "boolean",
+              "default": true,
+              "description": "是否显示关闭按钮"
+            },
+            "maskClosable": {
+              "type": "boolean",
+              "default": true,
+              "description": "点击遮罩是否关闭"
+            },
+            "destroyOnClose": {
+              "type": "boolean",
+              "default": false,
+              "description": "关闭时是否销毁内容"
+            },
+            "keyboard": {
+              "type": "boolean",
+              "default": true,
+              "description": "是否支持键盘ESC关闭"
+            },
+            "position": {
+              "type": "string",
+              "enum": ["center", "top", "bottom", "left", "right", "custom"],
+              "default": "center",
+              "description": "显示位置"
+            },
+            "animation": {
+              "type": "string",
+              "enum": ["fade", "slide", "zoom", "none"],
+              "default": "fade",
+              "description": "动画效果"
+            }
+          }
+        },
+        "dataBinding": {
+          "type": "object",
+          "description": "数据绑定配置",
+          "properties": {
+            "parentToChild": {
+              "type": "object",
+              "description": "父屏幕向子屏幕传递的数据",
+              "patternProperties": {
+                "^[a-zA-Z][a-zA-Z0-9_]*$": {
+                  "oneOf": [
+                    {"type": "string"},
+                    {"type": "object"}
+                  ]
+                }
+              }
+            },
+            "childToParent": {
+              "type": "object",
+              "description": "子屏幕向父屏幕返回的数据",
+              "patternProperties": {
+                "^[a-zA-Z][a-zA-Z0-9_]*$": {
+                  "oneOf": [
+                    {"type": "string"},
+                    {"type": "object"}
+                  ]
+                }
+              }
+            },
+            "bidirectional": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "双向绑定的字段列表"
+            }
+          }
+        },
+        "lifecycle": {
+          "type": "object",
+          "description": "生命周期回调",
+          "properties": {
+            "onBeforeOpen": {
+              "type": "string",
+              "description": "打开前回调函数"
+            },
+            "onAfterOpen": {
+              "type": "string",
+              "description": "打开后回调函数"
+            },
+            "onBeforeClose": {
+              "type": "string",
+              "description": "关闭前回调函数"
+            },
+            "onAfterClose": {
+              "type": "string",
+              "description": "关闭后回调函数"
+            },
+            "onDataChange": {
+              "type": "string",
+              "description": "数据变化回调函数"
+            },
+            "onValidation": {
+              "type": "string",
+              "description": "验证回调函数"
+            }
+          }
+        },
+        "conditions": {
+          "type": "object",
+          "description": "显示和操作条件",
+          "properties": {
+            "showWhen": {
+              "$ref": "../fields/common-fields.schema.json#/$defs/condition",
+              "description": "显示条件"
+            },
+            "enableWhen": {
+              "$ref": "../fields/common-fields.schema.json#/$defs/condition",
+              "description": "启用条件"
+            },
+            "requireAuth": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否需要权限验证"
+            },
+            "permissions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "所需权限列表"
+            }
+          }
+        },
+        "caching": {
+          "type": "object",
+          "description": "缓存配置",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否启用缓存"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": ["memory", "localStorage", "sessionStorage", "custom"],
+              "default": "memory",
+              "description": "缓存策略"
+            },
+            "ttl": {
+              "type": "number",
+              "description": "缓存生存时间(秒)"
+            },
+            "key": {
+              "type": "string",
+              "description": "缓存键名"
+            }
+          }
+        },
+        "errorHandling": {
+          "type": "object",
+          "description": "错误处理",
+          "properties": {
+            "onLoadError": {
+              "type": "string",
+              "description": "加载错误处理函数"
+            },
+            "fallbackScreen": {
+              "type": "string",
+              "description": "备用屏幕ID"
+            },
+            "retryCount": {
+              "type": "number",
+              "default": 0,
+              "description": "重试次数"
+            },
+            "retryDelay": {
+              "type": "number",
+              "default": 1000,
+              "description": "重试延迟(毫秒)"
+            }
+          }
+        },
+        "performance": {
+          "type": "object",
+          "description": "性能优化配置",
+          "properties": {
+            "preload": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否预加载"
+            },
+            "keepAlive": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否保持活跃"
+            },
+            "virtualScrolling": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否启用虚拟滚动"
+            },
+            "debounceDelay": {
+              "type": "number",
+              "default": 300,
+              "description": "防抖延迟(毫秒)"
+            }
+          }
+        }
+      },
+      "required": ["type", "screenId", "containerType"],
+      "additionalProperties": false
+    },
+    "actionReference": {
+      "type": "object",
+      "description": "操作引用，用于定义触发屏幕引用的操作",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "操作ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "操作名称"
+        },
+        "type": {
+          "type": "string",
+          "const": "OPEN_SCREEN_REFERENCE",
+          "description": "操作类型"
+        },
+        "triggerType": {
+          "type": "string",
+          "enum": ["BUTTON_CLICK", "MENU_CLICK", "ROW_CLICK", "CELL_CLICK", "FORM_SUBMIT", "CUSTOM_EVENT"],
+          "description": "触发方式"
+        },
+        "target": {
+          "$ref": "#/$defs/screenReference",
+          "description": "目标屏幕引用"
+        },
+        "style": {
+          "type": "object",
+          "description": "操作样式",
+          "properties": {
+            "buttonType": {
+              "type": "string",
+              "enum": ["primary", "secondary", "success", "warning", "danger", "info", "text", "link"],
+              "default": "primary"
+            },
+            "size": {
+              "type": "string",
+              "enum": ["small", "medium", "large"],
+              "default": "medium"
+            },
+            "icon": {
+              "type": "string",
+              "description": "图标"
+            },
+            "disabled": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      },
+      "required": ["id", "name", "type", "target"],
+      "additionalProperties": false
+    }
+  }
+}

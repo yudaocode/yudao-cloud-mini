@@ -1,0 +1,624 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/ddd-amis-sync.schema.json",
+  "title": "DDD-AMIS自动同步配置Schema",
+  "description": "DDD模型与AMIS界面自动同步的配置定义",
+  "version": "1.0.0",
+  "type": "object",
+  "properties": {
+    "syncConfiguration": {
+      "$ref": "#/$defs/syncConfiguration"
+    },
+    "typeMapping": {
+      "$ref": "#/$defs/typeMapping"
+    },
+    "templateMapping": {
+      "$ref": "#/$defs/templateMapping"
+    },
+    "generationRules": {
+      "$ref": "#/$defs/generationRules"
+    },
+    "outputConfiguration": {
+      "$ref": "#/$defs/outputConfiguration"
+    }
+  },
+  "required": ["syncConfiguration", "typeMapping"],
+  "additionalProperties": false,
+
+  "$defs": {
+    "syncConfiguration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "是否启用自动同步",
+          "default": true
+        },
+        "watchMode": {
+          "type": "string",
+          "enum": ["REAL_TIME", "SCHEDULED", "MANUAL"],
+          "description": "监听模式",
+          "default": "REAL_TIME"
+        },
+        "syncScope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["AGGREGATES", "ENTITIES", "VALUE_OBJECTS", "DTOS", "REPOSITORIES"]
+          },
+          "description": "同步范围"
+        },
+        "conflictResolution": {
+          "type": "string",
+          "enum": ["AUTO_MERGE", "USER_CONFIRM", "PRESERVE_CUSTOM"],
+          "description": "冲突解决策略",
+          "default": "PRESERVE_CUSTOM"
+        },
+        "backupStrategy": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "retentionDays": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 30
+            },
+            "location": {
+              "type": "string",
+              "description": "备份存储位置"
+            }
+          }
+        }
+      },
+      "required": ["enabled", "watchMode"],
+      "additionalProperties": false
+    },
+
+    "typeMapping": {
+      "type": "object",
+      "properties": {
+        "dataTypeMapping": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z_]+$": {
+              "$ref": "#/$defs/amisTypeMapping"
+            }
+          },
+          "description": "DDD数据类型到AMIS组件的映射"
+        },
+        "constraintMapping": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z]+$": {
+              "$ref": "#/$defs/constraintRule"
+            }
+          },
+          "description": "DDD约束到AMIS验证的映射"
+        },
+        "businessRuleMapping": {
+          "type": "object",
+          "patternProperties": {
+            "^rule_[a-zA-Z0-9_]+$": {
+              "$ref": "#/$defs/businessRuleMapping"
+            }
+          },
+          "description": "业务规则到界面行为的映射"
+        }
+      },
+      "required": ["dataTypeMapping"],
+      "additionalProperties": false
+    },
+
+    "amisTypeMapping": {
+      "type": "object",
+      "properties": {
+        "listColumnType": {
+          "type": "string",
+          "description": "列表列类型"
+        },
+        "formFieldType": {
+          "type": "string", 
+          "description": "表单字段类型"
+        },
+        "filterFieldType": {
+          "type": "string",
+          "description": "过滤字段类型"
+        },
+        "defaultProps": {
+          "type": "object",
+          "description": "默认属性配置"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "默认验证规则"
+        },
+        "conditionalMapping": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/conditionalTypeMapping"
+          },
+          "description": "条件映射规则"
+        }
+      },
+      "required": ["listColumnType", "formFieldType"],
+      "additionalProperties": false
+    },
+
+    "conditionalTypeMapping": {
+      "type": "object",
+      "properties": {
+        "condition": {
+          "type": "string",
+          "description": "条件表达式"
+        },
+        "amisType": {
+          "type": "string",
+          "description": "满足条件时的AMIS类型"
+        },
+        "props": {
+          "type": "object",
+          "description": "额外属性"
+        }
+      },
+      "required": ["condition", "amisType"],
+      "additionalProperties": false
+    },
+
+    "constraintRule": {
+      "type": "object",
+      "properties": {
+        "amisValidation": {
+          "type": "string",
+          "description": "对应的AMIS验证规则"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "错误消息模板"
+        },
+        "clientSideValidation": {
+          "type": "boolean",
+          "description": "是否启用客户端验证",
+          "default": true
+        },
+        "serverSideValidation": {
+          "type": "boolean",
+          "description": "是否需要服务端验证",
+          "default": false
+        }
+      },
+      "required": ["amisValidation"],
+      "additionalProperties": false
+    },
+
+    "businessRuleMapping": {
+      "type": "object", 
+      "properties": {
+        "triggerEvents": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["onChange", "onBlur", "onFocus", "onSubmit", "onLoad"]
+          },
+          "description": "触发事件"
+        },
+        "amisExpression": {
+          "type": "string",
+          "description": "转换为AMIS表达式"
+        },
+        "affectedFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "影响的字段列表"
+        },
+        "actionType": {
+          "type": "string",
+          "enum": ["SHOW_HIDE", "ENABLE_DISABLE", "SET_VALUE", "VALIDATE", "CUSTOM"],
+          "description": "操作类型"
+        }
+      },
+      "required": ["amisExpression", "actionType"],
+      "additionalProperties": false
+    },
+
+    "templateMapping": {
+      "type": "object",
+      "properties": {
+        "screenTemplates": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z_]+$": {
+              "$ref": "#/$defs/screenTemplate"
+            }
+          },
+          "description": "屏幕模板映射"
+        },
+        "componentTemplates": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z_]+$": {
+              "$ref": "#/$defs/componentTemplate"
+            }
+          },
+          "description": "组件模板映射"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "screenTemplate": {
+      "type": "object",
+      "properties": {
+        "templateId": {
+          "type": "string",
+          "description": "模板ID"
+        },
+        "screenType": {
+          "type": "string",
+          "enum": ["LIST", "FORM", "DETAIL", "DASHBOARD", "WORKFLOW"],
+          "description": "屏幕类型"
+        },
+        "amisTemplate": {
+          "type": "object",
+          "description": "AMIS模板结构"
+        },
+        "requiredEntityTypes": {
+          "type": "array", 
+          "items": {
+            "type": "string",
+            "enum": ["AGGREGATE_ROOT", "ENTITY", "VALUE_OBJECT", "REPOSITORY"]
+          },
+          "description": "需要的实体类型"
+        },
+        "generationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/templateGenerationRule"
+          },
+          "description": "生成规则"
+        }
+      },
+      "required": ["templateId", "screenType", "amisTemplate"],
+      "additionalProperties": false
+    },
+
+    "componentTemplate": {
+      "type": "object",
+      "properties": {
+        "componentId": {
+          "type": "string",
+          "description": "组件ID"
+        },
+        "amisComponent": {
+          "type": "object",
+          "description": "AMIS组件结构"
+        },
+        "bindingRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/componentBindingRule"
+          },
+          "description": "绑定规则"
+        }
+      },
+      "required": ["componentId", "amisComponent"],
+      "additionalProperties": false
+    },
+
+    "templateGenerationRule": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "description": "规则ID"
+        },
+        "sourceEntity": {
+          "type": "string",
+          "description": "源实体类型"
+        },
+        "targetComponent": {
+          "type": "string",
+          "description": "目标组件路径"
+        },
+        "transformExpression": {
+          "type": "string",
+          "description": "转换表达式"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "应用条件"
+        }
+      },
+      "required": ["ruleId", "sourceEntity", "targetComponent"],
+      "additionalProperties": false
+    },
+
+    "componentBindingRule": {
+      "type": "object",
+      "properties": {
+        "bindingType": {
+          "type": "string",
+          "enum": ["PROPERTY", "EVENT", "VALIDATION", "VISIBILITY"],
+          "description": "绑定类型"
+        },
+        "sourceProperty": {
+          "type": "string",
+          "description": "源属性路径"
+        },
+        "targetProperty": {
+          "type": "string",
+          "description": "目标属性路径"
+        },
+        "transformation": {
+          "type": "string",
+          "description": "转换函数"
+        }
+      },
+      "required": ["bindingType", "sourceProperty", "targetProperty"],
+      "additionalProperties": false
+    },
+
+    "generationRules": {
+      "type": "object",
+      "properties": {
+        "entityToScreen": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityScreenRule"
+          },
+          "description": "实体到屏幕的生成规则"
+        },
+        "attributeToField": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attributeFieldRule"
+          },
+          "description": "属性到字段的生成规则"
+        },
+        "repositoryToApi": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/repositoryApiRule"
+          },
+          "description": "仓储到API的生成规则"
+        },
+        "customRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/customGenerationRule"
+          },
+          "description": "自定义生成规则"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "entityScreenRule": {
+      "type": "object",
+      "properties": {
+        "entityPattern": {
+          "type": "string",
+          "description": "实体名称模式"
+        },
+        "screenTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["LIST", "CREATE", "EDIT", "DETAIL", "SEARCH"]
+          },
+          "description": "生成的屏幕类型"
+        },
+        "templateMapping": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z]+$": {
+              "type": "string"
+            }
+          },
+          "description": "屏幕类型到模板的映射"
+        },
+        "excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "排除模式"
+        }
+      },
+      "required": ["entityPattern", "screenTypes"],
+      "additionalProperties": false
+    },
+
+    "attributeFieldRule": {
+      "type": "object",
+      "properties": {
+        "attributePattern": {
+          "type": "string",
+          "description": "属性名称模式"
+        },
+        "fieldGeneration": {
+          "type": "object",
+          "properties": {
+            "listColumn": {
+              "type": "boolean",
+              "description": "是否生成列表列",
+              "default": true
+            },
+            "formField": {
+              "type": "boolean", 
+              "description": "是否生成表单字段",
+              "default": true
+            },
+            "filterField": {
+              "type": "boolean",
+              "description": "是否生成过滤字段",
+              "default": false
+            },
+            "detailField": {
+              "type": "boolean",
+              "description": "是否生成详情字段", 
+              "default": true
+            }
+          }
+        },
+        "priority": {
+          "type": "integer",
+          "description": "规则优先级",
+          "default": 100
+        }
+      },
+      "required": ["attributePattern"],
+      "additionalProperties": false
+    },
+
+    "repositoryApiRule": {
+      "type": "object",
+      "properties": {
+        "repositoryPattern": {
+          "type": "string",
+          "description": "仓储名称模式"
+        },
+        "apiGeneration": {
+          "type": "object",
+          "properties": {
+            "baseUrl": {
+              "type": "string",
+              "description": "基础URL模板"
+            },
+            "operations": {
+              "type": "object",
+              "patternProperties": {
+                "^[A-Z_]+$": {
+                  "type": "string"
+                }
+              },
+              "description": "操作到URL的映射"
+            },
+            "authRequired": {
+              "type": "boolean",
+              "description": "是否需要认证",
+              "default": true
+            }
+          }
+        }
+      },
+      "required": ["repositoryPattern", "apiGeneration"],
+      "additionalProperties": false
+    },
+
+    "customGenerationRule": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "description": "规则ID"
+        },
+        "description": {
+          "type": "string",
+          "description": "规则描述"
+        },
+        "trigger": {
+          "type": "object",
+          "properties": {
+            "eventType": {
+              "type": "string",
+              "enum": ["MODEL_CHANGE", "SCHEMA_UPDATE", "MANUAL_TRIGGER"]
+            },
+            "conditions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["eventType"]
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/generationAction"
+          },
+          "description": "执行的操作"
+        }
+      },
+      "required": ["ruleId", "trigger", "actions"],
+      "additionalProperties": false
+    },
+
+    "generationAction": {
+      "type": "object",
+      "properties": {
+        "actionType": {
+          "type": "string",
+          "enum": ["GENERATE_SCREEN", "UPDATE_FIELD", "ADD_VALIDATION", "MODIFY_API", "EXECUTE_SCRIPT"]
+        },
+        "parameters": {
+          "type": "object",
+          "description": "操作参数"
+        },
+        "outputPath": {
+          "type": "string",
+          "description": "输出路径"
+        }
+      },
+      "required": ["actionType"],
+      "additionalProperties": false
+    },
+
+    "outputConfiguration": {
+      "type": "object",
+      "properties": {
+        "baseDirectory": {
+          "type": "string",
+          "description": "基础输出目录"
+        },
+        "fileNaming": {
+          "type": "object",
+          "properties": {
+            "screenFiles": {
+              "type": "string",
+              "description": "屏幕文件命名模式",
+              "default": "${entityName}-${screenType}.json"
+            },
+            "backupFiles": {
+              "type": "string", 
+              "description": "备份文件命名模式",
+              "default": "${originalName}.${timestamp}.bak"
+            }
+          }
+        },
+        "formatOptions": {
+          "type": "object",
+          "properties": {
+            "indentation": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8,
+              "default": 2
+            },
+            "sortKeys": {
+              "type": "boolean",
+              "default": false
+            },
+            "includeComments": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        }
+      },
+      "required": ["baseDirectory"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,353 @@
+{
+  "syncConfiguration": {
+    "enabled": true,
+    "watchMode": "REAL_TIME",
+    "syncScope": ["AGGREGATES", "ENTITIES", "VALUE_OBJECTS", "REPOSITORIES"],
+    "conflictResolution": "PRESERVE_CUSTOM",
+    "backupStrategy": {
+      "enabled": true,
+      "retentionDays": 30,
+      "location": "./backups"
+    }
+  },
+
+  "typeMapping": {
+    "dataTypeMapping": {
+      "STRING": {
+        "listColumnType": "text",
+        "formFieldType": "input-text",
+        "filterFieldType": "input-text",
+        "defaultProps": {},
+        "conditionalMapping": [
+          {
+            "condition": "maxLength > 200",
+            "amisType": "textarea",
+            "props": {"maxRows": 5}
+          },
+          {
+            "condition": "businessMeaning.includes('密码')",
+            "amisType": "input-password"
+          },
+          {
+            "condition": "name.includes('email') || pattern === 'email'",
+            "amisType": "input-email"
+          }
+        ]
+      },
+      "INTEGER": {
+        "listColumnType": "number",
+        "formFieldType": "input-number",
+        "filterFieldType": "input-number",
+        "defaultProps": {"precision": 0}
+      },
+      "DECIMAL": {
+        "listColumnType": "number", 
+        "formFieldType": "input-number",
+        "filterFieldType": "input-number",
+        "defaultProps": {"precision": 2}
+      },
+      "BOOLEAN": {
+        "listColumnType": "switch",
+        "formFieldType": "switch",
+        "filterFieldType": "select",
+        "defaultProps": {},
+        "conditionalMapping": [
+          {
+            "condition": "formContext === 'filter'",
+            "amisType": "select",
+            "props": {
+              "options": [
+                {"label": "是", "value": true},
+                {"label": "否", "value": false}
+              ]
+            }
+          }
+        ]
+      },
+      "DATE": {
+        "listColumnType": "date",
+        "formFieldType": "input-date",
+        "filterFieldType": "input-date-range",
+        "defaultProps": {"format": "YYYY-MM-DD"}
+      },
+      "DATETIME": {
+        "listColumnType": "datetime",
+        "formFieldType": "input-datetime", 
+        "filterFieldType": "input-datetime-range",
+        "defaultProps": {"format": "YYYY-MM-DD HH:mm:ss"}
+      },
+      "ENUM": {
+        "listColumnType": "mapping",
+        "formFieldType": "select",
+        "filterFieldType": "select",
+        "conditionalMapping": [
+          {
+            "condition": "allowedValues.length <= 3",
+            "amisType": "radios"
+          },
+          {
+            "condition": "allowedValues.length <= 5 && formContext === 'form'",
+            "amisType": "checkboxes"
+          }
+        ]
+      },
+      "EMAIL": {
+        "listColumnType": "link",
+        "formFieldType": "input-email",
+        "filterFieldType": "input-text",
+        "defaultProps": {
+          "href": "mailto:${email}",
+          "validations": {"isEmail": true}
+        }
+      },
+      "PHONE": {
+        "listColumnType": "text",
+        "formFieldType": "input-text",
+        "filterFieldType": "input-text",
+        "defaultProps": {
+          "validations": {"isPhoneNumber": true}
+        }
+      },
+      "URL": {
+        "listColumnType": "link",
+        "formFieldType": "input-url",
+        "filterFieldType": "input-text",
+        "defaultProps": {
+          "href": "${url}",
+          "blank": true
+        }
+      }
+    },
+
+    "constraintMapping": {
+      "isRequired": {
+        "amisValidation": "required",
+        "errorMessage": "${fieldLabel}不能为空",
+        "clientSideValidation": true
+      },
+      "isUnique": {
+        "amisValidation": "remote",
+        "errorMessage": "${fieldLabel}已存在",
+        "clientSideValidation": false,
+        "serverSideValidation": true
+      },
+      "maxLength": {
+        "amisValidation": "maxLength",
+        "errorMessage": "${fieldLabel}最多${maxValue}个字符"
+      },
+      "minLength": {
+        "amisValidation": "minLength", 
+        "errorMessage": "${fieldLabel}至少${minValue}个字符"
+      },
+      "maxValue": {
+        "amisValidation": "maximum",
+        "errorMessage": "${fieldLabel}不能大于${maxValue}"
+      },
+      "minValue": {
+        "amisValidation": "minimum",
+        "errorMessage": "${fieldLabel}不能小于${minValue}"
+      },
+      "pattern": {
+        "amisValidation": "matchRegexp",
+        "errorMessage": "${fieldLabel}格式不正确"
+      }
+    },
+
+    "businessRuleMapping": {
+      "rule_customer_vip_discount": {
+        "triggerEvents": ["onChange"],
+        "amisExpression": "data.customerType === 'VIP'",
+        "affectedFields": ["discountRate"],
+        "actionType": "SHOW_HIDE"
+      },
+      "rule_order_amount_validation": {
+        "triggerEvents": ["onBlur"],
+        "amisExpression": "data.orderAmount > 0",
+        "affectedFields": ["orderAmount"],
+        "actionType": "VALIDATE"
+      }
+    }
+  },
+
+  "templateMapping": {
+    "screenTemplates": {
+      "CRUD_LIST": {
+        "templateId": "crud-list-template",
+        "screenType": "LIST",
+        "amisTemplate": {
+          "type": "page",
+          "title": "${entityDisplayName}管理",
+          "body": {
+            "type": "crud",
+            "api": "${apiBaseUrl}",
+            "columns": "${generatedColumns}",
+            "headerToolbar": [
+              {
+                "type": "button",
+                "label": "新增${entityDisplayName}",
+                "level": "primary",
+                "actionType": "dialog",
+                "dialog": {
+                  "title": "新增${entityDisplayName}",
+                  "body": "${createFormTemplate}"
+                }
+              }
+            ]
+          }
+        },
+        "requiredEntityTypes": ["AGGREGATE_ROOT", "REPOSITORY"],
+        "generationRules": [
+          {
+            "ruleId": "generate_columns",
+            "sourceEntity": "AGGREGATE_ROOT",
+            "targetComponent": "$.body.columns",
+            "transformExpression": "entity.attributes.map(attr => attributeToColumn(attr))"
+          }
+        ]
+      },
+      "FORM_CREATE": {
+        "templateId": "form-create-template", 
+        "screenType": "FORM",
+        "amisTemplate": {
+          "type": "form",
+          "title": "新增${entityDisplayName}",
+          "api": "${createApiUrl}",
+          "body": "${generatedFormFields}"
+        },
+        "requiredEntityTypes": ["AGGREGATE_ROOT"],
+        "generationRules": [
+          {
+            "ruleId": "generate_form_fields",
+            "sourceEntity": "AGGREGATE_ROOT", 
+            "targetComponent": "$.body",
+            "transformExpression": "entity.attributes.filter(attr => !attr.isGenerated).map(attr => attributeToFormField(attr))"
+          }
+        ]
+      }
+    },
+
+    "componentTemplates": {
+      "searchForm": {
+        "componentId": "search-form",
+        "amisComponent": {
+          "type": "form",
+          "mode": "horizontal",
+          "wrapWithPanel": false,
+          "body": "${searchFields}",
+          "actions": [
+            {"type": "submit", "label": "搜索", "level": "primary"},
+            {"type": "reset", "label": "重置"}
+          ]
+        },
+        "bindingRules": [
+          {
+            "bindingType": "PROPERTY",
+            "sourceProperty": "entity.searchableAttributes",
+            "targetProperty": "$.body",
+            "transformation": "attributes.map(attr => attributeToSearchField(attr))"
+          }
+        ]
+      }
+    }
+  },
+
+  "generationRules": {
+    "entityToScreen": [
+      {
+        "entityPattern": "^entity_.*",
+        "screenTypes": ["LIST", "CREATE", "EDIT", "DETAIL"],
+        "templateMapping": {
+          "LIST": "crud-list-template",
+          "CREATE": "form-create-template", 
+          "EDIT": "form-edit-template",
+          "DETAIL": "detail-view-template"
+        },
+        "excludePatterns": ["entity_.*_internal"]
+      }
+    ],
+
+    "attributeToField": [
+      {
+        "attributePattern": ".*Id$",
+        "fieldGeneration": {
+          "listColumn": false,
+          "formField": false,
+          "filterField": false,
+          "detailField": true
+        },
+        "priority": 200
+      },
+      {
+        "attributePattern": ".*Password.*",
+        "fieldGeneration": {
+          "listColumn": false,
+          "formField": true,
+          "filterField": false,
+          "detailField": false
+        },
+        "priority": 150
+      },
+      {
+        "attributePattern": ".*Status$",
+        "fieldGeneration": {
+          "listColumn": true,
+          "formField": true,
+          "filterField": true,
+          "detailField": true
+        },
+        "priority": 120
+      }
+    ],
+
+    "repositoryToApi": [
+      {
+        "repositoryPattern": ".*Repository$",
+        "apiGeneration": {
+          "baseUrl": "/api/${entityName.toLowerCase()}",
+          "operations": {
+            "FIND_ALL": "",
+            "FIND_BY_ID": "/${id}",
+            "SAVE": "",
+            "DELETE": "/${id}",
+            "FIND_BY_CRITERIA": "/search"
+          },
+          "authRequired": true
+        }
+      }
+    ],
+
+    "customRules": [
+      {
+        "ruleId": "auto_generate_audit_fields",
+        "description": "自动为审计字段生成只读显示",
+        "trigger": {
+          "eventType": "MODEL_CHANGE",
+          "conditions": ["attribute.name.includes('createTime') || attribute.name.includes('updateTime')"]
+        },
+        "actions": [
+          {
+            "actionType": "UPDATE_FIELD",
+            "parameters": {
+              "fieldType": "static",
+              "readonly": true,
+              "visibleOn": "mode === 'view'"
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  "outputConfiguration": {
+    "baseDirectory": "./generated-screens",
+    "fileNaming": {
+      "screenFiles": "${entityName}-${screenType}.json",
+      "backupFiles": "${originalName}.${timestamp}.bak"
+    },
+    "formatOptions": {
+      "indentation": 2,
+      "sortKeys": false,
+      "includeComments": true
+    }
+  }
+}

@@ -13,13 +13,50 @@
     },
     "screenType": {
       "type": "string",
-      "enum": ["PAGE", "DIALOG", "DRAWER", "MODAL", "POPOVER", "TOAST", "COMPONENT"],
-      "description": "屏幕类型"
+      "enum": [
+        "LIST_PAGE",
+        "DETAIL_PAGE", 
+        "EDIT_PAGE",
+        "MASTER_DETAIL_PAGE",
+        "TREE_TABLE_PAGE",
+        "DASHBOARD_PAGE",
+        "REPORT_PAGE",
+        "WORKFLOW_PAGE",
+        "CONFIRM_DIALOG",
+        "EDIT_DIALOG",
+        "SELECT_DIALOG",
+        "DETAIL_DIALOG",
+        "CUSTOM_DIALOG",
+        "WIZARD_DIALOG",
+        "MESSAGE_TOAST",
+        "NOTIFICATION_BAR",
+        "ALERT_BOX",
+        "STATUS_INFO",
+        "PROGRESS_NOTIFICATION",
+        "TOOLTIP",
+        "POPOVER",
+        "CONTAINER_LAYOUT",
+        "GRID_LAYOUT",
+        "FLEX_LAYOUT",
+        "TAB_LAYOUT",
+        "ACCORDION_LAYOUT",
+        "DRAWER_LAYOUT"
+      ],
+      "description": "屏幕类型 - 包含业务页面、对话框、通知信息和布局容器等完整类型"
     },
     "screenCategory": {
       "type": "string",
-      "enum": ["LIST", "FORM", "DETAIL", "DASHBOARD", "REPORT", "CUSTOM"],
-      "description": "屏幕分类"
+      "enum": [
+        "BUSINESS",
+        "SYSTEM", 
+        "NOTIFICATION",
+        "LAYOUT",
+        "INTERACTION",
+        "ANALYSIS",
+        "WORKFLOW",
+        "CUSTOM"
+      ],
+      "description": "屏幕分类 - 业务类、系统类、通知类、布局类、交互类、分析类、流程类、自定义类"
     },
     "path": {
       "type": "string",

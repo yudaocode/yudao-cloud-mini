@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/3.0/screen-definition/full/field-definition.schema.json",
+  "title": "字段定义",
+  "description": "表单字段的完整定义",
+  "version": "3.0.0",
+  "type": "object",
+  "properties": {
+    "id": { 
+      "type": "string",
+      "pattern": "^field_[a-zA-Z0-9_]+$",
+      "description": "字段ID" 
+    },
+    "name": { 
+      "type": "string", 
+      "description": "字段名称（对应数据字段名）" 
+    },
+    "label": { 
+      "type": "string", 
+      "description": "字段标签（显示给用户的名称）" 
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "TEXT", "TEXTAREA", "NUMBER", "DATE", "DATETIME", "TIME",
+        "SELECT", "MULTI_SELECT", "CHECKBOX", "RADIO", "SWITCH",
+        "FILE", "IMAGE", "RICH_TEXT", "PASSWORD", "EMAIL", "URL",
+        "PHONE", "ID_CARD", "COLOR", "RATE", "SLIDER", "CASCADER",
+        "TREE_SELECT", "TRANSFER", "UPLOAD", "MENTIONS", "TAGS"
+      ],
+      "description": "字段类型"
+    },
+    "dataType": {
+      "type": "string",
+      "enum": ["STRING", "NUMBER", "BOOLEAN", "DATE", "ARRAY", "OBJECT"],
+      "description": "数据类型"
+    },
+    "layoutConfig": {
+      "type": "object",
+      "properties": {
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "description": "占据列数"
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 11,
+          "description": "左侧偏移"
+        },
+        "newLine": {
+          "type": "boolean",
+          "description": "强制换行"
+        },
+        "fullWidth": {
+          "type": "boolean",
+          "description": "占满整行"
+        },
+        "labelWidth": {
+          "type": "string",
+          "description": "标签宽度（如: '100px', '20%'）"
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": ["LEFT", "TOP", "RIGHT"],
+          "default": "LEFT",
+          "description": "标签位置"
+        },
+        "labelAlign": {
+          "type": "string",
+          "enum": ["LEFT", "CENTER", "RIGHT"],
+          "default": "RIGHT",
+          "description": "标签对齐方式"
+        },
+        "wrapperCol": {
+          "type": "object",
+          "properties": {
+            "span": { "type": "integer", "minimum": 1, "maximum": 24 },
+            "offset": { "type": "integer", "minimum": 0, "maximum": 23 }
+          },
+          "description": "输入控件布局"
+        }
+      },
+      "description": "字段布局配置"
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "required": { 
+          "type": "boolean", 
+          "description": "是否必填" 
+        },
+        "pattern": { 
+          "type": "string", 
+          "description": "正则表达式验证" 
+        },
+        "minLength": { 
+          "type": "integer", 
+          "minimum": 0,
+          "description": "最小长度" 
+        },
+        "maxLength": { 
+          "type": "integer", 
+          "minimum": 0,
+          "description": "最大长度" 
+        },
+        "min": { 
+          "type": "number", 
+          "description": "最小值（数字类型）" 
+        },
+        "max": { 
+          "type": "number", 
+          "description": "最大值（数字类型）" 
+        },
+        "step": {
+          "type": "number",
+          "description": "数字步长"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "数字精度（小数位数）"
+        },
+        "customRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule": { "type": "string", "description": "验证规则表达式" },
+              "message": { "type": "string", "description": "错误消息" },
+              "trigger": { 
+                "type": "string", 
+                "enum": ["blur", "change"],
+                "description": "触发时机" 
+              }
+            },
+            "required": ["rule", "message"]
+          },
+          "description": "自定义验证规则"
+        }
+      },
+      "description": "验证规则"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string", "description": "选项标签" },
+          "value": { "description": "选项值" },
+          "disabled": { "type": "boolean", "description": "是否禁用" },
+          "children": { 
+            "type": "array",
+            "description": "子选项（用于级联选择）"
+          }
+        },
+        "required": ["label", "value"]
+      },
+      "description": "选项列表（适用于下拉框、单选框等）"
+    },
+    "dataSource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["STATIC", "API", "DICT", "TREE"],
+          "description": "数据源类型"
+        },
+        "url": { "type": "string", "description": "API接口地址" },
+        "method": { "type": "string", "enum": ["GET", "POST"], "description": "请求方法" },
+        "params": { "type": "object", "description": "请求参数" },
+        "dictCode": { "type": "string", "description": "字典编码" },
+        "valueField": { "type": "string", "description": "值字段名" },
+        "labelField": { "type": "string", "description": "标签字段名" },
+        "childrenField": { "type": "string", "description": "子节点字段名" }
+      },
+      "description": "动态数据源配置"
+    },
+    "defaultValue": { 
+      "description": "默认值" 
+    },
+    "placeholder": { 
+      "type": "string", 
+      "description": "占位符" 
+    },
+    "help": { 
+      "type": "string", 
+      "description": "帮助信息" 
+    },
+    "tooltip": {
+      "type": "string",
+      "description": "提示信息"
+    },
+    "disabled": { 
+      "type": "boolean", 
+      "description": "是否禁用" 
+    },
+    "readonly": { 
+      "type": "boolean", 
+      "description": "是否只读" 
+    },
+    "visible": { 
+      "type": "boolean", 
+      "default": true,
+      "description": "是否可见" 
+    },
+    "order": { 
+      "type": "integer", 
+      "description": "排序权重" 
+    },
+    "conditional": {
+      "type": "object",
+      "properties": {
+        "dependsOn": { "type": "string", "description": "依赖字段" },
+        "showWhen": { "type": "string", "description": "显示条件" },
+        "hideWhen": { "type": "string", "description": "隐藏条件" },
+        "disabledWhen": { "type": "string", "description": "禁用条件" },
+        "requiredWhen": { "type": "string", "description": "必填条件" }
+      },
+      "description": "条件配置"
+    },
+    "events": {
+      "type": "object",
+      "properties": {
+        "onChange": { "type": "string", "description": "值改变事件处理" },
+        "onFocus": { "type": "string", "description": "获取焦点事件处理" },
+        "onBlur": { "type": "string", "description": "失去焦点事件处理" },
+        "onClick": { "type": "string", "description": "点击事件处理" }
+      },
+      "description": "事件处理配置"
+    },
+    "style": {
+      "type": "object",
+      "properties": {
+        "width": { "type": "string", "description": "宽度" },
+        "height": { "type": "string", "description": "高度" },
+        "className": { "type": "string", "description": "CSS类名" },
+        "customStyle": { "type": "object", "description": "自定义样式" }
+      },
+      "description": "样式配置"
+    },
+    "props": {
+      "type": "object",
+      "description": "组件特有属性配置"
+    }
+  },
+  "required": ["id", "name", "label", "type"],
+  "additionalProperties": false
+}

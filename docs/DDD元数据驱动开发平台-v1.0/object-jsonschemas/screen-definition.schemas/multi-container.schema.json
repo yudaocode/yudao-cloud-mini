@@ -1,0 +1,411 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/2.0/screen-definition/multi-container.schema.json",
+  "title": "多容器屏幕定义",
+  "description": "支持一个屏幕包含多个子容器，每个容器可以动态载入其他子屏幕",
+  "version": "2.0.0",
+  "type": "object",
+  "$defs": {
+    "containerDefinition": {
+      "type": "object",
+      "description": "容器定义，支持动态载入子屏幕",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^container_[a-zA-Z0-9_]+$",
+          "description": "容器唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "容器名称"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "TABS",
+            "ACCORDION", 
+            "COLLAPSE",
+            "CAROUSEL",
+            "SPLIT_PANEL",
+            "GRID_LAYOUT",
+            "FLEX_LAYOUT",
+            "CARD_LAYOUT",
+            "TREE_LAYOUT",
+            "DYNAMIC_TABS"
+          ],
+          "description": "容器类型"
+        },
+        "layout": {
+          "type": "object",
+          "description": "容器布局配置",
+          "properties": {
+            "direction": {
+              "type": "string",
+              "enum": ["horizontal", "vertical", "grid"],
+              "default": "horizontal"
+            },
+            "wrap": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否换行"
+            },
+            "justify": {
+              "type": "string",
+              "enum": ["start", "end", "center", "space-between", "space-around", "space-evenly"],
+              "default": "start"
+            },
+            "align": {
+              "type": "string", 
+              "enum": ["start", "end", "center", "stretch", "baseline"],
+              "default": "stretch"
+            },
+            "gap": {
+              "type": "string",
+              "description": "容器间距"
+            },
+            "gridTemplate": {
+              "type": "object",
+              "description": "网格布局模板",
+              "properties": {
+                "columns": {
+                  "type": "string",
+                  "description": "列模板，如: '1fr 1fr 1fr'"
+                },
+                "rows": {
+                  "type": "string", 
+                  "description": "行模板，如: 'auto 1fr auto'"
+                },
+                "areas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "区域定义"
+                }
+              }
+            }
+          }
+        },
+        "props": {
+          "type": "object",
+          "description": "容器特定属性",
+          "properties": {
+            "tabPosition": {
+              "type": "string",
+              "enum": ["top", "bottom", "left", "right"],
+              "description": "标签页位置"
+            },
+            "tabType": {
+              "type": "string",
+              "enum": ["line", "card", "button"],
+              "description": "标签页类型"
+            },
+            "closable": {
+              "type": "boolean",
+              "default": false,
+              "description": "标签页是否可关闭"
+            },
+            "addable": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否可以添加新标签页"
+            },
+            "draggable": {
+              "type": "boolean",
+              "default": false,
+              "description": "标签页是否可拖拽排序"
+            },
+            "collapsible": {
+              "type": "boolean",
+              "default": false,
+              "description": "面板是否可折叠"
+            },
+            "accordion": {
+              "type": "boolean",
+              "default": false,
+              "description": "手风琴模式（同时只能展开一个）"
+            },
+            "ghost": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否为幽灵模式"
+            },
+            "size": {
+              "type": "string",
+              "enum": ["small", "medium", "large"],
+              "default": "medium"
+            },
+            "animated": {
+              "type": "boolean",
+              "default": true,
+              "description": "是否启用动画"
+            }
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/containerChild"
+          },
+          "description": "子容器项列表"
+        },
+        "dynamicLoading": {
+          "type": "object",
+          "description": "动态加载配置",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否启用动态加载"
+            },
+            "strategy": {
+              "type": "string",
+              "enum": ["LAZY", "ON_DEMAND", "PRELOAD", "PROGRESSIVE"],
+              "default": "LAZY",
+              "description": "加载策略"
+            },
+            "loadOnVisible": {
+              "type": "boolean",
+              "default": true,
+              "description": "可见时才加载"
+            },
+            "cacheStrategy": {
+              "type": "string",
+              "enum": ["NONE", "MEMORY", "SESSION", "LOCAL", "CUSTOM"],
+              "default": "MEMORY",
+              "description": "缓存策略"
+            },
+            "maxCacheSize": {
+              "type": "number",
+              "default": 10,
+              "description": "最大缓存数量"
+            },
+            "preloadCount": {
+              "type": "number",
+              "default": 2,
+              "description": "预加载数量"
+            }
+          }
+        },
+        "events": {
+          "type": "object",
+          "description": "容器事件处理",
+          "properties": {
+            "onTabChange": {
+              "type": "string",
+              "description": "标签页切换事件"
+            },
+            "onTabAdd": {
+              "type": "string",
+              "description": "添加标签页事件"
+            },
+            "onTabRemove": {
+              "type": "string", 
+              "description": "移除标签页事件"
+            },
+            "onPanelCollapse": {
+              "type": "string",
+              "description": "面板折叠事件"
+            },
+            "onPanelExpand": {
+              "type": "string",
+              "description": "面板展开事件"
+            },
+            "onChildLoad": {
+              "type": "string",
+              "description": "子屏幕加载事件"
+            },
+            "onChildError": {
+              "type": "string",
+              "description": "子屏幕加载错误事件"
+            }
+          }
+        }
+      },
+      "required": ["id", "name", "type"],
+      "additionalProperties": false
+    },
+    "containerChild": {
+      "type": "object",
+      "description": "容器子项，可以是静态内容或动态载入的屏幕",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "子项唯一标识"
+        },
+        "title": {
+          "type": "string",
+          "description": "子项标题"
+        },
+        "icon": {
+          "type": "string",
+          "description": "子项图标"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SCREEN_REFERENCE", "STATIC_CONTENT", "DYNAMIC_CONTENT", "PLACEHOLDER"],
+          "description": "子项类型"
+        },
+        "screenReference": {
+          "$ref": "../screen-reference.schema.json#/$defs/screenReference",
+          "description": "屏幕引用（当type为SCREEN_REFERENCE时）"
+        },
+        "staticContent": {
+          "type": "object",
+          "description": "静态内容（当type为STATIC_CONTENT时）",
+          "properties": {
+            "content": {
+              "type": "string",
+              "description": "静态内容"
+            },
+            "contentType": {
+              "type": "string",
+              "enum": ["HTML", "MARKDOWN", "TEXT", "JSON"],
+              "default": "HTML"
+            }
+          }
+        },
+        "dynamicContent": {
+          "type": "object",
+          "description": "动态内容配置（当type为DYNAMIC_CONTENT时）",
+          "properties": {
+            "source": {
+              "type": "string",
+              "description": "内容源，可以是API端点或函数名"
+            },
+            "params": {
+              "type": "object",
+              "description": "动态内容参数"
+            },
+            "refresh": {
+              "type": "object",
+              "properties": {
+                "interval": {
+                  "type": "number",
+                  "description": "刷新间隔（秒）"
+                },
+                "trigger": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "触发刷新的事件"
+                }
+              }
+            }
+          }
+        },
+        "placeholder": {
+          "type": "object",
+          "description": "占位符配置（当type为PLACEHOLDER时）",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "占位符文本"
+            },
+            "icon": {
+              "type": "string",
+              "description": "占位符图标"
+            },
+            "action": {
+              "type": "object",
+              "description": "点击占位符时的操作"
+            }
+          }
+        },
+        "order": {
+          "type": "number",
+          "description": "显示顺序"
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否可见"
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否禁用"
+        },
+        "closable": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否可关闭"
+        },
+        "key": {
+          "type": "string",
+          "description": "唯一键值"
+        },
+        "className": {
+          "type": "string",
+          "description": "CSS类名"
+        },
+        "style": {
+          "type": "object",
+          "description": "内联样式"
+        },
+        "conditions": {
+          "type": "object",
+          "description": "显示条件",
+          "properties": {
+            "showWhen": {
+              "$ref": "../fields/common-fields.schema.json#/$defs/condition",
+              "description": "显示条件"
+            },
+            "hideWhen": {
+              "$ref": "../fields/common-fields.schema.json#/$defs/condition", 
+              "description": "隐藏条件"
+            },
+            "enableWhen": {
+              "$ref": "../fields/common-fields.schema.json#/$defs/condition",
+              "description": "启用条件"
+            },
+            "permissions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "所需权限"
+            }
+          }
+        },
+        "lifecycle": {
+          "type": "object",
+          "description": "生命周期回调",
+          "properties": {
+            "onBeforeLoad": {
+              "type": "string",
+              "description": "加载前回调"
+            },
+            "onAfterLoad": {
+              "type": "string",
+              "description": "加载后回调"
+            },
+            "onBeforeShow": {
+              "type": "string",
+              "description": "显示前回调"
+            },
+            "onAfterShow": {
+              "type": "string",
+              "description": "显示后回调"
+            },
+            "onBeforeHide": {
+              "type": "string",
+              "description": "隐藏前回调"
+            },
+            "onAfterHide": {
+              "type": "string",
+              "description": "隐藏后回调"
+            },
+            "onBeforeDestroy": {
+              "type": "string",
+              "description": "销毁前回调"
+            }
+          }
+        }
+      },
+      "required": ["id", "title", "type"],
+      "additionalProperties": false
+    }
+  }
+}

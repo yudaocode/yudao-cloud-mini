@@ -1,0 +1,285 @@
+{
+  "id": "screen_user_management_example",
+  "name": "用户管理页面示例",
+  "title": "用户管理",
+  "description": "展示屏幕引用机制的完整示例",
+  "type": "LIST_PAGE",
+  "category": "BUSINESS",
+  "path": "/users/management",
+  "icon": "users",
+  
+  "components": [
+    {
+      "id": "search_form",
+      "type": "SEARCH_FORM",
+      "props": {
+        "collapsed": true,
+        "labelWidth": "80px"
+      },
+      "fields": [
+        {
+          "name": "keyword",
+          "label": "关键词",
+          "type": "TEXT",
+          "placeholder": "请输入用户名或姓名"
+        },
+        {
+          "name": "status",
+          "label": "状态",
+          "type": "SELECT",
+          "options": [
+            {"label": "全部", "value": ""},
+            {"label": "启用", "value": "ACTIVE"},
+            {"label": "禁用", "value": "INACTIVE"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "users_table",
+      "type": "TABLE",
+      "props": {
+        "rowSelection": {
+          "type": "checkbox"
+        },
+        "columns": [
+          {
+            "title": "用户名",
+            "dataIndex": "username",
+            "width": 120,
+            "fixed": "left"
+          },
+          {
+            "title": "真实姓名", 
+            "dataIndex": "realname",
+            "width": 120
+          },
+          {
+            "title": "邮箱",
+            "dataIndex": "email",
+            "width": 200
+          },
+          {
+            "title": "手机号",
+            "dataIndex": "phone",
+            "width": 120
+          },
+          {
+            "title": "状态",
+            "dataIndex": "status",
+            "width": 80,
+            "render": "statusTag"
+          },
+          {
+            "title": "创建时间",
+            "dataIndex": "createTime",
+            "width": 180,
+            "sorter": true
+          },
+          {
+            "title": "操作",
+            "dataIndex": "actions",
+            "width": 200,
+            "fixed": "right"
+          }
+        ],
+        "pagination": {
+          "pageSize": 20,
+          "showSizeChanger": true,
+          "showQuickJumper": true
+        }
+      }
+    }
+  ],
+  
+  "actions": [
+    {
+      "id": "action_add_user",
+      "name": "添加用户",
+      "type": "OPEN_SCREEN_REFERENCE",
+      "triggerType": "BUTTON_CLICK",
+      "target": {
+        "type": "SCREEN_REFERENCE",
+        "screenId": "screen_user_edit_form",
+        "containerType": "DIALOG",
+        "containerProps": {
+          "title": "添加用户",
+          "width": "800px",
+          "height": "600px",
+          "destroyOnClose": true,
+          "maskClosable": false
+        },
+        "dataBinding": {
+          "parentToChild": {
+            "mode": "ADD",
+            "defaultValues": {
+              "status": "ACTIVE",
+              "createTime": "${new Date().toISOString()}"
+            }
+          },
+          "childToParent": {
+            "onSuccess": "handleUserAddSuccess",
+            "onCancel": "handleUserCancel",
+            "userData": "newUserData"
+          }
+        },
+        "lifecycle": {
+          "onAfterOpen": "function() { console.log('用户添加对话框已打开'); }",
+          "onBeforeClose": "function(context) { return !context.isDirty || confirm('表单有未保存的更改，确定关闭吗？'); }",
+          "onAfterClose": "function() { console.log('用户添加对话框已关闭'); }"
+        }
+      },
+      "style": {
+        "buttonType": "primary",
+        "icon": "plus",
+        "size": "medium"
+      }
+    },
+    {
+      "id": "action_edit_user",
+      "name": "编辑用户",
+      "type": "OPEN_SCREEN_REFERENCE",
+      "triggerType": "ROW_CLICK",
+      "target": {
+        "type": "SCREEN_REFERENCE",
+        "screenId": "screen_user_edit_form",
+        "containerType": "DIALOG",
+        "containerProps": {
+          "title": "编辑用户 - ${row.realname}",
+          "width": "800px",
+          "height": "600px",
+          "resizable": true
+        },
+        "dataBinding": {
+          "parentToChild": {
+            "mode": "EDIT",
+            "userId": "${row.id}",
+            "initialData": "${row}"
+          },
+          "childToParent": {
+            "onSuccess": "handleUserEditSuccess",
+            "onCancel": "handleUserCancel",
+            "userData": "editedUserData"
+          }
+        },
+        "caching": {
+          "enabled": true,
+          "strategy": "memory",
+          "ttl": 300,
+          "key": "user_edit_${row.id}"
+        }
+      }
+    },
+    {
+      "id": "action_view_profile",
+      "name": "查看档案",
+      "type": "OPEN_SCREEN_REFERENCE",
+      "triggerType": "CELL_CLICK",
+      "target": {
+        "type": "SCREEN_REFERENCE",
+        "screenId": "screen_user_profile_detail",
+        "containerType": "DRAWER",
+        "containerProps": {
+          "title": "用户档案 - ${row.realname}",
+          "width": "60%",
+          "position": "right",
+          "closable": true,
+          "maskClosable": true
+        },
+        "dataBinding": {
+          "parentToChild": {
+            "userId": "${row.id}",
+            "readonly": true
+          }
+        },
+        "performance": {
+          "keepAlive": true,
+          "preload": false
+        }
+      }
+    },
+    {
+      "id": "action_batch_operations",
+      "name": "批量操作",
+      "type": "OPEN_SCREEN_REFERENCE",
+      "triggerType": "BUTTON_CLICK",
+      "target": {
+        "type": "SCREEN_REFERENCE",
+        "screenId": "screen_batch_user_operations",
+        "containerType": "MODAL",
+        "containerProps": {
+          "title": "批量操作",
+          "width": "600px",
+          "centered": true
+        },
+        "dataBinding": {
+          "parentToChild": {
+            "selectedUserIds": "${selectedRowKeys}",
+            "selectedUsers": "${selectedRows}"
+          },
+          "childToParent": {
+            "onComplete": "handleBatchComplete"
+          }
+        },
+        "conditions": {
+          "enableWhen": {
+            "field": "selectedRowKeys",
+            "operator": "notEmpty",
+            "value": null
+          }
+        }
+      },
+      "style": {
+        "buttonType": "secondary",
+        "icon": "setting"
+      }
+    }
+  ],
+  
+  "embeddedScreens": {
+    "advanced_search": {
+      "type": "SCREEN_REFERENCE",
+      "screenId": "screen_user_advanced_search",
+      "containerType": "COLLAPSE",
+      "containerProps": {
+        "title": "高级搜索",
+        "key": "advanced"
+      },
+      "referenceMode": "LAZY_LOAD",
+      "dataBinding": {
+        "bidirectional": [
+          "searchConditions",
+          "filterValues"
+        ]
+      }
+    }
+  },
+  
+  "dataTypes": {
+    "primary": "SINGLE_TABLE",
+    "subTypes": ["USER_INFO", "USER_STATUS"]
+  },
+  
+  "permissions": [
+    {
+      "action": "VIEW",
+      "resource": "USER_LIST"
+    },
+    {
+      "action": "CREATE",
+      "resource": "USER_INFO"
+    },
+    {
+      "action": "UPDATE", 
+      "resource": "USER_INFO"
+    }
+  ],
+  
+  "meta": {
+    "version": "1.0.0",
+    "author": "DDD元数据平台",
+    "description": "用户管理页面的完整示例，展示了屏幕引用机制的各种用法",
+    "tags": ["user-management", "screen-reference", "dialog", "drawer"],
+    "lastModified": "2024-09-10"
+  }
+}

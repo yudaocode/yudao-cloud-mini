@@ -1,0 +1,544 @@
+{
+  "name": "order-list",
+  "version": "1.0.0",
+  "description": "订单列表屏幕 - 由DDD-AMIS自动转换器生成",
+  "generatedAt": "2024-01-15T10:30:00Z",
+  "sourceMetadata": {
+    "aggregateId": "agg_order",
+    "entityId": "entity_order",
+    "generationRules": "standard-crud"
+  },
+  "amisSchema": {
+    "type": "page",
+    "title": "订单管理",
+    "body": {
+      "type": "crud",
+      "api": "/api/order",
+      "syncLocation": false,
+      "columns": [
+        {
+          "name": "orderNumber",
+          "label": "订单编号",
+          "type": "text",
+          "sortable": true,
+          "searchable": true,
+          "width": 150
+        },
+        {
+          "name": "customerName",
+          "label": "客户姓名",
+          "type": "text",
+          "sortable": true,
+          "searchable": true,
+          "width": 120
+        },
+        {
+          "name": "totalAmount",
+          "label": "订单金额",
+          "type": "text",
+          "sortable": true,
+          "width": 100,
+          "prefix": "¥",
+          "classNameExpr": "${totalAmount > 1000 ? 'text-danger' : ''}"
+        },
+        {
+          "name": "orderStatus",
+          "label": "订单状态",
+          "type": "mapping",
+          "sortable": true,
+          "width": 100,
+          "map": {
+            "PENDING": "<span class='label label-warning'>待处理</span>",
+            "CONFIRMED": "<span class='label label-info'>已确认</span>",
+            "PAID": "<span class='label label-success'>已支付</span>",
+            "SHIPPED": "<span class='label label-primary'>已发货</span>",
+            "DELIVERED": "<span class='label label-success'>已送达</span>",
+            "CANCELLED": "<span class='label label-danger'>已取消</span>"
+          }
+        },
+        {
+          "name": "orderDate",
+          "label": "下单时间",
+          "type": "datetime",
+          "sortable": true,
+          "width": 150,
+          "format": "YYYY-MM-DD HH:mm"
+        },
+        {
+          "name": "expectedDeliveryDate",
+          "label": "预计送达",
+          "type": "date",
+          "sortable": true,
+          "width": 120,
+          "format": "YYYY-MM-DD"
+        },
+        {
+          "name": "customerEmail",
+          "label": "客户邮箱",
+          "type": "link",
+          "href": "mailto:${customerEmail}",
+          "width": 180
+        },
+        {
+          "type": "operation",
+          "label": "操作",
+          "width": 200,
+          "buttons": [
+            {
+              "type": "button",
+              "label": "查看",
+              "level": "info",
+              "size": "sm",
+              "actionType": "dialog",
+              "dialog": {
+                "title": "订单详情 - ${orderNumber}",
+                "size": "lg",
+                "body": {
+                  "type": "service",
+                  "api": "/api/order/${id}",
+                  "body": {
+                    "type": "panel",
+                    "title": "详细信息",
+                    "body": [
+                      {
+                        "type": "static",
+                        "name": "orderNumber",
+                        "label": "订单编号"
+                      },
+                      {
+                        "type": "static",
+                        "name": "customerName",
+                        "label": "客户姓名"
+                      },
+                      {
+                        "type": "static",
+                        "name": "customerPhone",
+                        "label": "客户电话"
+                      },
+                      {
+                        "type": "static",
+                        "name": "customerEmail",
+                        "label": "客户邮箱"
+                      },
+                      {
+                        "type": "static",
+                        "name": "deliveryAddress",
+                        "label": "送货地址"
+                      },
+                      {
+                        "type": "static",
+                        "name": "totalAmount",
+                        "label": "订单总额",
+                        "prefix": "¥"
+                      },
+                      {
+                        "type": "static",
+                        "name": "orderStatus",
+                        "label": "订单状态",
+                        "mapping": {
+                          "PENDING": "待处理",
+                          "CONFIRMED": "已确认",
+                          "PAID": "已支付",
+                          "SHIPPED": "已发货",
+                          "DELIVERED": "已送达",
+                          "CANCELLED": "已取消"
+                        }
+                      },
+                      {
+                        "type": "static",
+                        "name": "orderDate",
+                        "label": "下单时间",
+                        "format": "YYYY-MM-DD HH:mm:ss"
+                      },
+                      {
+                        "type": "static",
+                        "name": "expectedDeliveryDate",
+                        "label": "预计送达时间",
+                        "format": "YYYY-MM-DD"
+                      },
+                      {
+                        "type": "static",
+                        "name": "orderNotes",
+                        "label": "订单备注"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "label": "编辑",
+              "level": "primary",
+              "size": "sm",
+              "actionType": "dialog",
+              "visibleOn": "${orderStatus === 'PENDING' || orderStatus === 'CONFIRMED'}",
+              "dialog": {
+                "title": "编辑订单 - ${orderNumber}",
+                "size": "lg",
+                "body": {
+                  "type": "form",
+                  "api": "put:/api/order/${id}",
+                  "initApi": "/api/order/${id}",
+                  "body": [
+                    {
+                      "type": "static",
+                      "name": "orderNumber",
+                      "label": "订单编号"
+                    },
+                    {
+                      "type": "input-text",
+                      "name": "customerName",
+                      "label": "客户姓名",
+                      "required": true,
+                      "validations": {
+                        "maxLength": 50
+                      }
+                    },
+                    {
+                      "type": "input-text",
+                      "name": "customerPhone",
+                      "label": "客户电话",
+                      "required": true,
+                      "validations": {
+                        "isPhoneNumber": true
+                      }
+                    },
+                    {
+                      "type": "input-email",
+                      "name": "customerEmail",
+                      "label": "客户邮箱",
+                      "required": true
+                    },
+                    {
+                      "type": "textarea",
+                      "name": "deliveryAddress",
+                      "label": "送货地址",
+                      "required": true,
+                      "maxRows": 3
+                    },
+                    {
+                      "type": "input-number",
+                      "name": "totalAmount",
+                      "label": "订单总额",
+                      "required": true,
+                      "min": 0,
+                      "precision": 2,
+                      "prefix": "¥"
+                    },
+                    {
+                      "type": "select",
+                      "name": "orderStatus",
+                      "label": "订单状态",
+                      "required": true,
+                      "options": [
+                        { "label": "待处理", "value": "PENDING" },
+                        { "label": "已确认", "value": "CONFIRMED" },
+                        { "label": "已支付", "value": "PAID" },
+                        { "label": "已发货", "value": "SHIPPED" },
+                        { "label": "已送达", "value": "DELIVERED" },
+                        { "label": "已取消", "value": "CANCELLED" }
+                      ]
+                    },
+                    {
+                      "type": "input-date",
+                      "name": "expectedDeliveryDate",
+                      "label": "预计送达时间",
+                      "format": "YYYY-MM-DD"
+                    },
+                    {
+                      "type": "textarea",
+                      "name": "orderNotes",
+                      "label": "订单备注",
+                      "maxRows": 3
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "button",
+              "label": "取消",
+              "level": "danger",
+              "size": "sm",
+              "actionType": "ajax",
+              "api": "put:/api/order/${id}/cancel",
+              "confirmText": "确定要取消订单 ${orderNumber} 吗？",
+              "visibleOn": "${orderStatus === 'PENDING' || orderStatus === 'CONFIRMED'}"
+            }
+          ]
+        }
+      ],
+      "headerToolbar": [
+        {
+          "type": "button",
+          "label": "新增订单",
+          "level": "primary",
+          "icon": "fa fa-plus",
+          "actionType": "dialog",
+          "dialog": {
+            "title": "新增订单",
+            "size": "lg",
+            "body": {
+              "type": "form",
+              "api": "post:/api/order",
+              "body": [
+                {
+                  "type": "input-text",
+                  "name": "customerName",
+                  "label": "客户姓名",
+                  "required": true,
+                  "validations": {
+                    "maxLength": 50
+                  }
+                },
+                {
+                  "type": "input-text",
+                  "name": "customerPhone",
+                  "label": "客户电话",
+                  "required": true,
+                  "validations": {
+                    "isPhoneNumber": true
+                  }
+                },
+                {
+                  "type": "input-email",
+                  "name": "customerEmail",
+                  "label": "客户邮箱",
+                  "required": true
+                },
+                {
+                  "type": "textarea",
+                  "name": "deliveryAddress",
+                  "label": "送货地址",
+                  "required": true,
+                  "maxRows": 3
+                },
+                {
+                  "type": "input-number",
+                  "name": "totalAmount",
+                  "label": "订单总额",
+                  "required": true,
+                  "min": 0,
+                  "precision": 2,
+                  "prefix": "¥"
+                },
+                {
+                  "type": "select",
+                  "name": "orderStatus",
+                  "label": "订单状态",
+                  "required": true,
+                  "value": "PENDING",
+                  "options": [
+                    { "label": "待处理", "value": "PENDING" },
+                    { "label": "已确认", "value": "CONFIRMED" }
+                  ]
+                },
+                {
+                  "type": "input-date",
+                  "name": "expectedDeliveryDate",
+                  "label": "预计送达时间",
+                  "format": "YYYY-MM-DD"
+                },
+                {
+                  "type": "textarea",
+                  "name": "orderNotes",
+                  "label": "订单备注",
+                  "maxRows": 3
+                }
+              ]
+            }
+          }
+        },
+        "reload",
+        {
+          "type": "columns-toggler",
+          "align": "right"
+        },
+        {
+          "type": "drag-toggler",
+          "align": "right"
+        },
+        {
+          "type": "filter-toggler",
+          "align": "right"
+        }
+      ],
+      "footerToolbar": [
+        "switch-per-page",
+        "pagination"
+      ],
+      "filter": {
+        "title": "搜索条件",
+        "body": [
+          {
+            "type": "input-text",
+            "name": "orderNumber",
+            "label": "订单编号",
+            "placeholder": "请输入订单编号"
+          },
+          {
+            "type": "input-text",
+            "name": "customerName",
+            "label": "客户姓名",
+            "placeholder": "请输入客户姓名"
+          },
+          {
+            "type": "select",
+            "name": "orderStatus",
+            "label": "订单状态",
+            "placeholder": "请选择订单状态",
+            "clearable": true,
+            "options": [
+              { "label": "待处理", "value": "PENDING" },
+              { "label": "已确认", "value": "CONFIRMED" },
+              { "label": "已支付", "value": "PAID" },
+              { "label": "已发货", "value": "SHIPPED" },
+              { "label": "已送达", "value": "DELIVERED" },
+              { "label": "已取消", "value": "CANCELLED" }
+            ]
+          },
+          {
+            "type": "input-date-range",
+            "name": "orderDateRange",
+            "label": "下单时间范围",
+            "format": "YYYY-MM-DD"
+          }
+        ]
+      },
+      "defaultParams": {
+        "perPage": 20
+      },
+      "perPageAvailable": [10, 20, 50, 100],
+      "messages": {
+        "fetchFailed": "获取订单列表失败",
+        "saveSuccess": "保存成功",
+        "saveFailed": "保存失败"
+      }
+    }
+  },
+  "dddEnhancements": {
+    "entityBindings": [
+      {
+        "entityType": "AGGREGATE_ROOT",
+        "entityId": "entity_order",
+        "bindingType": "DATA_SOURCE"
+      }
+    ],
+    "apiMappings": [
+      {
+        "apiPath": "/api/order",
+        "httpMethod": "GET",
+        "domainService": "OrderQueryService",
+        "operationType": "QUERY"
+      },
+      {
+        "apiPath": "/api/order",
+        "httpMethod": "POST",
+        "domainService": "OrderCommandService",
+        "operationType": "COMMAND"
+      },
+      {
+        "apiPath": "/api/order/${id}",
+        "httpMethod": "PUT",
+        "domainService": "OrderCommandService",
+        "operationType": "COMMAND"
+      },
+      {
+        "apiPath": "/api/order/${id}/cancel",
+        "httpMethod": "PUT",
+        "domainService": "OrderCommandService",
+        "operationType": "COMMAND"
+      }
+    ],
+    "permissionRules": [
+      {
+        "action": "VIEW",
+        "requiredPermissions": ["order:list"]
+      },
+      {
+        "action": "CREATE",
+        "requiredPermissions": ["order:create"]
+      },
+      {
+        "action": "UPDATE",
+        "requiredPermissions": ["order:update"]
+      },
+      {
+        "action": "CANCEL",
+        "requiredPermissions": ["order:cancel"]
+      }
+    ],
+    "dataTransformations": [
+      {
+        "field": "totalAmount",
+        "transformationType": "FORMAT_CURRENCY",
+        "formatOptions": {
+          "currency": "CNY",
+          "precision": 2
+        }
+      },
+      {
+        "field": "orderDate",
+        "transformationType": "FORMAT_DATETIME",
+        "formatOptions": {
+          "format": "YYYY-MM-DD HH:mm:ss"
+        }
+      },
+      {
+        "field": "orderStatus",
+        "transformationType": "ENUM_MAPPING",
+        "mappingRef": "ORDER_STATUS_MAPPING"
+      }
+    ],
+    "validationRules": [
+      {
+        "field": "customerEmail",
+        "validationType": "UNIQUE_CHECK",
+        "validationConfig": {
+          "apiEndpoint": "/api/validation/unique/customerEmail",
+          "errorMessage": "该邮箱已存在订单记录"
+        }
+      },
+      {
+        "field": "totalAmount",
+        "validationType": "BUSINESS_RULE",
+        "validationConfig": {
+          "ruleId": "BR_ORDER_MINIMUM_AMOUNT",
+          "errorMessage": "订单金额不能低于最小限额"
+        }
+      }
+    ]
+  },
+  "generationMetadata": {
+    "templateUsed": "CRUD_LIST",
+    "typeMapping": {
+      "STRING": "input-text",
+      "INTEGER": "input-number",
+      "DECIMAL": "input-number",
+      "BOOLEAN": "switch",
+      "ENUM": "select",
+      "DATE": "input-date",
+      "DATETIME": "input-datetime",
+      "EMAIL": "input-email"
+    },
+    "customizations": [
+      {
+        "field": "totalAmount",
+        "customization": "CURRENCY_DISPLAY",
+        "reason": "Business requirement for currency formatting"
+      },
+      {
+        "field": "orderStatus",
+        "customization": "STATUS_BADGE",
+        "reason": "Visual status indication requirement"
+      }
+    ],
+    "generationRules": [
+      "EXCLUDE_ID_FROM_FORM",
+      "AUTO_GENERATE_CRUD_OPERATIONS",
+      "INCLUDE_AUDIT_FIELDS_IN_DETAIL",
+      "ADD_CONFIRMATION_FOR_DELETE"
+    ]
+  }
+}

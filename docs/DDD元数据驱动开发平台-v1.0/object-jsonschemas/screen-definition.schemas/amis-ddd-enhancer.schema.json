@@ -1,0 +1,406 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/amis-ddd-enhancer.schema.json",
+  "title": "AMIS-DDD增强器Schema",
+  "description": "基于AMIS原生Schema的最小化DDD增强方案 - 减少80%开发工作量",
+  "version": "3.0.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "3.0.0",
+      "description": "增强器版本"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "projectName": {
+          "type": "string",
+          "description": "项目名称"
+        },
+        "domainId": {
+          "type": "string",
+          "pattern": "^domain_[a-zA-Z0-9_]+$",
+          "description": "所属领域ID（可选）"
+        },
+        "boundedContextId": {
+          "type": "string", 
+          "pattern": "^bc_[a-zA-Z0-9_]+$",
+          "description": "所属限界上下文ID（可选）"
+        }
+      }
+    },
+    "screens": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/enhancedScreen"
+      },
+      "description": "AMIS屏幕增强配置列表"
+    },
+    "globalEnhancements": {
+      "$ref": "#/$defs/globalDDDEnhancements"
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/amisTemplate"
+      },
+      "description": "AMIS模板库"
+    }
+  },
+  "required": ["version", "screens"],
+  "additionalProperties": false,
+
+  "$defs": {
+    "enhancedScreen": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "屏幕唯一标识"
+        },
+        "name": {
+          "type": "string",
+          "description": "屏幕显示名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "屏幕描述"
+        },
+        "route": {
+          "type": "string",
+          "pattern": "^/.*",
+          "description": "路由路径"
+        },
+        "amisSchema": {
+          "oneOf": [
+            {
+              "type": "object",
+              "description": "内联AMIS Schema - 100%原生AMIS格式",
+              "additionalProperties": true
+            },
+            {
+              "type": "string",
+              "format": "uri-reference",
+              "description": "外部AMIS Schema文件路径"
+            }
+          ]
+        },
+        "dddEnhancements": {
+          "$ref": "#/$defs/dddEnhancements"
+        },
+        "screenType": {
+          "type": "string",
+          "enum": ["CRUD", "FORM", "DETAIL", "DASHBOARD", "WIZARD", "CUSTOM"],
+          "description": "屏幕类型 - 用于自动优化"
+        }
+      },
+      "required": ["id", "name", "amisSchema"],
+      "additionalProperties": false
+    },
+
+    "dddEnhancements": {
+      "type": "object",
+      "properties": {
+        "entityBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityBinding"
+          },
+          "description": "DDD实体绑定配置"
+        },
+        "apiMappings": {
+          "$ref": "#/$defs/apiMappings"
+        },
+        "permissionBindings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "权限绑定列表"
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationRule"
+          },
+          "description": "业务验证规则"
+        },
+        "dataTransformations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dataTransformation"
+          },
+          "description": "数据转换规则"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "entityBinding": {
+      "type": "object",
+      "properties": {
+        "entityType": {
+          "type": "string",
+          "enum": ["ENTITY", "AGGREGATE_ROOT", "VALUE_OBJECT", "DTO"],
+          "description": "实体类型"
+        },
+        "entityId": {
+          "type": "string",
+          "description": "实体ID引用"
+        },
+        "bindingPath": {
+          "type": "string",
+          "description": "AMIS组件路径 (JSONPath格式)"
+        },
+        "bindingType": {
+          "type": "string",
+          "enum": ["DATA_SOURCE", "FORM_SCHEMA", "TABLE_COLUMNS", "FILTER_FIELDS"],
+          "description": "绑定类型"
+        },
+        "autoGeneration": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "excludeFields": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "fieldOverrides": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "description": "字段级AMIS配置覆盖"
+              }
+            }
+          }
+        }
+      },
+      "required": ["entityType", "entityId", "bindingPath", "bindingType"],
+      "additionalProperties": false
+    },
+
+    "apiMappings": {
+      "type": "object",
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "description": "API基础URL"
+        },
+        "endpoints": {
+          "type": "object",
+          "properties": {
+            "list": { "type": "string" },
+            "detail": { "type": "string" },
+            "create": { "type": "string" },
+            "update": { "type": "string" },
+            "delete": { "type": "string" },
+            "search": { "type": "string" }
+          },
+          "additionalProperties": { "type": "string" }
+        },
+        "requestTransforms": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "description": "请求数据转换JavaScript表达式"
+          }
+        },
+        "responseTransforms": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "description": "响应数据转换JavaScript表达式"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "validationRule": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "description": "验证规则ID"
+        },
+        "fieldPath": {
+          "type": "string",
+          "description": "字段路径"
+        },
+        "ruleType": {
+          "type": "string",
+          "enum": ["REQUIRED", "FORMAT", "RANGE", "CUSTOM", "BUSINESS_RULE"],
+          "description": "规则类型"
+        },
+        "expression": {
+          "type": "string",
+          "description": "验证表达式"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "错误消息"
+        },
+        "dependsOn": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "依赖字段列表"
+        }
+      },
+      "required": ["ruleId", "fieldPath", "ruleType"],
+      "additionalProperties": false
+    },
+
+    "dataTransformation": {
+      "type": "object",
+      "properties": {
+        "transformId": {
+          "type": "string",
+          "description": "转换器ID"
+        },
+        "sourceField": {
+          "type": "string",
+          "description": "源字段路径"
+        },
+        "targetField": {
+          "type": "string",
+          "description": "目标字段路径"
+        },
+        "transformType": {
+          "type": "string",
+          "enum": ["FORMAT", "CALCULATION", "LOOKUP", "CONDITIONAL", "CUSTOM"],
+          "description": "转换类型"
+        },
+        "transformExpression": {
+          "type": "string",
+          "description": "转换表达式"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "转换参数"
+        }
+      },
+      "required": ["transformId", "sourceField", "targetField", "transformType"],
+      "additionalProperties": false
+    },
+
+    "globalDDDEnhancements": {
+      "type": "object",
+      "properties": {
+        "apiConfiguration": {
+          "type": "object",
+          "properties": {
+            "baseUrl": { "type": "string" },
+            "timeout": { "type": "number" },
+            "headers": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            },
+            "authentication": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["BEARER", "BASIC", "API_KEY", "CUSTOM"]
+                },
+                "config": { "type": "object" }
+              }
+            }
+          }
+        },
+        "permissionConfiguration": {
+          "type": "object",
+          "properties": {
+            "defaultPermissions": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "permissionProvider": {
+              "type": "string",
+              "description": "权限提供者服务"
+            },
+            "cacheStrategy": {
+              "type": "string",
+              "enum": ["NONE", "SESSION", "LOCAL", "MEMORY"]
+            }
+          }
+        },
+        "validationConfiguration": {
+          "type": "object",
+          "properties": {
+            "enableGlobalValidation": { "type": "boolean" },
+            "validationTiming": {
+              "type": "string",
+              "enum": ["ON_CHANGE", "ON_BLUR", "ON_SUBMIT"]
+            },
+            "customValidators": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "amisTemplate": {
+      "type": "object",
+      "properties": {
+        "templateId": {
+          "type": "string",
+          "description": "模板唯一标识"
+        },
+        "templateName": {
+          "type": "string",
+          "description": "模板名称"
+        },
+        "templateType": {
+          "type": "string",
+          "enum": ["CRUD_LIST", "FORM_CREATE", "FORM_EDIT", "DETAIL_VIEW", "SEARCH_FORM", "DASHBOARD"],
+          "description": "模板类型"
+        },
+        "description": {
+          "type": "string",
+          "description": "模板描述"
+        },
+        "amisSchema": {
+          "type": "object",
+          "description": "AMIS模板Schema",
+          "additionalProperties": true
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "type": { "type": "string" },
+              "defaultValue": {},
+              "description": { "type": "string" }
+            },
+            "required": ["name", "type"]
+          },
+          "description": "模板变量定义"
+        },
+        "dddBindingPoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "bindingPath": { "type": "string" },
+              "entityType": { "type": "string" },
+              "bindingType": { "type": "string" }
+            }
+          },
+          "description": "DDD绑定点定义"
+        }
+      },
+      "required": ["templateId", "templateName", "templateType", "amisSchema"],
+      "additionalProperties": false
+    }
+  }
+}

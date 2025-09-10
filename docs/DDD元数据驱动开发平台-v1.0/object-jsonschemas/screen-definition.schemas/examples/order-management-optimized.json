@@ -1,0 +1,127 @@
+{
+  "screenId": "order-management-optimized",
+  "name": "订单管理 - 优化版本",
+  "description": "基于AMIS-DDD增强器的订单管理示例 - 开发工作量减少80%",
+  
+  "amisSchema": {
+    "type": "page",
+    "title": "订单管理",
+    "body": {
+      "type": "crud",
+      "api": "$API{list}",
+      "headerToolbar": [
+        {
+          "type": "button",
+          "label": "新增订单",
+          "actionType": "dialog",
+          "level": "primary",
+          "dialog": {
+            "title": "新增订单",
+            "body": {
+              "type": "form",
+              "api": "$API{create}",
+              "body": "$FORM_SCHEMA{Order}"
+            }
+          }
+        }
+      ],
+      "columns": "$TABLE_COLUMNS{Order}"
+    }
+  },
+
+  "dddEnhancements": {
+    "entityBindings": [
+      {
+        "entityType": "AGGREGATE_ROOT",
+        "entityId": "order_aggregate",
+        "bindingPath": "$.body",
+        "bindingType": "DATA_SOURCE",
+        "autoGeneration": {
+          "enabled": true,
+          "excludeFields": ["internalId", "systemTimestamp"],
+          "fieldOverrides": {
+            "orderDate": {
+              "type": "input-datetime",
+              "format": "YYYY-MM-DD"
+            },
+            "orderStatus": {
+              "type": "select",
+              "options": [
+                {"label": "待支付", "value": "PENDING"},
+                {"label": "已支付", "value": "PAID"},
+                {"label": "已发货", "value": "SHIPPED"},
+                {"label": "已完成", "value": "COMPLETED"}
+              ]
+            }
+          }
+        }
+      }
+    ],
+
+    "apiMappings": {
+      "baseUrl": "/api/ddd/orders",
+      "endpoints": {
+        "list": "/api/ddd/orders",
+        "detail": "/api/ddd/orders/${id}",
+        "create": "/api/ddd/orders",
+        "update": "/api/ddd/orders/${id}",
+        "delete": "/api/ddd/orders/${id}",
+        "search": "/api/ddd/orders/search"
+      },
+      "requestTransforms": {
+        "create": "data.createTime = new Date().toISOString(); return data;",
+        "update": "data.updateTime = new Date().toISOString(); return data;"
+      },
+      "responseTransforms": {
+        "list": "return response.data.items || response.data;",
+        "detail": "return response.data;"
+      }
+    },
+
+    "permissionBindings": [
+      "order:read",
+      "order:write", 
+      "order:delete"
+    ],
+
+    "validationRules": [
+      {
+        "ruleId": "order_amount_required",
+        "fieldPath": "orderAmount",
+        "ruleType": "REQUIRED",
+        "errorMessage": "订单金额不能为空"
+      },
+      {
+        "ruleId": "order_amount_positive", 
+        "fieldPath": "orderAmount",
+        "ruleType": "RANGE",
+        "expression": "value > 0",
+        "errorMessage": "订单金额必须大于0"
+      },
+      {
+        "ruleId": "customer_required_for_order",
+        "fieldPath": "customerId",
+        "ruleType": "BUSINESS_RULE",
+        "expression": "value && value.length > 0",
+        "errorMessage": "必须选择客户"
+      }
+    ],
+
+    "dataTransformations": [
+      {
+        "transformId": "format_order_amount",
+        "sourceField": "orderAmount",
+        "targetField": "displayAmount", 
+        "transformType": "FORMAT",
+        "transformExpression": "¥${value.toFixed(2)}"
+      },
+      {
+        "transformId": "calculate_order_total",
+        "sourceField": "orderItems",
+        "targetField": "calculatedTotal",
+        "transformType": "CALCULATION", 
+        "transformExpression": "value.reduce((sum, item) => sum + (item.quantity * item.price), 0)"
+      }
+    ]
+  }
+}

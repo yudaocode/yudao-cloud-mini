@@ -1,0 +1,343 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/3.0/screen-definition/presets/form-layout-presets.schema.json",
+  "title": "表单布局预设",
+  "description": "常见的表单布局预设配置",
+  "version": "3.0.0",
+  "type": "object",
+  "properties": {
+    "presets": {
+      "type": "object",
+      "properties": {
+        "standardBusinessForm": {
+          "$ref": "#/$defs/layoutPreset",
+          "description": "标准业务表单预设"
+        },
+        "compactForm": {
+          "$ref": "#/$defs/layoutPreset",
+          "description": "紧凑表单预设"
+        },
+        "detailViewForm": {
+          "$ref": "#/$defs/layoutPreset",
+          "description": "详情查看表单预设"
+        },
+        "singleColumnForm": {
+          "$ref": "#/$defs/layoutPreset",
+          "description": "单列表单预设"
+        },
+        "threeColumnForm": {
+          "$ref": "#/$defs/layoutPreset",
+          "description": "三列表单预设"
+        },
+        "mobileForm": {
+          "$ref": "#/$defs/layoutPreset",
+          "description": "移动端表单预设"
+        }
+      },
+      "description": "预设配置集合"
+    }
+  },
+  "required": ["presets"],
+  "additionalProperties": false,
+  
+  "$defs": {
+    "layoutPreset": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "预设名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "预设描述"
+        },
+        "layoutType": {
+          "type": "string",
+          "enum": ["GRID", "FLEX", "TABLE", "FREE"],
+          "description": "布局类型"
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "description": "默认列数"
+        },
+        "responsive": {
+          "type": "object",
+          "properties": {
+            "xs": { "type": "integer", "minimum": 1, "maximum": 12 },
+            "sm": { "type": "integer", "minimum": 1, "maximum": 12 },
+            "md": { "type": "integer", "minimum": 1, "maximum": 12 },
+            "lg": { "type": "integer", "minimum": 1, "maximum": 12 },
+            "xl": { "type": "integer", "minimum": 1, "maximum": 12 }
+          },
+          "description": "响应式配置"
+        },
+        "fieldLayoutRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ruleName": { "type": "string" },
+              "condition": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "fieldType": { "type": "string" }
+                    },
+                    "required": ["fieldType"]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "fieldPattern": { "type": "string" }
+                    },
+                    "required": ["fieldPattern"]
+                  }
+                ]
+              },
+              "layout": {
+                "type": "object",
+                "properties": {
+                  "span": { "type": "integer", "minimum": 1, "maximum": 12 },
+                  "fullWidth": { "type": "boolean" },
+                  "newLine": { "type": "boolean" }
+                }
+              },
+              "priority": { "type": "integer" }
+            },
+            "required": ["ruleName", "condition", "layout"]
+          },
+          "description": "字段布局规则"
+        },
+        "spacing": {
+          "type": "object",
+          "properties": {
+            "horizontal": { "type": "string" },
+            "vertical": { "type": "string" }
+          },
+          "description": "间距配置"
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": ["LEFT", "TOP", "RIGHT"],
+          "description": "标签位置"
+        },
+        "labelWidth": {
+          "type": "string",
+          "description": "标签宽度"
+        }
+      },
+      "required": ["name", "description", "layoutType", "columns"],
+      "additionalProperties": false
+    }
+  },
+  
+  "examples": [
+    {
+      "presets": {
+        "standardBusinessForm": {
+          "name": "标准业务表单",
+          "description": "适用于大多数业务表单的布局，支持响应式设计",
+          "layoutType": "GRID",
+          "columns": 2,
+          "responsive": {
+            "xs": 1,
+            "sm": 1, 
+            "md": 2,
+            "lg": 3,
+            "xl": 3
+          },
+          "labelPosition": "LEFT",
+          "labelWidth": "120px",
+          "spacing": {
+            "horizontal": "16px",
+            "vertical": "16px"
+          },
+          "fieldLayoutRules": [
+            {
+              "ruleName": "备注字段独占一行",
+              "condition": {
+                "fieldPattern": ".*?(备注|说明|描述|remark|note|desc|comment|detail).*?"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true,
+                "newLine": true
+              },
+              "priority": 100
+            },
+            {
+              "ruleName": "富文本独占一行",
+              "condition": {
+                "fieldType": "RICH_TEXT"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true,
+                "newLine": true
+              },
+              "priority": 90
+            },
+            {
+              "ruleName": "大文本区域独占一行",
+              "condition": {
+                "fieldType": "TEXTAREA"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true,
+                "newLine": true
+              },
+              "priority": 80
+            },
+            {
+              "ruleName": "文件上传独占一行",
+              "condition": {
+                "fieldType": "FILE"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true
+              },
+              "priority": 70
+            },
+            {
+              "ruleName": "图片上传独占一行",
+              "condition": {
+                "fieldType": "IMAGE"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true
+              },
+              "priority": 70
+            },
+            {
+              "ruleName": "地址字段独占一行",
+              "condition": {
+                "fieldPattern": ".*?(地址|address|addr).*?"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true
+              },
+              "priority": 60
+            }
+          ]
+        },
+        "compactForm": {
+          "name": "紧凑表单",
+          "description": "适用于字段较多需要紧凑显示的表单",
+          "layoutType": "GRID",
+          "columns": 3,
+          "responsive": {
+            "xs": 1,
+            "sm": 2,
+            "md": 3,
+            "lg": 4,
+            "xl": 4
+          },
+          "labelPosition": "TOP",
+          "spacing": {
+            "horizontal": "8px",
+            "vertical": "12px"
+          },
+          "fieldLayoutRules": [
+            {
+              "ruleName": "长文本字段独占一行",
+              "condition": {
+                "fieldPattern": ".*?(备注|说明|描述|地址|详情|内容|remark|note|desc|address|detail|content).*?"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true,
+                "newLine": true
+              },
+              "priority": 100
+            },
+            {
+              "ruleName": "文本域独占一行",
+              "condition": {
+                "fieldType": "TEXTAREA"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true
+              },
+              "priority": 80
+            }
+          ]
+        },
+        "detailViewForm": {
+          "name": "详情查看表单",
+          "description": "适用于详情页面的只读表单",
+          "layoutType": "GRID",
+          "columns": 2,
+          "labelPosition": "LEFT",
+          "labelWidth": "150px",
+          "spacing": {
+            "horizontal": "24px",
+            "vertical": "20px"
+          },
+          "fieldLayoutRules": [
+            {
+              "ruleName": "长文本字段独占一行",
+              "condition": {
+                "fieldPattern": ".*?(备注|说明|描述|地址|详情|内容|remark|note|desc|address|detail|content).*?"
+              },
+              "layout": {
+                "span": 12,
+                "fullWidth": true
+              },
+              "priority": 100
+            }
+          ]
+        },
+        "singleColumnForm": {
+          "name": "单列表单",
+          "description": "单列垂直布局表单",
+          "layoutType": "GRID",
+          "columns": 1,
+          "labelPosition": "TOP",
+          "spacing": {
+            "vertical": "16px"
+          },
+          "fieldLayoutRules": []
+        },
+        "mobileForm": {
+          "name": "移动端表单",
+          "description": "适用于移动端的表单布局",
+          "layoutType": "GRID",
+          "columns": 1,
+          "responsive": {
+            "xs": 1,
+            "sm": 1,
+            "md": 2,
+            "lg": 2,
+            "xl": 2
+          },
+          "labelPosition": "TOP",
+          "spacing": {
+            "horizontal": "12px",
+            "vertical": "16px"
+          },
+          "fieldLayoutRules": [
+            {
+              "ruleName": "移动端所有字段单列显示",
+              "condition": {
+                "fieldType": "TEXT"
+              },
+              "layout": {
+                "span": 12
+              },
+              "priority": 10
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

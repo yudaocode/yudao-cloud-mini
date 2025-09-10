@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ddd-metamodel/3.0/screen-definition/full/form-layout.schema.json",
+  "title": "表单布局定义",
+  "description": "表单的多列布局和字段排列规则",
+  "version": "3.0.0",
+  "type": "object",
+  "properties": {
+    "layoutType": {
+      "type": "string",
+      "enum": [
+        "GRID",
+        "FLEX",
+        "TABLE",
+        "FREE"
+      ],
+      "description": "布局类型 - 网格布局、弹性布局、表格布局、自由布局"
+    },
+    "columns": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12,
+      "default": 2,
+      "description": "默认列数（1-12列）"
+    },
+    "responsive": {
+      "type": "object",
+      "properties": {
+        "xs": { "type": "integer", "minimum": 1, "maximum": 12, "description": "超小屏幕列数（<576px）" },
+        "sm": { "type": "integer", "minimum": 1, "maximum": 12, "description": "小屏幕列数（≥576px）" },
+        "md": { "type": "integer", "minimum": 1, "maximum": 12, "description": "中等屏幕列数（≥768px）" },
+        "lg": { "type": "integer", "minimum": 1, "maximum": 12, "description": "大屏幕列数（≥992px）" },
+        "xl": { "type": "integer", "minimum": 1, "maximum": 12, "description": "超大屏幕列数（≥1200px）" }
+      },
+      "description": "响应式列数配置"
+    },
+    "fieldLayoutRules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/fieldLayoutRule"
+      },
+      "description": "字段布局规则"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/formSection"
+      },
+      "description": "表单分组"
+    },
+    "spacing": {
+      "type": "object",
+      "properties": {
+        "horizontal": { "type": "string", "description": "水平间距（如：8px, 1rem）" },
+        "vertical": { "type": "string", "description": "垂直间距（如：16px, 1rem）" }
+      },
+      "description": "间距配置"
+    },
+    "labelPosition": {
+      "type": "string",
+      "enum": ["LEFT", "TOP", "RIGHT"],
+      "default": "LEFT",
+      "description": "全局标签位置"
+    },
+    "labelWidth": {
+      "type": "string",
+      "description": "全局标签宽度（如：100px, 20%）"
+    },
+    "colon": {
+      "type": "boolean",
+      "default": true,
+      "description": "是否在标签后显示冒号"
+    }
+  },
+  "required": ["layoutType", "columns"],
+  "additionalProperties": false,
+  
+  "$defs": {
+    "fieldLayoutRule": {
+      "type": "object",
+      "properties": {
+        "ruleName": {
+          "type": "string",
+          "description": "规则名称"
+        },
+        "condition": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "fieldType": {
+                  "type": "string",
+                  "enum": [
+                    "TEXT", "TEXTAREA", "NUMBER", "DATE", "DATETIME", "TIME",
+                    "SELECT", "MULTI_SELECT", "CHECKBOX", "RADIO", "SWITCH",
+                    "FILE", "IMAGE", "RICH_TEXT", "PASSWORD", "EMAIL", "URL",
+                    "PHONE", "ID_CARD", "COLOR", "RATE", "SLIDER"
+                  ]
+                }
+              },
+              "required": ["fieldType"],
+              "description": "按字段类型匹配"
+            },
+            {
+              "type": "object", 
+              "properties": {
+                "fieldName": {
+                  "type": "string",
+                  "description": "字段名称精确匹配"
+                }
+              },
+              "required": ["fieldName"],
+              "description": "按字段名称匹配"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "fieldPattern": {
+                  "type": "string",
+                  "description": "字段名称正则表达式匹配"
+                }
+              },
+              "required": ["fieldPattern"],
+              "description": "按字段名称模式匹配"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "dataType": {
+                  "type": "string",
+                  "enum": ["STRING", "NUMBER", "BOOLEAN", "DATE", "ARRAY", "OBJECT"]
+                }
+              },
+              "required": ["dataType"],
+              "description": "按数据类型匹配"
+            }
+          ],
+          "description": "匹配条件"
+        },
+        "layout": {
+          "type": "object",
+          "properties": {
+            "span": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12,
+              "description": "占据列数（1-12）"
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 11,
+              "description": "左侧偏移列数"
+            },
+            "newLine": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否强制换行"
+            },
+            "fullWidth": {
+              "type": "boolean",
+              "default": false,
+              "description": "是否占满整行"
+            },
+            "order": {
+              "type": "integer",
+              "description": "排序权重"
+            },
+            "labelPosition": {
+              "type": "string",
+              "enum": ["LEFT", "TOP", "RIGHT"],
+              "description": "标签位置（覆盖全局设置）"
+            },
+            "labelWidth": {
+              "type": "string",
+              "description": "标签宽度（覆盖全局设置）"
+            }
+          },
+          "description": "布局设置"
+        },
+        "priority": {
+          "type": "integer",
+          "default": 0,
+          "description": "规则优先级（数字越大优先级越高）"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用此规则"
+        }
+      },
+      "required": ["ruleName", "condition", "layout"],
+      "additionalProperties": false
+    },
+    
+    "formSection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^section_[a-zA-Z0-9_]+$",
+          "description": "分组ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "分组标题"
+        },
+        "description": {
+          "type": "string",
+          "description": "分组描述"
+        },
+        "collapsible": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否可折叠"
+        },
+        "collapsed": {
+          "type": "boolean",
+          "default": false,
+          "description": "初始是否折叠"
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "description": "本分组的列数（覆盖全局列数）"
+        },
+        "fieldIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "包含的字段ID列表"
+        },
+        "order": {
+          "type": "integer",
+          "description": "分组排序"
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否可见"
+        },
+        "conditional": {
+          "type": "object",
+          "properties": {
+            "dependsOn": { 
+              "type": "string", 
+              "description": "依赖字段ID" 
+            },
+            "condition": { 
+              "type": "string", 
+              "description": "显示条件表达式（如：field1 == 'value1' && field2 > 0）" 
+            }
+          },
+          "description": "条件显示配置"
+        },
+        "style": {
+          "type": "object",
+          "properties": {
+            "background": { "type": "string", "description": "背景色" },
+            "border": { "type": "string", "description": "边框样式" },
+            "padding": { "type": "string", "description": "内边距" },
+            "margin": { "type": "string", "description": "外边距" }
+          },
+          "description": "样式配置"
+        }
+      },
+      "required": ["id", "title", "fieldIds"],
+      "additionalProperties": false
+    }
+  }
+}

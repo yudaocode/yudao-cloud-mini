@@ -60,6 +60,35 @@
     "breadcrumb": {
       "$ref": "../fields/screen-fields.schema.json#/$defs/breadcrumb"
     },
+    "formLayout": {
+      "$ref": "./form-layout.schema.json",
+      "description": "表单布局配置（当屏幕类型为表单相关时使用）"
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "$ref": "./field-definition.schema.json"
+      },
+      "description": "字段定义列表"
+    },
+    "dataTypes": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "enum": ["CONFIGURATION", "SINGLE_TABLE", "MASTER_DETAIL", "MASTER_MULTI_DETAIL", "CROSS_TABLE", "TREE_STRUCTURE", "MULTI_DIMENSIONAL"],
+          "description": "主要数据类型"
+        },
+        "subTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "子数据类型"
+        }
+      },
+      "description": "数据类型定义"
+    },
     "components": {
       "type": "array",
       "items": {
@@ -70,9 +99,59 @@
     "actions": {
       "type": "array",
       "items": {
-        "$ref": "./action.schema.json"
+        "oneOf": [
+          {"$ref": "./action.schema.json"},
+          {"$ref": "../screen-reference.schema.json#/$defs/actionReference"}
+        ]
       },
-      "description": "操作列表"
+      "description": "操作列表，支持普通操作和屏幕引用操作"
+    },
+    "screenReferences": {
+      "type": "array",
+      "items": {
+        "$ref": "../screen-reference.schema.json#/$defs/screenReference"
+      },
+      "description": "屏幕引用列表，用于在容器中嵌入其他已定义的屏幕"
+    },
+    "embeddedScreens": {
+      "type": "object",
+      "description": "嵌入式屏幕定义，键为容器ID，值为屏幕引用配置",
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9_]*$": {
+          "$ref": "../screen-reference.schema.json#/$defs/screenReference"
+        }
+      }
+    },
+    "containers": {
+      "type": "array",
+      "items": {
+        "$ref": "../multi-container.schema.json#/$defs/containerDefinition"
+      },
+      "description": "多容器定义列表，支持动态载入子屏幕 ⭐ 新增"
+    },
+    "containerLayout": {
+      "type": "object",
+      "description": "容器整体布局配置 ⭐ 新增",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["VERTICAL", "HORIZONTAL", "GRID", "FLEXIBLE"],
+          "default": "VERTICAL"
+        },
+        "spacing": {
+          "type": "string",
+          "description": "容器间距"
+        },
+        "padding": {
+          "type": "string",
+          "description": "容器内边距"
+        },
+        "responsive": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否响应式布局"
+        }
+      }
     },
     "permissions": {
       "type": "array",
