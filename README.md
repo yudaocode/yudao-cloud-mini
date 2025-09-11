@@ -1,13 +1,277 @@
-<p align="center">
- <img src="https://img.shields.io/badge/Spring%20Cloud-2021-blue.svg" alt="Coverage Status">
- <img src="https://img.shields.io/badge/Spring%20Boot-2.7.18-blue.svg" alt="Downloads">
- <img src="https://img.shields.io/badge/Vue-3.2-blue.svg" alt="Downloads">
- <img src="https://img.shields.io/github/license/YunaiV/yudao-cloud" alt="Downloads" />
-</p>
+# DDD元数据驱动开发平台
 
-**严肃声明：现在、未来都不会有商业版本，所有代码全部开源!！**
+基于领域驱动设计(DDD)的元数据驱动开发平台，支持可视化DDD建模、自动界面生成和代码生成。
 
-**「我喜欢写代码，乐此不疲」**  
+## 🚀 项目概述
+
+本平台旨在通过DDD元数据模型，实现从业务建模到代码实现的全流程自动化，大幅降低开发工作量，提高开发效率和代码质量。
+
+### 核心功能
+
+- **📊 项目管理**: 多项目管理、成员权限控制
+- **🏗️ DDD建模**: 可视化领域建模，支持限界上下文、聚合根、实体设计
+- **🎨 界面生成**: 基于DDD模型自动生成AMIS界面配置
+- **💻 代码生成**: 自动生成完整的业务代码和API接口
+- **⚙️ 元数据管理**: 统一的元数据存储和版本控制
+
+## 🏗️ 技术架构
+
+### 后端技术栈
+- **框架**: Midway.js (企业级Node.js框架)
+- **语言**: TypeScript
+- **数据库**: PostgreSQL + TypeORM
+- **API**: RESTful API
+
+### 前端技术栈
+- **框架**: React 18 + TypeScript
+- **UI库**: Ant Design + AMIS
+- **状态管理**: Redux Toolkit
+- **构建工具**: Vite
+- **路由**: React Router
+
+## 📁 项目结构
+
+```
+yudao-cloud-mini/
+├── apps/                          # 应用目录
+│   ├── ddd-platform-server/       # 后端服务
+│   │   ├── src/
+│   │   │   ├── controller/        # 控制器层
+│   │   │   ├── service/           # 服务层
+│   │   │   ├── entity/            # 实体层
+│   │   │   ├── config/            # 配置文件
+│   │   │   └── common/            # 公共模块
+│   │   └── package.json
+│   └── ddd-platform-web/          # 前端应用
+│       ├── src/
+│       │   ├── components/        # 组件
+│       │   ├── pages/             # 页面
+│       │   ├── stores/            # 状态管理
+│       │   └── utils/             # 工具函数
+│       └── package.json
+├── docs/                          # 文档目录
+│   └── DDD元数据驱动开发平台-v1.0/ # 设计文档
+└── install.bat/install.sh         # 安装脚本
+```
+
+## 🚀 快速开始
+
+### 环境要求
+
+- Node.js >= 18.0.0
+- PostgreSQL >= 12.0
+- npm >= 8.0.0
+
+### 安装步骤
+
+#### Windows用户
+```bash
+# 运行安装脚本
+install.bat
+```
+
+#### Linux/macOS用户
+```bash
+# 添加执行权限并运行
+chmod +x install.sh
+./install.sh
+```
+
+#### 手动安装
+```bash
+# 1. 安装后端依赖
+cd apps/ddd-platform-server
+npm install
+
+# 2. 安装前端依赖
+cd ../ddd-platform-web
+npm install
+```
+
+### 配置数据库
+
+1. 创建PostgreSQL数据库
+```sql
+CREATE DATABASE ddd_platform;
+```
+
+2. 修改数据库配置
+编辑 `apps/ddd-platform-server/src/config/config.default.ts`
+
+```typescript
+export default {
+  typeorm: {
+    dataSource: {
+      default: {
+        type: 'postgres',
+        host: 'localhost',
+        port: 5432,
+        username: 'your_username',
+        password: 'your_password',
+        database: 'ddd_platform',
+        synchronize: true,
+        logging: true,
+      }
+    }
+  }
+}
+```
+
+### 启动服务
+
+#### 启动后端服务
+```bash
+cd apps/ddd-platform-server
+npm run dev
+```
+访问地址: http://localhost:7001
+
+#### 启动前端服务
+```bash
+cd apps/ddd-platform-web
+npm run dev
+```
+访问地址: http://localhost:5173
+
+## 📚 使用指南
+
+### 1. 创建项目
+1. 登录系统后，点击"新建项目"
+2. 填写项目基本信息
+3. 设置项目成员和权限
+
+### 2. DDD建模
+1. 进入项目详情页
+2. 点击"DDD建模"菜单
+3. 创建限界上下文
+4. 设计聚合根和实体
+5. 定义属性和关系
+
+### 3. 界面生成
+1. 选择需要生成界面的实体
+2. 选择界面类型（列表、表单、详情等）
+3. 自定义界面配置
+4. 预览和发布界面
+
+### 4. 代码生成
+1. 选择代码生成模板
+2. 配置生成参数
+3. 预览生成的代码
+4. 下载或推送到仓库
+
+## 🔧 开发指南
+
+### 后端开发
+
+#### 添加新的API接口
+1. 在 `src/entity/` 中定义实体
+2. 在 `src/service/` 中实现业务逻辑
+3. 在 `src/controller/` 中定义API接口
+
+#### 数据库迁移
+```bash
+npm run migration:generate -- -n MigrationName
+npm run migration:run
+```
+
+### 前端开发
+
+#### 添加新页面
+1. 在 `src/pages/` 中创建页面组件
+2. 在 `src/App.tsx` 中添加路由
+3. 更新菜单配置
+
+#### 状态管理
+使用Redux Toolkit管理全局状态：
+```typescript
+// 定义slice
+const exampleSlice = createSlice({
+  name: 'example',
+  initialState,
+  reducers: {
+    // 定义reducers
+  }
+});
+```
+
+## 🧪 测试
+
+### 运行后端测试
+```bash
+cd apps/ddd-platform-server
+npm run test
+```
+
+### 运行前端测试
+```bash
+cd apps/ddd-platform-web
+npm run test
+```
+
+## 📦 部署
+
+### Docker部署
+```bash
+# 构建镜像
+docker build -t ddd-platform .
+
+# 运行容器
+docker run -p 7001:7001 -p 5173:5173 ddd-platform
+```
+
+### 传统部署
+```bash
+# 后端生产构建
+cd apps/ddd-platform-server
+npm run build
+npm run start:prod
+
+# 前端生产构建
+cd apps/ddd-platform-web
+npm run build
+```
+
+## 🤝 贡献指南
+
+1. Fork 项目
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建Pull Request
+
+## 📋 开发计划
+
+- [x] 项目基础架构搭建
+- [x] DDD元数据模型设计
+- [x] 基础CRUD接口实现
+- [x] 前端界面框架搭建
+- [ ] DDD可视化建模器
+- [ ] AMIS界面生成引擎
+- [ ] 代码生成器
+- [ ] 用户权限系统
+- [ ] 多租户支持
+
+## 📄 许可证
+
+本项目采用 MIT 许可证。详情请参阅 [LICENSE](LICENSE) 文件。
+
+## 📞 联系我们
+
+- 项目地址: [GitHub Repository](https://github.com/your-org/ddd-platform)
+- 问题反馈: [Issues](https://github.com/your-org/ddd-platform/issues)
+- 文档说明: [Wiki](https://github.com/your-org/ddd-platform/wiki)
+
+## 🙏 致谢
+
+感谢所有为本项目做出贡献的开发者！
+
+---
+
+⚡ 让DDD建模和代码生成变得更简单！
+
+---
+
+# 芋道 Cloud 快速开发平台（历史版本）  
 **「我喜欢做开源，以此为乐」**
 
 我 🐶 在上海艰苦奋斗，早中晚在 top3 大厂认真搬砖，夜里为开源做贡献。

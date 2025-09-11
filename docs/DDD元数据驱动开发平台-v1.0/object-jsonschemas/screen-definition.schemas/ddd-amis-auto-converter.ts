@@ -3,9 +3,9 @@
  * 实现DDD模型与AMIS界面的完全自动化同步，避免重复定义
  */
 
+import { watch } from 'chokidar';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { watch } from 'chokidar';
 
 // 类型定义
 interface DDDEntity {

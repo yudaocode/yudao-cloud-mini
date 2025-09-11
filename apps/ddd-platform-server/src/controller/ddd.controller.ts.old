@@ -1,0 +1,303 @@
+import { Body, Controller, Del, Get, Inject, Param, Post, Put, Query } from '@midwayjs/decorator';
+import { Validate } from '@midwayjs/validate';
+import { CreateAggregateDTO, DDDService, UpdateAggregateDTO } from '../service/ddd.service';export class DDDEntityController {
+  @Inject()
+  dddService!: DDDService;**
+ * DDD模型管理控制器
+ */
+@Controller('/api/v1/projects/:projectId/aggregates')
+export class DDDAggregateController {
+  @Inject()
+  dddService!: DDDService;
+
+  /**
+   * 创建聚合
+   */
+  @Post('/')
+  @Validate()
+  async createAggregate(
+    @Param('projectId') projectId: string,
+    @Body() createAggregateDTO: Omit<CreateAggregateDTO, 'projectId'>
+  ) {
+    try {
+      const aggregate = await this.dddService.createAggregate({
+        ...createAggregateDTO,
+        projectId
+      });
+
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '聚合创建成功',
+        data: aggregate
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'CREATE_FAILED',
+        message: '聚合创建失败',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 获取聚合列表
+   */
+  @Get('/')
+  async getAggregates(@Param('projectId') projectId: string) {
+    try {
+      const aggregates = await this.dddService.getAggregates(projectId);
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '获取聚合列表成功',
+        data: aggregates
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'QUERY_FAILED',
+        message: '获取聚合列表失败',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 获取聚合详情
+   */
+  @Get('/:aggregateId')
+  async getAggregateById(
+    @Param('projectId') projectId: string,
+    @Param('aggregateId') aggregateId: string
+  ) {
+    try {
+      const aggregate = await this.dddService.getAggregateById(aggregateId);
+      
+      if (!aggregate) {
+        return {
+          success: false,
+          code: 'NOT_FOUND',
+          message: '聚合不存在'
+        };
+      }
+
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '获取聚合详情成功',
+        data: aggregate
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'QUERY_FAILED',
+        message: '获取聚合详情失败',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 更新聚合
+   */
+  @Put('/:aggregateId')
+  @Validate()
+  async updateAggregate(
+    @Param('projectId') projectId: string,
+    @Param('aggregateId') aggregateId: string,
+    @Body() updateAggregateDTO: UpdateAggregateDTO
+  ) {
+    try {
+      const aggregate = await this.dddService.updateAggregate(aggregateId, updateAggregateDTO);
+      
+      if (!aggregate) {
+        return {
+          success: false,
+          code: 'NOT_FOUND',
+          message: '聚合不存在'
+        };
+      }
+
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '聚合更新成功',
+        data: aggregate
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'UPDATE_FAILED',
+        message: '聚合更新失败',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 删除聚合
+   */
+  @Del('/:aggregateId')
+  async deleteAggregate(
+    @Param('projectId') projectId: string,
+    @Param('aggregateId') aggregateId: string
+  ) {
+    try {
+      const success = await this.dddService.deleteAggregate(aggregateId);
+      
+      if (!success) {
+        return {
+          success: false,
+          code: 'NOT_FOUND',
+          message: '聚合不存在'
+        };
+      }
+
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '聚合删除成功'
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'DELETE_FAILED',
+        message: '聚合删除失败',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 验证聚合模型
+   */
+  @Post('/:aggregateId/validate')
+  async validateAggregateModel(
+    @Param('projectId') projectId: string,
+    @Param('aggregateId') aggregateId: string
+  ) {
+    try {
+      const validation = await this.dddService.validateAggregateModel(aggregateId);
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '聚合模型验证完成',
+        data: validation
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'VALIDATION_FAILED',
+        message: '聚合模型验证失败',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 导出聚合Schema
+   */
+  @Get('/:aggregateId/export')
+  async exportAggregateSchema(
+    @Param('projectId') projectId: string,
+    @Param('aggregateId') aggregateId: string
+  ) {
+    try {
+      const schema = await this.dddService.exportAggregateSchema(aggregateId);
+      
+      if (!schema) {
+        return {
+          success: false,
+          code: 'NOT_FOUND',
+          message: '聚合不存在'
+        };
+      }
+
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '聚合Schema导出成功',
+        data: schema
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'EXPORT_FAILED',
+        message: '聚合Schema导出失败',
+        error: error.message
+      };
+    }
+  }
+}
+
+/**
+ * DDD实体管理控制器
+ */
+@Controller('/api/v1/projects/:projectId/entities')
+export class EntityController {
+  @Inject()
+  dddService: DDDService;
+
+  /**
+   * 获取实体列表
+   */
+  @Get('/')
+  async getEntities(
+    @Param('projectId') projectId: string,
+    @Query('aggregateId') aggregateId?: string
+  ) {
+    try {
+      const entities = await this.dddService.getEntities(projectId, aggregateId);
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '获取实体列表成功',
+        data: entities
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'QUERY_FAILED',
+        message: '获取实体列表失败',
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 获取实体详情
+   */
+  @Get('/:entityId')
+  async getEntityById(
+    @Param('projectId') projectId: string,
+    @Param('entityId') entityId: string
+  ) {
+    try {
+      const entity = await this.dddService.getEntityById(entityId);
+      
+      if (!entity) {
+        return {
+          success: false,
+          code: 'NOT_FOUND',
+          message: '实体不存在'
+        };
+      }
+
+      return {
+        success: true,
+        code: 'SUCCESS',
+        message: '获取实体详情成功',
+        data: entity
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        code: 'QUERY_FAILED',
+        message: '获取实体详情失败',
+        error: error.message
+      };
+    }
+  }
+}
