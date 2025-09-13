@@ -1,0 +1,49 @@
+{
+  "name": "ddd-platform-server",
+  "version": "1.0.0",
+  "description": "DDD元数据驱动开发平台 - 后端服务",
+  "main": "bootstrap.js",
+  "scripts": {
+    "start": "NODE_ENV=production node bootstrap.js",
+    "dev": "cross-env NODE_ENV=development node --inspect bootstrap.js",
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@midwayjs/bootstrap": "^3.16.2",
+    "@midwayjs/core": "^3.16.2",
+    "@midwayjs/cross-domain": "^3.16.2",
+    "@midwayjs/decorator": "^3.16.2",
+    "@midwayjs/info": "^3.16.2",
+    "@midwayjs/jwt": "^3.16.2",
+    "@midwayjs/koa": "^3.16.2",
+    "@midwayjs/logger": "^3.4.2",
+    "@midwayjs/redis": "^3.16.2",
+    "@midwayjs/security": "^3.16.2",
+    "@midwayjs/static-file": "^3.16.2",
+    "@midwayjs/swagger": "^3.16.2",
+    "@midwayjs/typeorm": "^3.16.2",
+    "@midwayjs/upload": "^3.16.2",
+    "@midwayjs/validate": "^3.16.2",
+    "class-transformer": "^0.5.0",
+    "class-validator": "^0.14.0",
+    "mysql2": "^3.6.0",
+    "redis": "^4.6.7",
+    "typeorm": "^0.3.17"
+  },
+  "devDependencies": {
+    "@midwayjs/cli": "^2.0.0",
+    "@midwayjs/mock": "^3.16.2",
+    "@types/node": "^18.17.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.45.0",
+    "midway-bin": "^1.20.3",
+    "typescript": "^4.9.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD平台 - AMIS技术验证</title>
+    <!-- AMIS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/themes/cxd.css">
+    <!-- AMIS 主题字体 -->
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/helper.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav-bar {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .nav-bar h1 {
+            margin: 0;
+            color: #343a40;
+            font-size: 24px;
+        }
+        .test-buttons {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .test-buttons button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-buttons button:hover {
+            background: #0056b3;
+        }
+        .test-buttons button.active {
+            background: #28a745;
+        }
+        #amis-container {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            min-height: 400px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <h1>🚀 DDD元数据驱动开发平台 - AMIS技术验证</h1>
+    </div>
+    
+    <div class="container">
+        <div class="test-buttons">
+            <button onclick="loadPage('test')" class="active">AMIS基础测试</button>
+            <button onclick="loadPage('dashboard')">平台主页</button>
+            <button onclick="loadPage('projects')">项目管理</button>
+            <button onclick="loadPage('domains')">领域管理</button>
+            <button onclick="loadPage('aggregates')">聚合管理</button>
+            <button onclick="loadPage('entities')">实体管理</button>
+        </div>
+        
+        <div id="status"></div>
+        <div id="amis-container">
+            <div class="loading">正在加载AMIS页面...</div>
+        </div>
+    </div>
+
+    <!-- AMIS JavaScript -->
+    <script src="https://unpkg.com/amis@6.3.0/lib/index.js"></script>
+    
+    <script>
+        // 基础配置
+        const API_BASE = 'http://localhost:8100';
+        let currentAmisInstance = null;
+        
+        // 设置AMIS全局配置
+        window.amisLib.env.updateLocation = (location, replace) => {
+            // 防止AMIS改变浏览器URL
+            console.log('AMIS navigation:', location);
+        };
+
+        // 加载AMIS页面
+        async function loadPage(pageType) {
+            try {
+                // 更新按钮状态
+                document.querySelectorAll('.test-buttons button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // 显示加载状态
+                document.getElementById('amis-container').innerHTML = '<div class="loading">正在加载页面配置...</div>';
+                document.getElementById('status').innerHTML = '';
+                
+                // 获取页面配置
+                const response = await fetch(`${API_BASE}/amis/${pageType}`);
+                const result = await response.json();
+                
+                if (result.code === 200 && result.data) {
+                    // 渲染AMIS页面
+                    const amisScoped = window.amisLib.embed('#amis-container', result.data, {
+                        // 数据域
+                        data: {},
+                        // 配置接口请求
+                        fetcher: async (api, data, options) => {
+                            try {
+                                let url = api.url;
+                                const method = api.method || 'GET';
+                                
+                                // 处理相对路径URL
+                                if (url.startsWith('/api/')) {
+                                    url = API_BASE + url;
+                                }
+                                
+                                const config = {
+                                    method: method.toUpperCase(),
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                };
+                                
+                                // 添加请求数据
+                                if (method.toUpperCase() !== 'GET' && data) {
+                                    config.body = JSON.stringify(data);
+                                } else if (method.toUpperCase() === 'GET' && data) {
+                                    // GET请求将数据添加到URL参数
+                                    const params = new URLSearchParams();
+                                    Object.keys(data).forEach(key => {
+                                        if (data[key] !== undefined && data[key] !== null) {
+                                            params.append(key, data[key]);
+                                        }
+                                    });
+                                    const paramString = params.toString();
+                                    if (paramString) {
+                                        url += (url.includes('?') ? '&' : '?') + paramString;
+                                    }
+                                }
+                                
+                                console.log('API Request:', method, url, data);
+                                
+                                const response = await fetch(url, config);
+                                const responseData = await response.json();
+                                
+                                console.log('API Response:', responseData);
+                                
+                                // 转换为AMIS期望的格式
+                                if (responseData.code === 200) {
+                                    return {
+                                        status: 0,
+                                        msg: responseData.message || '成功',
+                                        data: responseData.data
+                                    };
+                                } else {
+                                    return {
+                                        status: responseData.code || 500,
+                                        msg: responseData.message || '请求失败'
+                                    };
+                                }
+                            } catch (error) {
+                                console.error('API Error:', error);
+                                return {
+                                    status: 500,
+                                    msg: error.message || '网络请求失败'
+                                };
+                            }
+                        },
+                        // 主题配置
+                        theme: 'cxd'
+                    });
+                    
+                    currentAmisInstance = amisScoped;
+                    
+                    // 显示成功状态
+                    document.getElementById('status').innerHTML = `
+                        <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 20px;">
+                            ✅ 页面加载成功! 类型: ${pageType}
+                        </div>
+                    `;
+                    
+                } else {
+                    throw new Error(result.message || '获取页面配置失败');
+                }
+                
+            } catch (error) {
+                console.error('Load page error:', error);
+                document.getElementById('status').innerHTML = `
+                    <div class="error">
+                        ❌ 页面加载失败: ${error.message}
+                    </div>
+                `;
+                document.getElementById('amis-container').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #dc3545;">
+                        <h3>页面加载失败</h3>
+                        <p>${error.message}</p>
+                        <button onclick="location.reload()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            重新加载
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // 页面加载完成后自动加载测试页面
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，开始AMIS技术验证...');
+            loadPage('test');
+        });
+        
+        // 全局错误处理
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+        });
+    </script>
+</body>
+</html>

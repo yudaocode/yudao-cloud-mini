@@ -1,83 +1,38 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import { Aggregate } from './aggregate.entity';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { Project } from './project.entity';
 
-/**
- * DDD领域实体
- */
 @Entity('ddd_domains')
 export class Domain {
-  @PrimaryColumn({ type: 'varchar', length: 50 })
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({ name: 'project_id', type: 'varchar', length: 50 })
-  projectId!: string;
+  @Column({ length: 100, comment: '域名称' })
+  name: string;
 
-  @Column({ type: 'varchar', length: 200 })
-  name!: string;
+  @Column({ length: 500, comment: '域描述', nullable: true })
+  description: string;
 
-  @Column({ type: 'text', nullable: true })
-  description?: string;
+  @Column({ comment: '项目ID' })
+  projectId: number;
 
-  @Column({ type: 'varchar', length: 20 })
-  type!: 'CORE' | 'SUPPORTING' | 'GENERIC';
-
-  @Column({ type: 'jsonb', nullable: true })
-  metadata?: Record<string, any>;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt!: Date;
-
-  // 关联关系
   @ManyToOne(() => Project)
-  @JoinColumn({ name: 'project_id' })
-  project!: Project;
+  @JoinColumn({ name: 'projectId' })
+  project: Project;
 
-  @OneToMany(() => BoundedContext, boundedContext => boundedContext.domain)
-  boundedContexts!: BoundedContext[];
-}
+  @Column({ type: 'json', comment: '域配置', nullable: true })
+  config: any;
 
-/**
- * DDD限界上下文实体
- */
-@Entity('ddd_bounded_contexts')
-export class BoundedContext {
-  @PrimaryColumn({ type: 'varchar', length: 50 })
-  id!: string;
+  @CreateDateColumn({ comment: '创建时间' })
+  createdAt: Date;
 
-  @Column({ name: 'project_id', type: 'varchar', length: 50 })
-  projectId!: string;
-
-  @Column({ name: 'domain_id', type: 'varchar', length: 50 })
-  domainId!: string;
-
-  @Column({ type: 'varchar', length: 200 })
-  name!: string;
-
-  @Column({ type: 'text', nullable: true })
-  description?: string;
-
-  @Column({ type: 'jsonb', nullable: true })
-  metadata?: Record<string, any>;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt!: Date;
-
-  // 关联关系
-  @ManyToOne(() => Project)
-  @JoinColumn({ name: 'project_id' })
-  project!: Project;
-
-  @ManyToOne(() => Domain)
-  @JoinColumn({ name: 'domain_id' })
-  domain!: Domain;
-
-  @OneToMany(() => Aggregate, aggregate => aggregate.boundedContext)
-  aggregates!: Aggregate[];
+  @UpdateDateColumn({ comment: '更新时间' })
+  updatedAt: Date;
 }

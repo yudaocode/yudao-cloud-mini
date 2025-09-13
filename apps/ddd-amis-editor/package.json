@@ -1,0 +1,35 @@
+{
+  "name": "ddd-amis-editor",
+  "version": "1.0.0",
+  "description": "DDD平台AMIS编辑器和预览工具",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview --port 3000"
+  },
+  "dependencies": {
+    "amis": "^6.3.0",
+    "amis-editor": "^6.3.0",
+    "amis-editor-core": "^6.3.0",
+    "axios": "^1.5.0",
+    "mobx": "^6.13.7",
+    "mobx-react": "^9.2.0",
+    "mobx-react-lite": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.0",
+    "typescript": "^5.1.0",
+    "vite": "^4.4.0"
+  },
+  "keywords": [
+    "amis",
+    "amis-editor",
+    "ddd",
+    "low-code",
+    "form-builder"
+  ],
+  "author": "DDD Platform Team",
+  "license": "MIT"
+}

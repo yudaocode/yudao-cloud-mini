@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD平台 - 调试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .btn { padding: 10px 20px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 10px; }
+        .result { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px; white-space: pre-wrap; }
+        .card { background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px; margin: 10px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .panel-card { border-left: 4px solid #1890ff; }
+        .service-card { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <h1>🐛 DDD平台调试页面</h1>
+    
+    <button class="btn" onclick="testConnection()">🔌 测试后端连接</button>
+    <button class="btn" onclick="testRender()">🎨 测试渲染组件</button>
+    
+    <div id="result" class="result"></div>
+    <div id="preview"></div>
+
+    <script>
+        async function testConnection() {
+            const result = document.getElementById('result');
+            try {
+                result.textContent = '正在连接后端...';
+                
+                const response = await fetch('http://localhost:8100/amis/dashboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    result.textContent = `✅ 连接成功！\n状态码: ${response.status}\n响应数据: ${JSON.stringify(data, null, 2)}`;
+                    
+                    // 保存数据用于测试渲染
+                    window.testData = data;
+                } else {
+                    result.textContent = `❌ 连接失败\n状态码: ${response.status}\n状态文本: ${response.statusText}`;
+                }
+            } catch (error) {
+                result.textContent = `❌ 连接错误: ${error.message}`;
+                console.error('连接错误:', error);
+            }
+        }
+
+        function testRender() {
+            const preview = document.getElementById('preview');
+            const result = document.getElementById('result');
+            
+            if (!window.testData) {
+                result.textContent = '❌ 请先测试后端连接获取数据';
+                return;
+            }
+            
+            try {
+                result.textContent = '正在测试渲染...';
+                preview.innerHTML = '';
+                
+                const schema = window.testData.data || window.testData;
+                console.log('开始渲染schema:', schema);
+                
+                const element = renderComponent(schema);
+                if (element) {
+                    preview.appendChild(element);
+                    result.textContent = '✅ 渲染成功！';
+                } else {
+                    result.textContent = '❌ 渲染失败：返回空元素';
+                }
+            } catch (error) {
+                result.textContent = `❌ 渲染错误: ${error.message}`;
+                console.error('渲染错误:', error);
+            }
+        }
+
+        function renderComponent(component) {
+            console.log('renderComponent 输入:', component);
+            
+            if (!component) {
+                console.error('组件为空');
+                return null;
+            }
+            
+            const div = document.createElement('div');
+            div.style.marginBottom = '16px';
+            
+            console.log('组件类型:', component.type);
+            
+            switch (component.type) {
+                case 'page':
+                    console.log('渲染页面组件');
+                    if (component.title) {
+                        const title = document.createElement('h1');
+                        title.textContent = component.title;
+                        title.style.cssText = 'margin-bottom: 20px; color: #333; font-size: 24px;';
+                        div.appendChild(title);
+                    }
+                    if (component.body && Array.isArray(component.body)) {
+                        console.log('渲染页面body，项目数:', component.body.length);
+                        component.body.forEach((item, index) => {
+                            console.log(`渲染第${index}个子组件:`, item.type);
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    }
+                    break;
+                    
+                case 'grid':
+                    console.log('渲染网格组件');
+                    div.style.cssText = 'display: grid; gap: 16px;';
+                    if (component.columns) {
+                        div.style.gridTemplateColumns = `repeat(${component.columns.length}, 1fr)`;
+                        component.columns.forEach((col, index) => {
+                            console.log(`渲染第${index}个网格列:`, col);
+                            if (col.body) {
+                                if (Array.isArray(col.body)) {
+                                    col.body.forEach(item => {
+                                        const child = renderComponent(item);
+                                        if (child) div.appendChild(child);
+                                    });
+                                } else {
+                                    const child = renderComponent(col.body);
+                                    if (child) div.appendChild(child);
+                                }
+                            }
+                        });
+                    }
+                    break;
+                    
+                case 'card':
+                    console.log('渲染卡片组件');
+                    div.className = 'card';
+                    if (component.header && component.header.title) {
+                        const header = document.createElement('h3');
+                        header.textContent = component.header.title;
+                        header.style.cssText = 'margin-bottom: 16px; color: #333; font-size: 18px;';
+                        div.appendChild(header);
+                    }
+                    if (component.body) {
+                        if (Array.isArray(component.body)) {
+                            component.body.forEach(item => {
+                                const child = renderComponent(item);
+                                if (child) div.appendChild(child);
+                            });
+                        } else {
+                            const child = renderComponent(component.body);
+                            if (child) div.appendChild(child);
+                        }
+                    }
+                    break;
+                    
+                case 'panel':
+                    console.log('渲染面板组件');
+                    div.className = 'card panel-card';
+                    if (component.title) {
+                        const header = document.createElement('h3');
+                        header.textContent = component.title;
+                        header.style.cssText = 'margin-bottom: 16px; color: #333; border-bottom: 2px solid #1890ff; padding-bottom: 8px;';
+                        div.appendChild(header);
+                    }
+                    if (component.body) {
+                        if (Array.isArray(component.body)) {
+                            component.body.forEach(item => {
+                                const child = renderComponent(item);
+                                if (child) div.appendChild(child);
+                            });
+                        } else {
+                            const child = renderComponent(component.body);
+                            if (child) div.appendChild(child);
+                        }
+                    }
+                    break;
+                    
+                case 'service':
+                    console.log('渲染服务组件');
+                    div.className = 'service-card';
+                    div.innerHTML = `
+                        <div style="padding: 16px; border-radius: 6px; border-left: 4px solid #52c41a; margin-bottom: 12px;">
+                            <h4 style="margin: 0 0 8px 0; color: #52c41a;">📡 数据服务</h4>
+                            <p style="margin: 0; color: #666; font-size: 14px;">API: ${component.api || '未指定'}</p>
+                        </div>
+                    `;
+                    if (component.body && Array.isArray(component.body)) {
+                        component.body.forEach(item => {
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    }
+                    break;
+                    
+                case 'tpl':
+                    console.log('渲染模板组件');
+                    div.innerHTML = component.tpl || '';
+                    break;
+                    
+                case 'chart':
+                    console.log('渲染图表组件');
+                    div.className = 'card';
+                    const chartType = (component.config && component.config.type) || 'unknown';
+                    div.innerHTML = `
+                        <h3 style="margin-bottom: 16px;">📊 ${chartType.toUpperCase()} 图表</h3>
+                        <div style="height: 300px; background: linear-gradient(45deg, #f0f9ff, #e0f2fe); 
+                                    border-radius: 8px; display: flex; align-items: center; 
+                                    justify-content: center; color: #0369a1; font-size: 16px; text-align: center;">
+                            图表数据可视化区域<br>
+                            <small style="opacity: 0.7;">类型: ${chartType}<br>（简易编辑器暂不支持图表渲染）</small>
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    console.log('不支持的组件类型:', component.type);
+                    div.innerHTML = `
+                        <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; color: #666; margin: 8px 0;">
+                            <strong>组件类型:</strong> ${component.type}<br>
+                            <small>调试页面暂不支持此组件类型</small>
+                        </div>
+                    `;
+            }
+            
+            return div;
+        }
+    </script>
+</body>
+</html>

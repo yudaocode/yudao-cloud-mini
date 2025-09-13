@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD平台 - AMIS测试编辑器</title>
+    
+    <!-- AMIS样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/themes/cxd.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .actions {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .btn {
+            margin: 0 5px;
+            padding: 8px 16px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #40a9ff;
+        }
+        
+        #amis-root {
+            min-height: 400px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 4px;
+            color: white;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .status.success { background: #52c41a; }
+        .status.error { background: #ff4d4f; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 DDD平台 AMIS 测试编辑器</h1>
+            <p>简化版本，专注于AMIS页面渲染功能</p>
+        </div>
+        
+        <div class="actions">
+            <button class="btn" onclick="loadDashboard()">📊 加载仪表板</button>
+            <button class="btn" onclick="loadForm()">📝 加载表单</button>
+            <button class="btn" onclick="loadTable()">📋 加载表格</button>
+            <button class="btn" onclick="connectBackend()">🔌 连接后端</button>
+        </div>
+        
+        <div id="amis-root"></div>
+    </div>
+    
+    <div id="status" class="status"></div>
+
+    <!-- 只加载AMIS核心库 -->
+    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/amis@6.3.0/lib/index.js"></script>
+
+    <script>
+        let amisInstance = null;
+        
+        function showStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+        
+        function renderSchema(schema) {
+            try {
+                const root = document.getElementById('amis-root');
+                
+                // 清除之前的实例
+                if (amisInstance) {
+                    amisInstance.unmount();
+                }
+                
+                // 创建新的AMIS实例
+                amisInstance = amis.embed(root, schema, {
+                    theme: 'cxd',
+                    locale: 'zh-CN'
+                });
+                
+                showStatus('页面渲染成功！', 'success');
+                console.log('AMIS实例创建成功:', amisInstance);
+                
+            } catch (error) {
+                console.error('渲染失败:', error);
+                showStatus('页面渲染失败: ' + error.message, 'error');
+            }
+        }
+        
+        function loadDashboard() {
+            const schema = {
+                type: 'page',
+                title: 'DDD数据仪表板',
+                body: [
+                    {
+                        type: 'alert',
+                        level: 'info',
+                        body: '🎯 欢迎使用DDD平台数据仪表板'
+                    },
+                    {
+                        type: 'grid',
+                        columns: [
+                            {
+                                md: 3,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '📁 项目总数' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 3rem; font-weight: bold; color: #1890ff;">24</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个活跃项目</div>'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                md: 3,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '🏗️ 领域模型' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 3rem; font-weight: bold; color: #52c41a;">156</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个领域模型</div>'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                md: 3,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '⚡ 聚合根' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 3rem; font-weight: bold; color: #fa8c16;">89</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个聚合根</div>'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                md: 3,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '💎 值对象' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 3rem; font-weight: bold; color: #722ed1;">234</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个值对象</div>'
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        type: 'divider'
+                    },
+                    {
+                        type: 'grid',
+                        columns: [
+                            {
+                                md: 6,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '📈 项目活跃度趋势' },
+                                    body: {
+                                        type: 'tpl',
+                                        tpl: '<div style="height: 200px; background: linear-gradient(45deg, #f0f9ff, #e0f2fe); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0369a1; font-size: 16px;">📊 图表占位符</div>'
+                                    }
+                                }
+                            },
+                            {
+                                md: 6,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '🏆 最近更新' },
+                                    body: [
+                                        {
+                                            type: 'list',
+                                            source: [
+                                                { title: '用户管理模块', time: '2小时前', status: '已完成' },
+                                                { title: '订单聚合根', time: '4小时前', status: '进行中' },
+                                                { title: '支付领域服务', time: '1天前', status: '已完成' }
+                                            ],
+                                            listItem: {
+                                                body: [
+                                                    {
+                                                        type: 'flex',
+                                                        justify: 'space-between',
+                                                        alignItems: 'center',
+                                                        items: [
+                                                            {
+                                                                type: 'tpl',
+                                                                tpl: '<strong>${title}</strong>'
+                                                            },
+                                                            {
+                                                                type: 'status',
+                                                                map: {
+                                                                    '已完成': 'success',
+                                                                    '进行中': 'warning'
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        type: 'tpl',
+                                                        tpl: '<small style="color: #999;">${time}</small>'
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            renderSchema(schema);
+        }
+        
+        function loadForm() {
+            const schema = {
+                type: 'page',
+                title: '📝 DDD实体配置表单',
+                body: [
+                    {
+                        type: 'alert',
+                        level: 'info',
+                        body: '请填写领域实体的基本信息'
+                    },
+                    {
+                        type: 'form',
+                        api: 'http://localhost:7001/api/entity/save',
+                        body: [
+                            {
+                                type: 'input-text',
+                                name: 'name',
+                                label: '实体名称',
+                                required: true,
+                                placeholder: '请输入实体名称，如：User'
+                            },
+                            {
+                                type: 'textarea',
+                                name: 'description',
+                                label: '实体描述',
+                                placeholder: '请描述该实体的业务含义'
+                            },
+                            {
+                                type: 'select',
+                                name: 'type',
+                                label: '实体类型',
+                                options: [
+                                    { label: '聚合根', value: 'aggregate-root' },
+                                    { label: '实体', value: 'entity' },
+                                    { label: '值对象', value: 'value-object' }
+                                ],
+                                value: 'entity'
+                            },
+                            {
+                                type: 'input-text',
+                                name: 'package',
+                                label: '包路径',
+                                placeholder: 'com.example.domain.model'
+                            },
+                            {
+                                type: 'switch',
+                                name: 'enabled',
+                                label: '是否启用',
+                                value: true
+                            }
+                        ],
+                        actions: [
+                            {
+                                type: 'button',
+                                actionType: 'submit',
+                                label: '保存配置',
+                                level: 'primary'
+                            },
+                            {
+                                type: 'button',
+                                actionType: 'reset',
+                                label: '重置'
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            renderSchema(schema);
+        }
+        
+        function loadTable() {
+            const schema = {
+                type: 'page',
+                title: '📋 DDD实体列表',
+                body: [
+                    {
+                        type: 'crud',
+                        api: 'http://localhost:7001/api/entities',
+                        columns: [
+                            {
+                                name: 'id',
+                                label: 'ID',
+                                type: 'text'
+                            },
+                            {
+                                name: 'name',
+                                label: '实体名称',
+                                type: 'text'
+                            },
+                            {
+                                name: 'type',
+                                label: '类型',
+                                type: 'mapping',
+                                map: {
+                                    'aggregate-root': '<span class="label label-info">聚合根</span>',
+                                    'entity': '<span class="label label-success">实体</span>',
+                                    'value-object': '<span class="label label-warning">值对象</span>'
+                                }
+                            },
+                            {
+                                name: 'description',
+                                label: '描述',
+                                type: 'text'
+                            },
+                            {
+                                name: 'enabled',
+                                label: '状态',
+                                type: 'status'
+                            },
+                            {
+                                type: 'operation',
+                                label: '操作',
+                                buttons: [
+                                    {
+                                        type: 'button',
+                                        label: '编辑',
+                                        level: 'link'
+                                    },
+                                    {
+                                        type: 'button',
+                                        label: '删除',
+                                        level: 'link',
+                                        className: 'text-danger'
+                                    }
+                                ]
+                            }
+                        ],
+                        data: {
+                            items: [
+                                {
+                                    id: 1,
+                                    name: 'User',
+                                    type: 'aggregate-root',
+                                    description: '用户聚合根',
+                                    enabled: 1
+                                },
+                                {
+                                    id: 2,
+                                    name: 'Order',
+                                    type: 'aggregate-root',
+                                    description: '订单聚合根',
+                                    enabled: 1
+                                },
+                                {
+                                    id: 3,
+                                    name: 'Address',
+                                    type: 'value-object',
+                                    description: '地址值对象',
+                                    enabled: 1
+                                }
+                            ],
+                            total: 3
+                        }
+                    }
+                ]
+            };
+            
+            renderSchema(schema);
+        }
+        
+        async function connectBackend() {
+            try {
+                showStatus('正在连接后端...', 'success');
+                
+                const response = await fetch('http://localhost:7001/amis/dashboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('后端连接成功！数据已加载', 'success');
+                    
+                    if (data.schema) {
+                        renderSchema(data.schema);
+                    }
+                } else {
+                    showStatus('后端服务未启动，使用模拟数据', 'error');
+                }
+            } catch (error) {
+                console.error('连接失败:', error);
+                showStatus('无法连接后端，请检查服务状态', 'error');
+            }
+        }
+        
+        // 页面加载完成后显示欢迎页面
+        window.onload = function() {
+            console.log('页面加载完成，AMIS版本:', window.amis?.version || '未知');
+            
+            const welcomeSchema = {
+                type: 'page',
+                body: [
+                    {
+                        type: 'container',
+                        style: {
+                            textAlign: 'center',
+                            padding: '60px 20px',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: '#fff',
+                            borderRadius: '12px'
+                        },
+                        body: [
+                            {
+                                type: 'tpl',
+                                tpl: '<h1 style="margin-bottom: 20px; font-size: 2.5rem;">🎨 DDD平台可视化编辑器</h1>'
+                            },
+                            {
+                                type: 'tpl',
+                                tpl: '<p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 30px;">基于AMIS的领域驱动设计可视化工具</p>'
+                            },
+                            {
+                                type: 'tpl',
+                                tpl: '<p style="opacity: 0.8;">点击上方按钮开始体验不同的页面类型</p>'
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            renderSchema(welcomeSchema);
+            showStatus('编辑器加载完成！', 'success');
+        };
+    </script>
+</body>
+</html>

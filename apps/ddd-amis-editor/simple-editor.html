@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD平台 - AMIS编辑器</title>
+    
+    <!-- AMIS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/themes/cxd.css">
+    <link rel="stylesheet" href="https://unpkg.com/amis-editor@6.3.0/lib/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .header .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .btn.primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: #40a9ff;
+        }
+
+        .editor-container {
+            height: calc(100vh - 65px);
+            position: relative;
+        }
+
+        #editor-root {
+            width: 100%;
+            height: 100%;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #1890ff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s;
+        }
+
+        .status.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .status.success {
+            background: #52c41a;
+        }
+
+        .status.error {
+            background: #ff4d4f;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 DDD平台可视化编辑器</h1>
+        <div class="actions">
+            <button class="btn" onclick="loadTemplate()">📋 加载模板</button>
+            <button class="btn" onclick="previewSchema()">👁️ 预览</button>
+            <button class="btn" onclick="saveSchema()">💾 保存</button>
+            <button class="btn primary" onclick="connectBackend()">🔌 连接后端</button>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <div id="loading" class="loading">正在加载编辑器</div>
+        <div id="editor-root"></div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <!-- 依赖库 -->
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/moment.js"></script>
+    <script src="https://unpkg.com/lodash@4.17.21/lodash.min.js"></script>
+    
+    <!-- AMIS 核心 (必须在编辑器之前加载) -->
+    <script src="https://unpkg.com/amis@6.3.0/lib/index.js"></script>
+    
+    <!-- AMIS 编辑器 -->
+    <script src="https://unpkg.com/amis-editor@6.3.0/lib/index.js"></script>
+
+    <script>
+        // 防止exports错误
+        window.exports = window.exports || {};
+        
+        let editorInstance;
+        let currentSchema = {
+            type: 'page',
+            title: 'DDD平台欢迎页',
+            body: [
+                {
+                    type: 'container',
+                    style: {
+                        textAlign: 'center',
+                        padding: '40px 20px',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: '#fff',
+                        borderRadius: '8px',
+                        margin: '20px'
+                    },
+                    body: [
+                        {
+                            type: 'tpl',
+                            tpl: '<h2 style="margin-bottom: 16px;">🎨 DDD平台可视化编辑器</h2>'
+                        },
+                        {
+                            type: 'tpl',
+                            tpl: '<p style="font-size: 16px; opacity: 0.9;">拖拽左侧组件开始设计你的页面</p>'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 显示状态消息
+        function showStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type} show`;
+            
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初始化编辑器
+        function initEditor() {
+            try {
+                console.log('开始初始化AMIS编辑器...');
+                
+                // 检查依赖
+                if (!window.React || !window.ReactDOM || !window.amisEditor) {
+                    throw new Error('依赖库未加载完成');
+                }
+
+                const editorRoot = document.getElementById('editor-root');
+                if (!editorRoot) {
+                    throw new Error('编辑器容器不存在');
+                }
+
+                // 创建编辑器
+                const { Editor } = window.amisEditor;
+                
+                // React渲染编辑器
+                const editorElement = React.createElement(Editor, {
+                    value: currentSchema,
+                    onChange: (value) => {
+                        currentSchema = value;
+                        console.log('Schema更新:', value);
+                    },
+                    preview: false,
+                    showCommentConfig: true,
+                    i18nEnabled: false,
+                    theme: 'cxd',
+                    className: 'ddd-amis-editor'
+                });
+
+                ReactDOM.render(editorElement, editorRoot);
+                
+                // 隐藏加载状态
+                document.getElementById('loading').style.display = 'none';
+                
+                showStatus('编辑器加载成功！', 'success');
+                console.log('编辑器初始化完成');
+                
+            } catch (error) {
+                console.error('编辑器初始化失败:', error);
+                showStatus('编辑器初始化失败: ' + error.message, 'error');
+                
+                // 重试机制
+                setTimeout(() => {
+                    console.log('3秒后重试...');
+                    initEditor();
+                }, 3000);
+            }
+        }
+
+        // 加载模板
+        function loadTemplate() {
+            const template = {
+                type: 'page',
+                title: 'DDD数据仪表板',
+                body: [
+                    {
+                        type: 'alert',
+                        level: 'info',
+                        body: '这是一个示例仪表板模板，展示了DDD平台的数据统计功能。'
+                    },
+                    {
+                        type: 'grid',
+                        columns: [
+                            {
+                                md: 3,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '项目总数' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 2.5rem; font-weight: bold; color: #1890ff;">24</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个活跃项目</div>'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                md: 3,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '领域模型' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 2.5rem; font-weight: bold; color: #52c41a;">156</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个领域模型</div>'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                md: 3,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '聚合根' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 2.5rem; font-weight: bold; color: #fa8c16;">89</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个聚合根</div>'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                md: 3,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '值对象' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 2.5rem; font-weight: bold; color: #722ed1;">234</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个值对象</div>'
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            currentSchema = template;
+            
+            // 重新渲染编辑器
+            const editorRoot = document.getElementById('editor-root');
+            const editorElement = React.createElement(window.amisEditor.Editor, {
+                value: currentSchema,
+                onChange: (value) => {
+                    currentSchema = value;
+                },
+                preview: false,
+                showCommentConfig: true,
+                i18nEnabled: false,
+                theme: 'cxd'
+            });
+            
+            ReactDOM.render(editorElement, editorRoot);
+            showStatus('仪表板模板已加载！', 'success');
+        }
+
+        // 预览配置
+        function previewSchema() {
+            if (!currentSchema) {
+                showStatus('没有可预览的配置', 'error');
+                return;
+            }
+            
+            // 创建预览窗口
+            const previewWindow = window.open('', '_blank', 'width=1200,height=800');
+            
+            const previewHTML = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>DDD平台 - 预览</title>
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/themes/cxd.css">
+    <style>
+        body { margin: 0; padding: 20px; background: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <div id="preview-root"></div>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/amis@6.3.0/lib/index.js"></script>
+    <script>
+        const schema = ${JSON.stringify(currentSchema, null, 2)};
+        const amisInstance = window.amis.embed('#preview-root', schema);
+    </script>
+</body>
+</html>`;
+            
+            previewWindow.document.write(previewHTML);
+            previewWindow.document.close();
+            
+            showStatus('预览窗口已打开！', 'success');
+        }
+
+        // 保存配置
+        function saveSchema() {
+            if (!currentSchema) {
+                showStatus('没有可保存的配置', 'error');
+                return;
+            }
+            
+            const blob = new Blob([JSON.stringify(currentSchema, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ddd-schema-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('配置已保存到本地！', 'success');
+        }
+
+        // 连接后端
+        async function connectBackend() {
+            try {
+                showStatus('正在连接后端API...', 'success');
+                
+                // 测试后端连接
+                const response = await fetch('http://localhost:7001/amis/dashboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('后端连接成功！', 'success');
+                    console.log('后端数据:', data);
+                    
+                    // 可以加载后端的schema配置
+                    if (data.schema) {
+                        currentSchema = data.schema;
+                        initEditor(); // 重新初始化编辑器
+                    }
+                } else {
+                    showStatus('后端连接失败，请检查服务是否启动', 'error');
+                }
+            } catch (error) {
+                console.error('连接后端失败:', error);
+                showStatus('后端连接失败: ' + error.message, 'error');
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            console.log('页面加载完成，等待2秒后初始化编辑器...');
+            setTimeout(initEditor, 2000);
+        });
+    </script>
+</body>
+</html>

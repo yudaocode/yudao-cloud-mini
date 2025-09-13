@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD平台 - 简易编辑器</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .header .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .btn.primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: #40a9ff;
+        }
+
+        .container {
+            height: calc(100vh - 65px);
+            display: flex;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .content {
+            flex: 1;
+            background: #fff;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .component-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .component-item:hover {
+            background: #e9ecef;
+            border-color: #1890ff;
+        }
+
+        .schema-editor {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s;
+        }
+
+        .status.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .status.success {
+            background: #52c41a;
+        }
+
+        .status.error {
+            background: #ff4d4f;
+        }
+
+        .page-content {
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .alert.info {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #0050b3;
+        }
+
+        .alert.success {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #389e0d;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .editor-container {
+            height: calc(100vh - 80px);
+            background: white;
+            margin: 0;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            color: #666;
+        }
+
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: none;
+            z-index: 1001;
+        }
+
+        .status.success {
+            background: #28a745;
+        }
+
+        .status.error {
+            background: #dc3545;
+        }
+
+        .status.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .quick-templates {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .template-btn {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .template-btn:hover {
+            background: #bbdefb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <i class="fa fa-cube" style="color: #667eea; margin-right: 0.5rem;"></i>
+            DDD平台 - AMIS可视化编辑器
+        </h1>
+        <div class="actions">
+            <div class="quick-templates">
+                <span style="font-size: 0.875rem; color: #666; margin-right: 0.5rem;">快速模板:</span>
+                <button class="btn template-btn" onclick="loadTemplate('dashboard')">
+                    <i class="fa fa-tachometer-alt"></i> 仪表板
+                </button>
+                <button class="btn template-btn" onclick="loadTemplate('form')">
+                    <i class="fa fa-wpforms"></i> 表单
+                </button>
+                <button class="btn template-btn" onclick="loadTemplate('list')">
+                    <i class="fa fa-list"></i> 列表
+                </button>
+                <button class="btn template-btn" onclick="loadTemplate('chart')">
+                    <i class="fa fa-chart-bar"></i> 图表
+                </button>
+            </div>
+            <button class="btn btn-secondary" onclick="loadFromBackend()">
+                <i class="fa fa-download"></i> 从后端加载
+            </button>
+            <button class="btn btn-success" onclick="previewSchema()">
+                <i class="fa fa-eye"></i> 预览
+            </button>
+            <button class="btn btn-primary" onclick="saveSchema()">
+                <i class="fa fa-save"></i> 保存
+            </button>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在加载AMIS编辑器...</p>
+        </div>
+        <div id="editor-root" style="height: 100%; display: none;"></div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/moment.js"></script>
+    <script src="https://unpkg.com/lodash@4.17.21/lodash.min.js"></script>
+    <script src="https://unpkg.com/amis@6.3.0/lib/index.js"></script>
+    <script src="https://unpkg.com/amis-editor@6.3.0/lib/index.js"></script>
+    <script>
+        let editor;
+        let currentSchema = {
+            type: 'page',
+            title: '开始设计你的页面',
+            body: [
+                {
+                    type: 'tpl',
+                    tpl: '<div style="text-align: center; padding: 2rem; color: #666;"><h3>🎨 欢迎使用DDD平台可视化编辑器</h3><p>点击左侧组件库开始设计，或使用顶部模板快速开始</p></div>'
+                }
+            ]
+        };
+
+        // 等待所有资源加载完成
+        function waitForAmisEditor() {
+            return new Promise((resolve, reject) => {
+                let attempts = 0;
+                const maxAttempts = 50;
+                
+                function check() {
+                    attempts++;
+                    if (window.amisEditor && window.amisEditor.Editor) {
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        reject(new Error('AMIS Editor 加载超时'));
+                    } else {
+                        setTimeout(check, 100);
+                    }
+                }
+                check();
+            });
+        }
+
+        // 初始化编辑器
+        async function initEditor() {
+            try {
+                // 等待 amisEditor 加载完成
+                await waitForAmisEditor();
+                
+                const { Editor } = window.amisEditor;
+                
+                editor = new Editor({
+                    value: currentSchema,
+                    onChange: (value) => {
+                        currentSchema = value;
+                    },
+                    preview: false,
+                    showCommonConfig: true,
+                    i18nEnabled: false,
+                    theme: 'cxd'
+                });
+
+                editor.render(document.getElementById('editor-root'));
+                
+                // 隐藏加载状态
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('editor-root').style.display = 'block';
+                
+                showStatus('编辑器加载成功！', 'success');
+            } catch (error) {
+                console.error('编辑器初始化失败:', error);
+                showStatus('编辑器初始化失败: ' + error.message, 'error');
+            }
+        }
+
+        // 显示状态消息
+        function showStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type} show`;
+            
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 3000);
+        }
+
+        // 加载模板
+        function loadTemplate(templateType) {
+            const templates = {
+                dashboard: {
+                    type: 'page',
+                    title: '数据仪表板',
+                    body: [
+                        {
+                            type: 'grid',
+                            columns: [
+                                {
+                                    md: 3,
+                                    body: {
+                                        type: 'card',
+                                        header: { title: '项目总数' },
+                                        body: [
+                                            { type: 'tpl', tpl: '<div style="text-align: center; font-size: 2rem; font-weight: bold; color: #667eea;">24</div>' },
+                                            { type: 'tpl', tpl: '<div style="text-align: center; color: #999;">个项目</div>' }
+                                        ]
+                                    }
+                                },
+                                {
+                                    md: 9,
+                                    body: {
+                                        type: 'chart',
+                                        config: {
+                                            type: 'line',
+                                            data: {
+                                                labels: ['一月', '二月', '三月', '四月', '五月', '六月'],
+                                                datasets: [{
+                                                    label: '项目增长',
+                                                    data: [12, 19, 3, 5, 2, 3],
+                                                    borderColor: '#667eea',
+                                                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                                    tension: 0.4
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                plugins: {
+                                                    title: {
+                                                        display: true,
+                                                        text: '项目增长趋势'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                form: {
+                    type: 'page',
+                    title: '表单页面',
+                    body: {
+                        type: 'form',
+                        api: 'post:/api/submit',
+                        body: [
+                            { type: 'input-text', name: 'name', label: '姓名', required: true },
+                            { type: 'input-email', name: 'email', label: '邮箱', required: true },
+                            { type: 'select', name: 'department', label: '部门', options: [
+                                { label: '技术部', value: 'tech' },
+                                { label: '产品部', value: 'product' },
+                                { label: '设计部', value: 'design' }
+                            ]},
+                            { type: 'textarea', name: 'description', label: '描述' }
+                        ]
+                    }
+                },
+                list: {
+                    type: 'page',
+                    title: '数据列表',
+                    body: {
+                        type: 'crud',
+                        api: '/api/projects',
+                        columns: [
+                            { name: 'id', label: 'ID', type: 'text' },
+                            { name: 'name', label: '项目名称', type: 'text' },
+                            { name: 'status', label: '状态', type: 'status', map: {
+                                'ACTIVE': { status: 'success', text: '活跃' },
+                                'INACTIVE': { status: 'default', text: '停用' }
+                            }},
+                            { name: 'createdAt', label: '创建时间', type: 'datetime' }
+                        ],
+                        headerToolbar: ['bulkActions', 'reload'],
+                        footerToolbar: ['pagination']
+                    }
+                },
+                chart: {
+                    type: 'page',
+                    title: '图表展示',
+                    body: [
+                        {
+                            type: 'grid',
+                            columns: [
+                                {
+                                    md: 6,
+                                    body: {
+                                        type: 'chart',
+                                        config: {
+                                            type: 'pie',
+                                            data: {
+                                                labels: ['活跃', '停用', '归档'],
+                                                datasets: [{
+                                                    data: [65, 25, 10],
+                                                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444']
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                plugins: {
+                                                    title: {
+                                                        display: true,
+                                                        text: '项目状态分布'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    md: 6,
+                                    body: {
+                                        type: 'chart',
+                                        config: {
+                                            type: 'bar',
+                                            data: {
+                                                labels: ['项目', '领域', '聚合', '实体'],
+                                                datasets: [{
+                                                    label: '数量',
+                                                    data: [12, 28, 65, 156],
+                                                    backgroundColor: '#667eea'
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                plugins: {
+                                                    title: {
+                                                        display: true,
+                                                        text: 'DDD元素统计'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            };
+
+            if (templates[templateType]) {
+                currentSchema = templates[templateType];
+                if (editor) {
+                    editor.setValue(currentSchema);
+                }
+                showStatus(`${templateType}模板加载成功！`, 'success');
+            }
+        }
+
+        // 从后端加载配置
+        async function loadFromBackend() {
+            try {
+                showStatus('正在从后端加载配置...', 'success');
+                
+                const response = await fetch('/amis/layout');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                if (result.code === 200 && result.data) {
+                    currentSchema = result.data;
+                    if (editor) {
+                        editor.setValue(currentSchema);
+                    }
+                    showStatus('后端配置加载成功！', 'success');
+                } else {
+                    throw new Error(result.message || '加载失败');
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+                showStatus('从后端加载失败: ' + error.message, 'error');
+            }
+        }
+
+        // 预览页面
+        function previewSchema() {
+            const schemaJson = JSON.stringify(currentSchema, null, 2);
+            const previewWindow = window.open('./preview.html', '_blank', 'width=1200,height=800');
+            
+            previewWindow.onload = function() {
+                previewWindow.postMessage({
+                    type: 'LOAD_SCHEMA',
+                    schema: currentSchema
+                }, '*');
+            };
+            
+            showStatus('预览页面已打开！', 'success');
+        }
+
+        // 保存配置
+        function saveSchema() {
+            const schemaJson = JSON.stringify(currentSchema, null, 2);
+            const blob = new Blob([schemaJson], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `amis-schema-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('配置已保存到本地！', 'success');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 延迟初始化，确保所有脚本都已加载
+            setTimeout(initEditor, 1000);
+        });
+
+        // 快捷键支持
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 's':
+                        e.preventDefault();
+                        saveSchema();
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        previewSchema();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

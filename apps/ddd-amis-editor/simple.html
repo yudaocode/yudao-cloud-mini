@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD平台 - 简易编辑器</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .header .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .btn.primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: #40a9ff;
+        }
+
+        .container {
+            height: calc(100vh - 65px);
+            display: flex;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .content {
+            flex: 1;
+            background: #fff;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .component-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .component-item:hover {
+            background: #e9ecef;
+            border-color: #1890ff;
+        }
+
+        .schema-editor {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s;
+        }
+
+        .status.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .status.success {
+            background: #52c41a;
+        }
+
+        .status.error {
+            background: #ff4d4f;
+        }
+
+        .page-content {
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .alert.info {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #0050b3;
+        }
+
+        .alert.success {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #389e0d;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* 新增组件样式 */
+        .panel-card { border-left: 4px solid #1890ff; }
+        .service-card { background: #f8f9fa; }
+        .action-button .btn { 
+            width: 100%; margin: 4px 0; padding: 8px 16px; 
+            border: none; border-radius: 4px; cursor: pointer; 
+        }
+        .action-button .btn.primary { background: #1890ff; color: white; }
+        .action-button .btn.info { background: #13c2c2; color: white; }
+        .action-button .btn.success { background: #52c41a; color: white; }
+        .action-button .btn.warning { background: #faad14; color: white; }
+        .property-list { background: #fafafa; padding: 16px; border-radius: 6px; }
+        .list-container { margin: 8px 0; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; }
+        .badge-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .badge-default { background: #fafafa; color: #666; border: 1px solid #d9d9d9; }
+        .badge-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .chart-card { min-height: 400px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 DDD平台简易编辑器</h1>
+        <div class="actions">
+            <button class="btn" onclick="loadDashboard()">📊 仪表板</button>
+            <button class="btn" onclick="loadForm()">📝 表单</button>
+            <button class="btn" onclick="clearContent()">🗑️ 清空</button>
+            <button class="btn primary" onclick="connectBackend()">🔌 连接后端</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <h3>📦 组件库</h3>
+            <div class="component-item" onclick="addAlert()">⚠️ 提示框</div>
+            <div class="component-item" onclick="addCard()">📄 卡片</div>
+            <div class="component-item" onclick="addStatCard()">📊 统计卡片</div>
+            <div class="component-item" onclick="addGrid()">📐 网格布局</div>
+            
+            <h3 style="margin-top: 20px;">⚙️ Schema编辑器</h3>
+            <textarea id="schema-editor" class="schema-editor" placeholder="在此查看和编辑JSON Schema..."></textarea>
+            <button class="btn" onclick="applySchema()" style="width: 100%; margin-top: 10px;">🔄 应用Schema</button>
+        </div>
+
+        <div class="content" id="content">
+            <div class="page-content">
+                <div style="text-align: center; padding: 60px 20px;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 12px;">
+                        <h1 style="margin-bottom: 20px; font-size: 2.5rem;">🎨 DDD平台可视化编辑器</h1>
+                        <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 30px;">简易版本，专注于页面布局和组件管理</p>
+                        <p style="opacity: 0.8;">点击左侧组件库开始构建你的页面</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <script>
+        let currentSchema = {
+            type: 'page',
+            title: 'DDD平台欢迎页',
+            body: []
+        };
+
+        // 显示状态消息
+        function showStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type} show`;
+            
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 3000);
+        }
+
+        // 更新Schema编辑器
+        function updateSchemaEditor() {
+            document.getElementById('schema-editor').value = JSON.stringify(currentSchema, null, 2);
+        }
+
+        // 渲染内容
+        function renderContent() {
+            const content = document.getElementById('content');
+            content.innerHTML = '';
+            
+            console.log('renderContent - currentSchema:', currentSchema);
+            console.log('renderContent - schema类型:', typeof currentSchema);
+            
+            // 如果currentSchema本身就是一个完整的页面组件
+            if (currentSchema.type === 'page') {
+                console.log('渲染页面组件');
+                const element = renderComponent(currentSchema);
+                if (element) {
+                    content.appendChild(element);
+                }
+            }
+            // 如果有body数组
+            else if (currentSchema.body && Array.isArray(currentSchema.body)) {
+                console.log('渲染body数组，长度:', currentSchema.body.length);
+                currentSchema.body.forEach((item, index) => {
+                    console.log(`渲染第${index}个组件:`, item);
+                    const element = renderComponent(item);
+                    if (element) {
+                        content.appendChild(element);
+                    }
+                });
+            }
+            // 如果currentSchema是一个数组
+            else if (Array.isArray(currentSchema)) {
+                console.log('渲染schema数组，长度:', currentSchema.length);
+                currentSchema.forEach((item, index) => {
+                    console.log(`渲染第${index}个组件:`, item);
+                    const element = renderComponent(item);
+                    if (element) {
+                        content.appendChild(element);
+                    }
+                });
+            }
+            // 如果是单个组件
+            else if (currentSchema.type) {
+                console.log('渲染单个组件:', currentSchema.type);
+                const element = renderComponent(currentSchema);
+                if (element) {
+                    content.appendChild(element);
+                }
+            }
+            // 空白页面
+            else {
+                console.log('显示空白页面');
+                content.innerHTML = `
+                    <div class="page-content">
+                        <div style="text-align: center; padding: 60px 20px; color: #666;">
+                            <h2>页面为空</h2>
+                            <p>点击左侧组件库添加内容</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            updateSchemaEditor();
+        }
+
+        // 渲染组件
+        function renderComponent(component) {
+            console.log('renderComponent - 输入组件:', component);
+            console.log('renderComponent - 组件类型:', component ? component.type : '组件为空');
+            
+            // 检查组件是否有效
+            if (!component) {
+                console.error('renderComponent - 组件为空或undefined');
+                return null;
+            }
+            
+            // 如果组件没有type字段，尝试推断
+            if (!component.type && component.body) {
+                console.log('renderComponent - 组件没有type字段，但有body，推断为container');
+                component.type = 'container';
+            }
+            
+            const div = document.createElement('div');
+            
+            switch (component.type) {
+                case 'page':
+                    // 页面类型，渲染其body内容
+                    if (component.title) {
+                        const title = document.createElement('h1');
+                        title.textContent = component.title;
+                        title.style.cssText = 'margin-bottom: 20px; color: #333; font-size: 24px;';
+                        div.appendChild(title);
+                    }
+                    if (component.body && Array.isArray(component.body)) {
+                        component.body.forEach(item => {
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    }
+                    break;
+                    
+                case 'alert':
+                    div.className = `alert ${component.level || 'info'}`;
+                    div.textContent = component.body || '';
+                    break;
+                    
+                case 'card':
+                    div.className = 'card';
+                    if (component.header && component.header.title) {
+                        const header = document.createElement('h3');
+                        header.textContent = component.header.title;
+                        header.style.marginBottom = '16px';
+                        div.appendChild(header);
+                    }
+                    if (component.body) {
+                        const body = document.createElement('div');
+                        if (typeof component.body === 'string') {
+                            body.textContent = component.body;
+                        } else if (Array.isArray(component.body)) {
+                            component.body.forEach(item => {
+                                const child = renderComponent(item);
+                                if (child) body.appendChild(child);
+                            });
+                        } else if (typeof component.body === 'object') {
+                            const child = renderComponent(component.body);
+                            if (child) body.appendChild(child);
+                        }
+                        div.appendChild(body);
+                    }
+                    break;
+                    
+                case 'grid':
+                    div.className = 'grid';
+                    if (component.columns && Array.isArray(component.columns)) {
+                        component.columns.forEach(col => {
+                            if (col.body) {
+                                // 处理col.body可能是数组的情况
+                                if (Array.isArray(col.body)) {
+                                    // 如果col.body是数组，遍历渲染每个子组件
+                                    col.body.forEach(item => {
+                                        const childElement = renderComponent(item);
+                                        if (childElement) div.appendChild(childElement);
+                                    });
+                                } else {
+                                    // 如果col.body是单个对象，直接渲染
+                                    const colElement = renderComponent(col.body);
+                                    if (colElement) div.appendChild(colElement);
+                                }
+                            }
+                        });
+                    }
+                    break;
+                    
+                case 'flex':
+                    div.style.cssText = 'display: flex; gap: 16px; align-items: center; flex-wrap: wrap;';
+                    if (component.items && Array.isArray(component.items)) {
+                        component.items.forEach(item => {
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    }
+                    break;
+                    
+                case 'container':
+                    div.className = 'page-content';
+                    if (component.style) {
+                        const styleStr = Object.entries(component.style)
+                            .map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${v}`)
+                            .join('; ');
+                        div.style.cssText += styleStr;
+                    }
+                    if (component.body && Array.isArray(component.body)) {
+                        component.body.forEach(item => {
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    }
+                    break;
+                    
+                case 'stat-card':
+                    div.className = 'card stat-card';
+                    div.innerHTML = `
+                        <div class="stat-number" style="color: ${component.color || '#1890ff'};">
+                            ${component.number || '0'}
+                        </div>
+                        <div class="stat-label">${component.label || '统计项'}</div>
+                    `;
+                    break;
+                    
+                case 'tpl':
+                    // 处理AMIS模板语法，简化渲染
+                    let tplContent = component.tpl || '';
+                    
+                    // 生成模拟数据来替换模板变量
+                    const mockData = {
+                        total: Math.floor(Math.random() * 1000) + 100,
+                        growth: (Math.random() * 20 - 10).toFixed(1),
+                        name: '示例项目',
+                        description: '这是一个示例描述',
+                        status: 'ACTIVE',
+                        createdAt: '2025-01-01',
+                        version: 'v1.0.0',
+                        environment: 'development',
+                        startTime: '2025-01-01 08:00:00',
+                        memoryUsage: '256MB',
+                        cpuUsage: '15%',
+                        icon: '🎯',
+                        title: '示例标题',
+                        time: '刚刚'
+                    };
+                    
+                    // 替换常见的模板变量
+                    tplContent = tplContent.replace(/\$\{([^}]+)\}/g, (match, expression) => {
+                        try {
+                            // 简单处理一些常见表达式
+                            if (expression.includes('total || 0')) return mockData.total;
+                            if (expression.includes('growth')) {
+                                if (expression.includes('>=')) {
+                                    return mockData.growth >= 0 ? 
+                                        (expression.includes('text-green-500') ? 'text-green-500' : '↗') : 
+                                        (expression.includes('text-red-500') ? 'text-red-500' : '↘');
+                                }
+                                return mockData.growth;
+                            }
+                            if (expression.includes('Math.abs(growth)')) return Math.abs(mockData.growth);
+                            
+                            // 直接属性访问
+                            const prop = expression.trim();
+                            if (mockData[prop] !== undefined) return mockData[prop];
+                            
+                            return expression; // 如果找不到，返回原表达式
+                        } catch (e) {
+                            return expression;
+                        }
+                    });
+                    
+                    div.innerHTML = tplContent;
+                    break;
+                    
+                case 'divider':
+                    div.innerHTML = '<hr style="margin: 20px 0; border: none; border-top: 1px solid #e8e8e8;">';
+                    break;
+                    
+                case 'panel':
+                    div.className = 'card panel-card';
+                    if (component.title) {
+                        const header = document.createElement('h3');
+                        header.textContent = component.title;
+                        header.style.cssText = 'margin-bottom: 16px; color: #333; border-bottom: 2px solid #1890ff; padding-bottom: 8px;';
+                        div.appendChild(header);
+                    }
+                    if (component.body) {
+                        if (Array.isArray(component.body)) {
+                            component.body.forEach(item => {
+                                const child = renderComponent(item);
+                                if (child) div.appendChild(child);
+                            });
+                        } else {
+                            const child = renderComponent(component.body);
+                            if (child) div.appendChild(child);
+                        }
+                    }
+                    break;
+                    
+                case 'service':
+                    // Service组件在简易编辑器中直接渲染其body内容，不显示API占位符
+                    if (component.body && Array.isArray(component.body)) {
+                        component.body.forEach(item => {
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    } else {
+                        // 如果没有body，显示简单的占位
+                        div.innerHTML = `
+                            <div style="padding: 8px; background: #f0f9ff; border-radius: 4px; color: #1890ff; font-size: 12px;">
+                                📡 ${component.api || '数据加载中...'}
+                            </div>
+                        `;
+                    }
+                    break;
+                    
+                case 'action':
+                    div.className = 'action-button';
+                    const button = document.createElement('button');
+                    button.className = `btn ${component.level || 'primary'} ${component.size || ''}`;
+                    button.innerHTML = `${component.icon ? `<i class="${component.icon}"></i> ` : ''}${component.label || '按钮'}`;
+                    button.style.cssText = 'width: 100%; margin: 4px 0;';
+                    div.appendChild(button);
+                    break;
+                    
+                case 'property':
+                    div.className = 'property-list';
+                    if (component.items && Array.isArray(component.items)) {
+                        component.items.forEach(item => {
+                            const propDiv = document.createElement('div');
+                            propDiv.style.cssText = 'display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;';
+                            propDiv.innerHTML = `
+                                <span style="font-weight: 500; color: #333;">${item.label || '属性'}:</span>
+                                <span style="color: #666;">${item.content || '值'}</span>
+                            `;
+                            div.appendChild(propDiv);
+                        });
+                    }
+                    break;
+                    
+                case 'list':
+                    div.className = 'list-container';
+                    if (component.source && Array.isArray(component.source)) {
+                        component.source.forEach(item => {
+                            if (component.listItem && component.listItem.body) {
+                                const listItemDiv = document.createElement('div');
+                                listItemDiv.style.cssText = 'padding: 12px; margin: 8px 0; background: #fafafa; border-radius: 6px; border-left: 3px solid #1890ff;';
+                                
+                                // 简单的模板渲染
+                                let content = JSON.stringify(item);
+                                if (item.title) content = `<strong>${item.title}</strong><br>${item.description || ''}`;
+                                if (item.name) content = `<strong>${item.name}</strong><br>${item.description || ''}`;
+                                
+                                listItemDiv.innerHTML = content;
+                                div.appendChild(listItemDiv);
+                            }
+                        });
+                    } else {
+                        div.innerHTML = `
+                            <div style="padding: 16px; background: #f0f9ff; border-radius: 6px; color: #1890ff;">
+                                📋 列表组件 (数据加载中...)
+                            </div>
+                        `;
+                    }
+                    break;
+                    
+                case 'status':
+                    div.className = 'status-badge';
+                    const status = component.source || 'default';
+                    const statusMap = component.map || {};
+                    const statusInfo = statusMap[status] || { status: 'default', text: status };
+                    
+                    div.innerHTML = `
+                        <span class="badge badge-${statusInfo.status}" style="padding: 4px 8px; border-radius: 12px; font-size: 12px;">
+                            ${statusInfo.text}
+                        </span>
+                    `;
+                    break;
+                    
+                case 'chart':
+                    div.className = 'card chart-card';
+                    const chartType = component.config?.type || 'unknown';
+                    div.innerHTML = `
+                        <h3 style="margin-bottom: 16px;">📊 ${chartType.toUpperCase()} 图表</h3>
+                        <div style="height: 300px; background: linear-gradient(45deg, #f0f9ff, #e0f2fe); 
+                                    border-radius: 8px; display: flex; align-items: center; 
+                                    justify-content: center; color: #0369a1; font-size: 16px; text-align: center;">
+                            图表数据可视化区域<br>
+                            <small style="opacity: 0.7;">类型: ${chartType}<br>（简易编辑器暂不支持图表渲染）</small>
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    div.innerHTML = `
+                        <div style="padding: 10px; background: #f0f0f0; border-radius: 4px; color: #666; margin: 8px 0;">
+                            <strong>组件类型:</strong> ${component.type}<br>
+                            <small>简易编辑器暂不支持此组件类型</small>
+                        </div>
+                    `;
+                    console.log('不支持的组件类型:', component.type, component);
+            }
+            
+            return div;
+        }
+
+        // 添加提示框
+        function addAlert() {
+            const alert = {
+                type: 'alert',
+                level: 'info',
+                body: '这是一个信息提示框'
+            };
+            currentSchema.body.push(alert);
+            renderContent();
+            showStatus('提示框已添加', 'success');
+        }
+
+        // 添加卡片
+        function addCard() {
+            const card = {
+                type: 'card',
+                header: { title: '新卡片' },
+                body: '这是一个新的卡片内容'
+            };
+            currentSchema.body.push(card);
+            renderContent();
+            showStatus('卡片已添加', 'success');
+        }
+
+        // 添加统计卡片
+        function addStatCard() {
+            const statCard = {
+                type: 'stat-card',
+                number: Math.floor(Math.random() * 1000),
+                label: '随机数据',
+                color: ['#1890ff', '#52c41a', '#fa8c16', '#722ed1'][Math.floor(Math.random() * 4)]
+            };
+            currentSchema.body.push(statCard);
+            renderContent();
+            showStatus('统计卡片已添加', 'success');
+        }
+
+        // 添加网格布局
+        function addGrid() {
+            const grid = {
+                type: 'grid',
+                columns: [
+                    {
+                        body: {
+                            type: 'stat-card',
+                            number: '24',
+                            label: '项目数',
+                            color: '#1890ff'
+                        }
+                    },
+                    {
+                        body: {
+                            type: 'stat-card',
+                            number: '156',
+                            label: '模型数',
+                            color: '#52c41a'
+                        }
+                    },
+                    {
+                        body: {
+                            type: 'stat-card',
+                            number: '89',
+                            label: '聚合根',
+                            color: '#fa8c16'
+                        }
+                    }
+                ]
+            };
+            currentSchema.body.push(grid);
+            renderContent();
+            showStatus('网格布局已添加', 'success');
+        }
+
+        // 加载仪表板模板
+        function loadDashboard() {
+            currentSchema = {
+                type: 'page',
+                title: 'DDD数据仪表板',
+                body: [
+                    {
+                        type: 'alert',
+                        level: 'info',
+                        body: '🎯 欢迎使用DDD平台数据仪表板'
+                    },
+                    {
+                        type: 'grid',
+                        columns: [
+                            {
+                                body: {
+                                    type: 'stat-card',
+                                    number: '24',
+                                    label: '📁 活跃项目',
+                                    color: '#1890ff'
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'stat-card',
+                                    number: '156',
+                                    label: '🏗️ 领域模型',
+                                    color: '#52c41a'
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'stat-card',
+                                    number: '89',
+                                    label: '⚡ 聚合根',
+                                    color: '#fa8c16'
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'stat-card',
+                                    number: '234',
+                                    label: '💎 值对象',
+                                    color: '#722ed1'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        type: 'card',
+                        header: { title: '📈 项目活跃度趋势' },
+                        body: '这里是图表区域（占位符）'
+                    }
+                ]
+            };
+            renderContent();
+            showStatus('仪表板模板已加载！', 'success');
+        }
+
+        // 加载表单模板
+        function loadForm() {
+            currentSchema = {
+                type: 'page',
+                title: '📝 DDD实体配置表单',
+                body: [
+                    {
+                        type: 'alert',
+                        level: 'info',
+                        body: '请填写领域实体的基本信息'
+                    },
+                    {
+                        type: 'card',
+                        header: { title: '基本信息' },
+                        body: '表单字段区域（占位符）'
+                    }
+                ]
+            };
+            renderContent();
+            showStatus('表单模板已加载！', 'success');
+        }
+
+        // 清空内容
+        function clearContent() {
+            currentSchema.body = [];
+            renderContent();
+            showStatus('内容已清空', 'success');
+        }
+
+        // 应用Schema
+        function applySchema() {
+            try {
+                const schemaText = document.getElementById('schema-editor').value;
+                const newSchema = JSON.parse(schemaText);
+                currentSchema = newSchema;
+                renderContent();
+                showStatus('Schema已应用！', 'success');
+            } catch (error) {
+                showStatus('Schema格式错误: ' + error.message, 'error');
+            }
+        }
+
+        // 连接后端
+        async function connectBackend() {
+            try {
+                showStatus('正在连接后端...', 'success');
+                
+                const response = await fetch('http://localhost:8100/amis/dashboard');
+                if (response.ok) {
+                    const result = await response.json();
+                    showStatus('后端连接成功！', 'success');
+                    console.log('后端返回数据:', result);
+                    
+                    // 检查后端返回的数据格式
+                    console.log('完整后端响应:', JSON.stringify(result, null, 2));
+                    
+                    if (result.code === 200 && result.data) {
+                        currentSchema = result.data;
+                        console.log('使用result.data作为schema:', JSON.stringify(currentSchema, null, 2));
+                        
+                        // 更新schema编辑器
+                        const schemaEditor = document.getElementById('schema-editor');
+                        if (schemaEditor) {
+                            schemaEditor.value = JSON.stringify(currentSchema, null, 2);
+                        }
+                        
+                        renderContent();
+                        showStatus('后端数据已加载！', 'success');
+                    } else if (result.schema) {
+                        // 兼容直接返回schema的格式
+                        currentSchema = result.schema;
+                        console.log('使用result.schema作为schema:', JSON.stringify(currentSchema, null, 2));
+                        
+                        // 更新schema编辑器
+                        const schemaEditor = document.getElementById('schema-editor');
+                        if (schemaEditor) {
+                            schemaEditor.value = JSON.stringify(currentSchema, null, 2);
+                        }
+                        
+                        renderContent();
+                        showStatus('后端数据已加载！', 'success');
+                    } else {
+                        showStatus('后端返回数据格式不正确', 'error');
+                        console.log('数据格式错误:', result);
+                    }
+                } else {
+                    showStatus('后端服务未响应', 'error');
+                }
+            } catch (error) {
+                console.error('连接失败:', error);
+                showStatus('无法连接后端: ' + error.message, 'error');
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('简易编辑器加载完成');
+            renderContent();
+            showStatus('编辑器加载完成！', 'success');
+        });
+    </script>
+</body>
+</html>

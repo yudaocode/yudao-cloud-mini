@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple.html 调试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .btn { padding: 10px 20px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 10px; }
+        .result { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+        .card { background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px; margin: 10px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .panel-card { border-left: 4px solid #1890ff; }
+        .service-card { background: #f8f9fa; }
+        .debug-info { background: #e6f7ff; border: 1px solid #91d5ff; padding: 10px; margin: 10px 0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🐛 Simple.html 调试页面</h1>
+    
+    <div class="debug-info">
+        <strong>当前配置:</strong><br>
+        - 后端地址: http://localhost:8100/amis/dashboard<br>
+        - 前端地址: http://localhost:3000/simple.html<br>
+        - 测试目标: 检查为什么组件类型显示为 undefined
+    </div>
+    
+    <button class="btn" onclick="testConnection()">🔌 测试后端连接</button>
+    <button class="btn" onclick="testFirstComponent()">🧩 测试第一个组件</button>
+    <button class="btn" onclick="clearConsole()">🧹 清空控制台</button>
+    
+    <div id="result" class="result">等待测试...</div>
+    <div id="preview"></div>
+
+    <script>
+        let responseData = null;
+
+        function clearConsole() {
+            console.clear();
+            document.getElementById('result').textContent = '控制台已清空';
+        }
+
+        async function testConnection() {
+            const result = document.getElementById('result');
+            try {
+                result.textContent = '正在连接后端...';
+                console.log('🔌 开始测试后端连接');
+                
+                const response = await fetch('http://localhost:8100/amis/dashboard');
+                console.log('📡 收到响应:', response);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('📦 解析后的数据:', data);
+                    
+                    responseData = data;
+                    
+                    result.textContent = `✅ 连接成功！
+状态码: ${response.status}
+数据格式: ${typeof data}
+是否有code字段: ${data.code !== undefined}
+是否有data字段: ${data.data !== undefined}
+data类型: ${typeof data.data}
+
+完整响应数据结构:
+${JSON.stringify(data, null, 2)}`;
+                    
+                } else {
+                    result.textContent = `❌ 连接失败
+状态码: ${response.status}
+状态文本: ${response.statusText}`;
+                }
+            } catch (error) {
+                result.textContent = `❌ 连接错误: ${error.message}`;
+                console.error('🚫 连接错误:', error);
+            }
+        }
+
+        function testFirstComponent() {
+            const result = document.getElementById('result');
+            const preview = document.getElementById('preview');
+            
+            if (!responseData) {
+                result.textContent = '❌ 请先测试后端连接获取数据';
+                return;
+            }
+            
+            try {
+                console.log('🧩 开始测试第一个组件渲染');
+                
+                // 模拟 simple.html 的数据提取逻辑
+                let schema;
+                if (responseData.code === 200 && responseData.data) {
+                    schema = responseData.data;
+                    console.log('📋 使用 responseData.data:', schema);
+                } else if (responseData.schema) {
+                    schema = responseData.schema;
+                    console.log('📋 使用 responseData.schema:', schema);
+                } else {
+                    schema = responseData;
+                    console.log('📋 使用 responseData:', schema);
+                }
+                
+                result.textContent = `🧩 开始测试组件渲染
+Schema类型: ${typeof schema}
+Schema.type: ${schema.type}
+Schema.body长度: ${schema.body ? schema.body.length : '无body'}
+
+第一层结构:`;
+                
+                if (schema.type === 'page') {
+                    result.textContent += `\n✅ 顶层是page组件`;
+                    
+                    if (schema.body && schema.body.length > 0) {
+                        const firstChild = schema.body[0];
+                        result.textContent += `\n\n第一个子组件:
+类型: ${firstChild.type}
+完整结构: ${JSON.stringify(firstChild, null, 2)}`;
+                        
+                        console.log('🔍 第一个子组件详情:', firstChild);
+                        
+                        // 测试第一个子组件的渲染
+                        if (firstChild.type === 'grid' && firstChild.columns) {
+                            result.textContent += `\n\n网格组件分析:
+列数: ${firstChild.columns.length}`;
+                            
+                            firstChild.columns.forEach((col, index) => {
+                                if (col.body && col.body[0]) {
+                                    result.textContent += `\n第${index+1}列第一个组件: ${col.body[0].type}`;
+                                    console.log(`📊 第${index+1}列第一个组件:`, col.body[0]);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    result.textContent += `\n❌ 顶层不是page组件，而是: ${schema.type}`;
+                }
+                
+            } catch (error) {
+                result.textContent = `❌ 测试错误: ${error.message}`;
+                console.error('🚫 测试错误:', error);
+            }
+        }
+
+        // 页面加载完成后提示
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 调试页面加载完成');
+            console.log('💡 建议操作步骤:');
+            console.log('1. 点击"测试后端连接"查看数据结构');
+            console.log('2. 点击"测试第一个组件"分析组件结构');
+            console.log('3. 打开浏览器开发者工具查看详细日志');
+        });
+    </script>
+</body>
+</html>

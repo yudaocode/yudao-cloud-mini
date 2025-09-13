@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD平台 - AMIS编辑器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .header .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .editor-container {
+            height: calc(100vh - 65px);
+            position: relative;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1890ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #editor-root {
+            height: 100%;
+            width: 100%;
+        }
+
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 16px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .status.show {
+            transform: translateX(0);
+        }
+
+        .status.success {
+            background: #52c41a;
+        }
+
+        .status.error {
+            background: #ff4d4f;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DDD平台 - AMIS可视化编辑器</h1>
+        <div class="actions">
+            <button class="btn" onclick="loadTemplate()">加载模板</button>
+            <button class="btn" onclick="previewSchema()">预览</button>
+            <button class="btn btn-primary" onclick="saveSchema()">保存配置</button>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在加载AMIS编辑器...</p>
+        </div>
+        <div id="editor-root" style="display: none;"></div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <!-- 依赖脚本 -->
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/moment.js"></script>
+    <script src="https://unpkg.com/lodash@4.17.21/lodash.min.js"></script>
+    
+    <!-- AMIS 核心 -->
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/themes/cxd.css">
+    <script src="https://unpkg.com/amis@6.3.0/lib/index.js"></script>
+    
+    <!-- AMIS 编辑器 -->
+    <link rel="stylesheet" href="https://unpkg.com/amis-editor@6.3.0/lib/style.css">
+    <script src="https://unpkg.com/amis-editor@6.3.0/lib/index.js"></script>
+
+    <script>
+        let editor;
+        let currentSchema = {
+            type: 'page',
+            title: 'DDD平台欢迎页',
+            body: [
+                {
+                    type: 'container',
+                    style: {
+                        textAlign: 'center',
+                        padding: '40px 20px',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: '#fff',
+                        borderRadius: '8px',
+                        margin: '20px'
+                    },
+                    body: [
+                        {
+                            type: 'tpl',
+                            tpl: '<h2 style="margin-bottom: 16px;">🎨 DDD平台可视化编辑器</h2>'
+                        },
+                        {
+                            type: 'tpl',
+                            tpl: '<p style="font-size: 16px; opacity: 0.9;">拖拽左侧组件开始设计你的页面</p>'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 等待依赖加载完成
+        function waitForDependencies() {
+            return new Promise((resolve, reject) => {
+                let attempts = 0;
+                const maxAttempts = 100;
+                
+                function check() {
+                    attempts++;
+                    console.log(`检查依赖 (${attempts}/${maxAttempts}):`, {
+                        React: !!window.React,
+                        ReactDOM: !!window.ReactDOM,
+                        amis: !!window.amis,
+                        amisEditor: !!window.amisEditor
+                    });
+                    
+                    if (window.React && window.ReactDOM && window.amis && window.amisEditor) {
+                        console.log('所有依赖加载完成');
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        reject(new Error('依赖加载超时'));
+                    } else {
+                        setTimeout(check, 100);
+                    }
+                }
+                check();
+            });
+        }
+
+        // 初始化编辑器
+        async function initEditor() {
+            try {
+                console.log('开始初始化编辑器...');
+                
+                // 等待所有依赖加载完成
+                await waitForDependencies();
+                
+                console.log('依赖加载完成，创建编辑器实例...');
+                
+                // 确保编辑器容器存在
+                const editorRoot = document.getElementById('editor-root');
+                if (!editorRoot) {
+                    throw new Error('编辑器容器不存在');
+                }
+
+                // 创建编辑器实例
+                const { Editor } = window.amisEditor;
+                
+                editor = new Editor({
+                    value: currentSchema,
+                    onChange: (value) => {
+                        currentSchema = value;
+                        console.log('配置已更新');
+                    },
+                    preview: false,
+                    showCommonConfig: true,
+                    i18nEnabled: false,
+                    theme: 'cxd'
+                });
+
+                // 渲染编辑器
+                editor.render(editorRoot);
+                
+                // 显示编辑器，隐藏加载状态
+                document.getElementById('loading').style.display = 'none';
+                editorRoot.style.display = 'block';
+                
+                showStatus('编辑器加载成功！', 'success');
+                console.log('编辑器初始化完成');
+                
+            } catch (error) {
+                console.error('编辑器初始化失败:', error);
+                showStatus('编辑器初始化失败: ' + error.message, 'error');
+            }
+        }
+
+        // 显示状态消息
+        function showStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type} show`;
+            
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 3000);
+        }
+
+        // 加载模板
+        function loadTemplate() {
+            if (!editor) {
+                showStatus('编辑器尚未初始化', 'error');
+                return;
+            }
+            
+            const template = {
+                type: 'page',
+                title: '数据仪表板',
+                body: [
+                    {
+                        type: 'grid',
+                        columns: [
+                            {
+                                md: 6,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '项目统计' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 2rem; font-weight: bold; color: #1890ff;">24</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666;">个项目</div>'
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                md: 6,
+                                body: {
+                                    type: 'card',
+                                    header: { title: '领域模型' },
+                                    body: [
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; font-size: 2rem; font-weight: bold; color: #52c41a;">156</div>'
+                                        },
+                                        {
+                                            type: 'tpl',
+                                            tpl: '<div style="text-align: center; color: #666;">个模型</div>'
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        type: 'chart',
+                        config: {
+                            title: { text: '项目活跃度趋势' },
+                            xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月'] },
+                            yAxis: { type: 'value' },
+                            series: [{
+                                type: 'line',
+                                data: [12, 19, 15, 25, 22, 30]
+                            }]
+                        }
+                    }
+                ]
+            };
+            
+            editor.setValue(template);
+            currentSchema = template;
+            showStatus('模板已加载', 'success');
+        }
+
+        // 预览配置
+        function previewSchema() {
+            if (!currentSchema) {
+                showStatus('没有可预览的配置', 'error');
+                return;
+            }
+            
+            const previewWindow = window.open('preview.html', '_blank', 'width=1200,height=800');
+            previewWindow.addEventListener('load', () => {
+                previewWindow.postMessage({ schema: currentSchema }, '*');
+            });
+            
+            showStatus('正在打开预览窗口...', 'success');
+        }
+
+        // 保存配置
+        function saveSchema() {
+            if (!currentSchema) {
+                showStatus('没有可保存的配置', 'error');
+                return;
+            }
+            
+            const blob = new Blob([JSON.stringify(currentSchema, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ddd-schema-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('配置已保存到本地！', 'success');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM加载完成，准备初始化编辑器...');
+            // 延迟执行确保所有脚本都已加载
+            setTimeout(initEditor, 1500);
+        });
+    </script>
+</body>
+</html>

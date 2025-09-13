@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD平台 - AMIS本地编辑器</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .header .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .btn.primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: #40a9ff;
+        }
+
+        .editor-container {
+            height: calc(100vh - 65px);
+            position: relative;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .content {
+            flex: 1;
+            background: #fff;
+            position: relative;
+        }
+
+        #amis-root {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #1890ff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s;
+        }
+
+        .status.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .status.success {
+            background: #52c41a;
+        }
+
+        .status.error {
+            background: #ff4d4f;
+        }
+
+        .schema-editor {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+        }
+
+        .component-list {
+            margin-bottom: 20px;
+        }
+
+        .component-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .component-item:hover {
+            background: #e9ecef;
+            border-color: #1890ff;
+        }
+
+        .component-item.active {
+            background: #e6f7ff;
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 DDD平台本地编辑器</h1>
+        <div class="actions">
+            <button class="btn" onclick="loadTemplate()">📋 加载模板</button>
+            <button class="btn" onclick="previewSchema()">👁️ 预览</button>
+            <button class="btn" onclick="saveSchema()">💾 保存</button>
+            <button class="btn primary" onclick="connectBackend()">🔌 连接后端</button>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <div class="sidebar">
+            <h3>📦 组件库</h3>
+            <div class="component-list" id="component-list">
+                <div class="component-item" onclick="addComponent('card')">📄 卡片</div>
+                <div class="component-item" onclick="addComponent('form')">📝 表单</div>
+                <div class="component-item" onclick="addComponent('table')">📊 表格</div>
+                <div class="component-item" onclick="addComponent('chart')">📈 图表</div>
+                <div class="component-item" onclick="addComponent('button')">🔘 按钮</div>
+                <div class="component-item" onclick="addComponent('input')">📝 输入框</div>
+                <div class="component-item" onclick="addComponent('select')">📋 下拉选择</div>
+                <div class="component-item" onclick="addComponent('alert')">⚠️ 提示框</div>
+            </div>
+            
+            <h3>⚙️ Schema编辑器</h3>
+            <textarea id="schema-editor" class="schema-editor" placeholder="在此编辑JSON Schema..."></textarea>
+            <button class="btn" onclick="applySchema()" style="width: 100%; margin-top: 10px;">🔄 应用Schema</button>
+        </div>
+
+        <div class="content">
+            <div id="loading" class="loading">正在加载AMIS渲染器</div>
+            <div id="amis-root"></div>
+        </div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <script type="module">
+        // 使用ES模块方式加载依赖
+        let amisInstance = null;
+        let currentSchema = {
+            type: 'page',
+            title: 'DDD平台欢迎页',
+            body: [
+                {
+                    type: 'container',
+                    style: {
+                        textAlign: 'center',
+                        padding: '40px 20px',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: '#fff',
+                        borderRadius: '8px'
+                    },
+                    body: [
+                        {
+                            type: 'tpl',
+                            tpl: '<h2 style="margin-bottom: 16px;">🎨 DDD平台可视化编辑器</h2>'
+                        },
+                        {
+                            type: 'tpl',
+                            tpl: '<p style="font-size: 16px; opacity: 0.9;">本地版本，无需网络依赖</p>'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 显示状态消息
+        function showStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type} show`;
+            
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 3000);
+        }
+
+        // 渲染AMIS页面
+        function renderAmis() {
+            try {
+                // 简单的JSON渲染，不依赖amis库
+                const root = document.getElementById('amis-root');
+                
+                // 清空容器
+                root.innerHTML = '';
+                
+                // 渲染页面标题
+                if (currentSchema.title) {
+                    const title = document.createElement('h1');
+                    title.textContent = currentSchema.title;
+                    title.style.cssText = 'margin-bottom: 20px; color: #333; font-size: 24px;';
+                    root.appendChild(title);
+                }
+                
+                // 渲染body内容
+                if (currentSchema.body && Array.isArray(currentSchema.body)) {
+                    currentSchema.body.forEach(item => {
+                        const element = renderComponent(item);
+                        if (element) {
+                            root.appendChild(element);
+                        }
+                    });
+                }
+                
+                // 隐藏加载状态
+                document.getElementById('loading').style.display = 'none';
+                
+                // 更新schema编辑器
+                document.getElementById('schema-editor').value = JSON.stringify(currentSchema, null, 2);
+                
+                showStatus('页面渲染成功！', 'success');
+                
+            } catch (error) {
+                console.error('渲染失败:', error);
+                showStatus('页面渲染失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 渲染组件
+        function renderComponent(component) {
+            const div = document.createElement('div');
+            div.style.marginBottom = '16px';
+            
+            switch (component.type) {
+                case 'container':
+                    div.style.cssText = component.style ? Object.entries(component.style).map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${v}`).join('; ') : '';
+                    if (component.body && Array.isArray(component.body)) {
+                        component.body.forEach(child => {
+                            const childElement = renderComponent(child);
+                            if (childElement) div.appendChild(childElement);
+                        });
+                    }
+                    break;
+                    
+                case 'tpl':
+                    div.innerHTML = component.tpl || '';
+                    break;
+                    
+                case 'alert':
+                    div.style.cssText = 'padding: 12px 16px; border-radius: 4px; margin-bottom: 16px;';
+                    const level = component.level || 'info';
+                    const alertColors = {
+                        info: 'background: #e6f7ff; border: 1px solid #91d5ff; color: #0050b3;',
+                        success: 'background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d;',
+                        warning: 'background: #fffbe6; border: 1px solid #ffe58f; color: #d48806;',
+                        error: 'background: #fff2f0; border: 1px solid #ffccc7; color: #cf1322;'
+                    };
+                    div.style.cssText += alertColors[level] || alertColors.info;
+                    div.textContent = component.body || '';
+                    break;
+                    
+                case 'card':
+                    div.style.cssText = 'background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+                    if (component.header && component.header.title) {
+                        const header = document.createElement('h3');
+                        header.textContent = component.header.title;
+                        header.style.cssText = 'margin-bottom: 16px; color: #333; font-size: 18px;';
+                        div.appendChild(header);
+                    }
+                    if (component.body) {
+                        if (Array.isArray(component.body)) {
+                            component.body.forEach(child => {
+                                const childElement = renderComponent(child);
+                                if (childElement) div.appendChild(childElement);
+                            });
+                        } else {
+                            const childElement = renderComponent(component.body);
+                            if (childElement) div.appendChild(childElement);
+                        }
+                    }
+                    break;
+                    
+                case 'grid':
+                    div.style.cssText = 'display: grid; gap: 16px;';
+                    if (component.columns) {
+                        div.style.gridTemplateColumns = `repeat(${component.columns.length}, 1fr)`;
+                        component.columns.forEach(col => {
+                            if (col.body) {
+                                const colElement = renderComponent(col.body);
+                                if (colElement) div.appendChild(colElement);
+                            }
+                        });
+                    }
+                    break;
+                    
+                case 'form':
+                    div.style.cssText = 'background: white; padding: 20px; border-radius: 8px; border: 1px solid #e8e8e8;';
+                    const form = document.createElement('form');
+                    if (component.body && Array.isArray(component.body)) {
+                        component.body.forEach(field => {
+                            const fieldElement = renderFormField(field);
+                            if (fieldElement) form.appendChild(fieldElement);
+                        });
+                    }
+                    div.appendChild(form);
+                    break;
+                    
+                case 'page':
+                    // 页面类型，渲染其body内容
+                    if (component.title) {
+                        const title = document.createElement('h1');
+                        title.textContent = component.title;
+                        title.style.cssText = 'margin-bottom: 20px; color: #333; font-size: 24px;';
+                        div.appendChild(title);
+                    }
+                    if (component.body && Array.isArray(component.body)) {
+                        component.body.forEach(item => {
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    }
+                    break;
+                    
+                case 'panel':
+                    div.style.cssText = 'background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #1890ff;';
+                    if (component.title) {
+                        const header = document.createElement('h3');
+                        header.textContent = component.title;
+                        header.style.cssText = 'margin-bottom: 16px; color: #333; border-bottom: 2px solid #1890ff; padding-bottom: 8px;';
+                        div.appendChild(header);
+                    }
+                    if (component.body) {
+                        if (Array.isArray(component.body)) {
+                            component.body.forEach(item => {
+                                const child = renderComponent(item);
+                                if (child) div.appendChild(child);
+                            });
+                        } else {
+                            const child = renderComponent(component.body);
+                            if (child) div.appendChild(child);
+                        }
+                    }
+                    break;
+                    
+                case 'service':
+                    // Service组件用于数据加载，在简易编辑器中显示为数据占位
+                    const serviceDiv = document.createElement('div');
+                    serviceDiv.innerHTML = `
+                        <div style="padding: 16px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #52c41a; margin-bottom: 12px;">
+                            <h4 style="margin: 0 0 8px 0; color: #52c41a;">📡 数据服务</h4>
+                            <p style="margin: 0; color: #666; font-size: 14px;">API: ${component.api || '未指定'}</p>
+                        </div>
+                    `;
+                    div.appendChild(serviceDiv);
+                    // 渲染service的body内容
+                    if (component.body && Array.isArray(component.body)) {
+                        component.body.forEach(item => {
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    }
+                    break;
+                    
+                case 'chart':
+                    div.style.cssText = 'background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 400px;';
+                    const chartType = (component.config && component.config.type) || 'unknown';
+                    div.innerHTML = `
+                        <h3 style="margin-bottom: 16px;">📊 ${chartType.toUpperCase()} 图表</h3>
+                        <div style="height: 300px; background: linear-gradient(45deg, #f0f9ff, #e0f2fe); 
+                                    border-radius: 8px; display: flex; align-items: center; 
+                                    justify-content: center; color: #0369a1; font-size: 16px; text-align: center;">
+                            图表数据可视化区域<br>
+                            <small style="opacity: 0.7;">类型: ${chartType}<br>（简易编辑器暂不支持图表渲染）</small>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'action':
+                    div.style.cssText = 'margin: 4px 0;';
+                    const button = document.createElement('button');
+                    const btnLevel = component.level || 'primary';
+                    const btnSize = component.size || '';
+                    const bgColors = {
+                        primary: '#1890ff',
+                        info: '#13c2c2', 
+                        success: '#52c41a',
+                        warning: '#faad14'
+                    };
+                    button.style.cssText = `
+                        width: 100%; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;
+                        background: ${bgColors[btnLevel] || '#1890ff'};
+                        color: white; font-size: ${btnSize === 'lg' ? '16px' : '14px'};
+                    `;
+                    const iconHtml = component.icon ? `<i class="${component.icon}"></i> ` : '';
+                    button.innerHTML = iconHtml + (component.label || '按钮');
+                    div.appendChild(button);
+                    break;
+                    
+                case 'property':
+                    div.style.cssText = 'background: #fafafa; padding: 16px; border-radius: 6px;';
+                    if (component.items && Array.isArray(component.items)) {
+                        component.items.forEach(item => {
+                            const propDiv = document.createElement('div');
+                            propDiv.style.cssText = 'display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0;';
+                            propDiv.innerHTML = `
+                                <span style="font-weight: 500; color: #333;">${item.label || '属性'}:</span>
+                                <span style="color: #666;">${item.content || '值'}</span>
+                            `;
+                            div.appendChild(propDiv);
+                        });
+                    }
+                    break;
+                    
+                case 'list':
+                    div.style.cssText = 'margin: 8px 0;';
+                    if (component.source && Array.isArray(component.source)) {
+                        component.source.forEach(item => {
+                            const listItemDiv = document.createElement('div');
+                            listItemDiv.style.cssText = 'padding: 12px; margin: 8px 0; background: #fafafa; border-radius: 6px; border-left: 3px solid #1890ff;';
+                            
+                            // 简单的模板渲染
+                            let content = JSON.stringify(item);
+                            if (item.title) content = `<strong>${item.title}</strong><br>${item.description || ''}`;
+                            if (item.name) content = `<strong>${item.name}</strong><br>${item.description || ''}`;
+                            
+                            listItemDiv.innerHTML = content;
+                            div.appendChild(listItemDiv);
+                        });
+                    } else {
+                        div.innerHTML = `
+                            <div style="padding: 16px; background: #f0f9ff; border-radius: 6px; color: #1890ff;">
+                                📋 列表组件 (数据加载中...)
+                            </div>
+                        `;
+                    }
+                    break;
+                    
+                case 'flex':
+                    div.style.cssText = 'display: flex; gap: 16px; align-items: center; flex-wrap: wrap;';
+                    if (component.items && Array.isArray(component.items)) {
+                        component.items.forEach(item => {
+                            const child = renderComponent(item);
+                            if (child) div.appendChild(child);
+                        });
+                    }
+                    break;
+                    
+                case 'status':
+                    div.style.cssText = 'display: inline-block;';
+                    const status = component.source || 'default';
+                    const statusMap = component.map || {};
+                    const statusInfo = statusMap[status] || { status: 'default', text: status };
+                    const statusColors = {
+                        success: { bg: '#f6ffed', color: '#52c41a', border: '#b7eb8f' },
+                        warning: { bg: '#fffbe6', color: '#faad14', border: '#ffe58f' },
+                        default: { bg: '#fafafa', color: '#666', border: '#d9d9d9' }
+                    };
+                    const colors = statusColors[statusInfo.status] || statusColors.default;
+                    
+                    div.innerHTML = `
+                        <span style="padding: 4px 8px; border-radius: 12px; font-size: 12px; 
+                            background: ${colors.bg}; color: ${colors.color}; border: 1px solid ${colors.border};">
+                            ${statusInfo.text}
+                        </span>
+                    `;
+                    break;
+                    
+                default:
+                    div.innerHTML = `<div style="padding: 10px; background: #f0f0f0; border-radius: 4px; color: #666;">组件类型: ${component.type}</div>`;
+            }
+            
+            return div;
+        }
+        
+        // 渲染表单字段
+        function renderFormField(field) {
+            const div = document.createElement('div');
+            div.style.cssText = 'margin-bottom: 16px;';
+            
+            if (field.label) {
+                const label = document.createElement('label');
+                label.textContent = field.label;
+                label.style.cssText = 'display: block; margin-bottom: 8px; font-weight: 500; color: #333;';
+                div.appendChild(label);
+            }
+            
+            let input;
+            switch (field.type) {
+                case 'input-text':
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    input.placeholder = field.placeholder || '';
+                    break;
+                case 'textarea':
+                    input = document.createElement('textarea');
+                    input.placeholder = field.placeholder || '';
+                    input.rows = 4;
+                    break;
+                case 'select':
+                    input = document.createElement('select');
+                    if (field.options && Array.isArray(field.options)) {
+                        field.options.forEach(option => {
+                            const opt = document.createElement('option');
+                            opt.value = option.value;
+                            opt.textContent = option.label;
+                            input.appendChild(opt);
+                        });
+                    }
+                    break;
+                case 'switch':
+                    input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.checked = field.value || false;
+                    break;
+                default:
+                    input = document.createElement('input');
+                    input.type = 'text';
+            }
+            
+            if (input) {
+                input.style.cssText = 'width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px;';
+                div.appendChild(input);
+            }
+            
+            return div;
+        }
+
+        // 添加组件
+        window.addComponent = function(type) {
+            const templates = {
+                card: {
+                    type: 'card',
+                    header: { title: '新卡片' },
+                    body: [
+                        { type: 'tpl', tpl: '这是一个新的卡片组件' }
+                    ]
+                },
+                form: {
+                    type: 'form',
+                    body: [
+                        { type: 'input-text', name: 'name', label: '名称', placeholder: '请输入名称' },
+                        { type: 'textarea', name: 'description', label: '描述', placeholder: '请输入描述' }
+                    ]
+                },
+                table: {
+                    type: 'tpl',
+                    tpl: '<div style="padding: 20px; background: #f8f9fa; border-radius: 4px; text-align: center;">📊 表格组件占位符</div>'
+                },
+                chart: {
+                    type: 'tpl',
+                    tpl: '<div style="padding: 40px; background: #e6f7ff; border-radius: 8px; text-align: center; color: #1890ff;">📈 图表组件占位符</div>'
+                },
+                button: {
+                    type: 'tpl',
+                    tpl: '<button style="padding: 8px 16px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer;">按钮</button>'
+                },
+                input: {
+                    type: 'tpl',
+                    tpl: '<input style="padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; width: 200px;" placeholder="输入框" />'
+                },
+                select: {
+                    type: 'tpl',
+                    tpl: '<select style="padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; width: 200px;"><option>选项1</option><option>选项2</option></select>'
+                },
+                alert: {
+                    type: 'alert',
+                    level: 'info',
+                    body: '这是一个提示信息'
+                }
+            };
+            
+            const template = templates[type];
+            if (template) {
+                currentSchema.body.push(template);
+                renderAmis();
+                showStatus(`${type} 组件已添加`, 'success');
+            }
+        };
+
+        // 加载模板
+        window.loadTemplate = function() {
+            currentSchema = {
+                type: 'page',
+                title: 'DDD数据仪表板',
+                body: [
+                    {
+                        type: 'alert',
+                        level: 'info',
+                        body: '🎯 欢迎使用DDD平台数据仪表板'
+                    },
+                    {
+                        type: 'grid',
+                        columns: [
+                            {
+                                body: {
+                                    type: 'card',
+                                    header: { title: '📁 项目总数' },
+                                    body: [
+                                        { type: 'tpl', tpl: '<div style="text-align: center; font-size: 3rem; font-weight: bold; color: #1890ff;">24</div>' },
+                                        { type: 'tpl', tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个活跃项目</div>' }
+                                    ]
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'card',
+                                    header: { title: '🏗️ 领域模型' },
+                                    body: [
+                                        { type: 'tpl', tpl: '<div style="text-align: center; font-size: 3rem; font-weight: bold; color: #52c41a;">156</div>' },
+                                        { type: 'tpl', tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个领域模型</div>' }
+                                    ]
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'card',
+                                    header: { title: '⚡ 聚合根' },
+                                    body: [
+                                        { type: 'tpl', tpl: '<div style="text-align: center; font-size: 3rem; font-weight: bold; color: #fa8c16;">89</div>' },
+                                        { type: 'tpl', tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个聚合根</div>' }
+                                    ]
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'card',
+                                    header: { title: '💎 值对象' },
+                                    body: [
+                                        { type: 'tpl', tpl: '<div style="text-align: center; font-size: 3rem; font-weight: bold; color: #722ed1;">234</div>' },
+                                        { type: 'tpl', tpl: '<div style="text-align: center; color: #666; margin-top: 8px;">个值对象</div>' }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            renderAmis();
+            showStatus('仪表板模板已加载！', 'success');
+        };
+
+        // 应用Schema
+        window.applySchema = function() {
+            try {
+                const schemaText = document.getElementById('schema-editor').value;
+                const newSchema = JSON.parse(schemaText);
+                currentSchema = newSchema;
+                renderAmis();
+                showStatus('Schema已应用！', 'success');
+            } catch (error) {
+                showStatus('Schema格式错误: ' + error.message, 'error');
+            }
+        };
+
+        // 预览配置
+        window.previewSchema = function() {
+            const previewWindow = window.open('', '_blank', 'width=1200,height=800');
+            const previewHTML = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>DDD平台 - 预览</title>
+    <style>body { margin: 0; padding: 20px; background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }</style>
+</head>
+<body>
+    <div id="preview-root"></div>
+    <script>
+        const schema = ${JSON.stringify(currentSchema, null, 2)};
+        document.getElementById('preview-root').innerHTML = '<h1>预览模式</h1><pre>' + JSON.stringify(schema, null, 2) + '</pre>';
+    </script>
+</body>
+</html>`;
+            
+            previewWindow.document.write(previewHTML);
+            previewWindow.document.close();
+            showStatus('预览窗口已打开！', 'success');
+        };
+
+        // 保存配置
+        window.saveSchema = function() {
+            const blob = new Blob([JSON.stringify(currentSchema, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ddd-schema-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('配置已保存到本地！', 'success');
+        };
+
+        // 连接后端
+        window.connectBackend = async function() {
+            try {
+                showStatus('正在连接后端...', 'success');
+                
+                const response = await fetch('http://localhost:7001/amis/dashboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('后端连接成功！', 'success');
+                    
+                    if (data.schema) {
+                        currentSchema = data.schema;
+                        renderAmis();
+                    }
+                } else {
+                    showStatus('后端服务未启动', 'error');
+                }
+            } catch (error) {
+                showStatus('无法连接后端: ' + error.message, 'error');
+            }
+        };
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，初始化本地编辑器...');
+            renderAmis();
+            showStatus('本地编辑器加载完成！', 'success');
+        });
+    </script>
+</body>
+</html>

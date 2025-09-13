@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD元数据驱动开发平台</title>
+    <!-- AMIS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/themes/cxd.css">
+    <!-- AMIS 主题字体 -->
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/helper.css">
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .app-wrapper {
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* 自定义侧边栏样式 */
+        .cxd-Layout-aside {
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            border-right: 1px solid #34495e;
+        }
+        
+        .cxd-Nav {
+            background: transparent;
+        }
+        
+        .cxd-Nav-item > a {
+            color: #ecf0f1 !important;
+            border-radius: 6px;
+            margin: 2px 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .cxd-Nav-item:hover > a,
+        .cxd-Nav-item.is-active > a {
+            background: rgba(52, 152, 219, 0.2) !important;
+            color: #3498db !important;
+        }
+        
+        /* 顶部栏样式 */
+        .cxd-Layout-header {
+            background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+            border-bottom: 1px solid #2980b9;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* 内容区域样式 */
+        .cxd-Layout-content {
+            background: #f8f9fa;
+            padding: 0;
+        }
+        
+        /* 面包屑样式 */
+        .cxd-Breadcrumb {
+            background: white;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e9ecef;
+            margin: 0;
+        }
+        
+        /* 卡片样式增强 */
+        .cxd-Panel {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+        
+        .cxd-Panel-heading {
+            background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+        }
+        
+        /* 按钮样式增强 */
+        .cxd-Button--primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .cxd-Button--primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
+        }
+        
+        /* 状态标签样式 */
+        .cxd-Status {
+            border-radius: 12px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .cxd-Layout-aside {
+                width: 60px !important;
+            }
+            
+            .cxd-Nav-item-label {
+                display: none;
+            }
+        }
+        
+        /* 加载动画 */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 错误提示样式 */
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* 成功提示样式 */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        /* 表单验证增强样式 */
+        .cxd-Form-feedback {
+            color: #f5222d !important;
+            font-size: 12px !important;
+            margin-top: 4px !important;
+            font-weight: 500;
+        }
+        
+        .cxd-Form-item--hasError .cxd-Form-control {
+            border-color: #f5222d !important;
+            box-shadow: 0 0 0 2px rgba(245, 34, 45, 0.2) !important;
+        }
+        
+        .cxd-Form-item--hasError .cxd-Select-valueWrap {
+            border-color: #f5222d !important;
+            box-shadow: 0 0 0 2px rgba(245, 34, 45, 0.2) !important;
+        }
+        
+        /* AMIS Toast 提示样式增强 */
+        .cxd-Toast--success {
+            background-color: #f6ffed !important;
+            border-color: #b7eb8f !important;
+            color: #52c41a !important;
+        }
+        
+        .cxd-Toast--error {
+            background-color: #fff2f0 !important;
+            border-color: #ffccc7 !important;
+            color: #f5222d !important;
+        }
+        
+        .cxd-Toast--warning {
+            background-color: #fffbf0 !important;
+            border-color: #ffe58f !important;
+            color: #fa8c16 !important;
+        }
+
+        /* 必填字段标识 */
+        .cxd-Form-item--required > .cxd-Form-label::before {
+            content: '*';
+            color: #f5222d;
+            margin-right: 4px;
+            font-weight: bold;
+        }
+        
+        /* 输入框字符计数器样式 */
+        .cxd-Form-counter {
+            color: #8c8c8c;
+            font-size: 12px;
+            text-align: right;
+            margin-top: 4px;
+        }
+        
+        .cxd-Form-counter.is-error {
+            color: #f5222d !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container" class="app-wrapper">
+        <div style="text-align: center; padding: 50px; color: #6c757d;">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 15px;">正在加载DDD平台...</p>
+        </div>
+    </div>
+
+    <!-- AMIS JavaScript -->
+    <script src="https://unpkg.com/amis@6.3.0/lib/index.js"></script>
+    
+    <script>
+        // 基础配置
+        const API_BASE = 'http://localhost:8100';
+        let amisInstance = null;
+        
+        // 初始化应用
+        async function initApp() {
+            try {
+                console.log('开始初始化DDD平台应用...');
+                
+                // 获取应用布局配置
+                const response = await fetch(`${API_BASE}/amis/layout`);
+                const result = await response.json();
+                
+                if (result.code === 200 && result.data) {
+                    console.log('应用布局配置加载成功');
+                    
+                    // 渲染AMIS应用
+                    amisInstance = window.amisLib.embed('#app-container', result.data, {
+                        // 数据域
+                        data: {
+                            user: {
+                                name: '开发者',
+                                role: '管理员'
+                            }
+                        },
+                        
+                        // 配置接口请求
+                        fetcher: async (api, data, options) => {
+                            try {
+                                let url = api.url;
+                                const method = api.method || 'GET';
+                                
+                                // 处理相对路径URL
+                                if (url.startsWith('/api/')) {
+                                    url = API_BASE + url;
+                                }
+                                
+                                const config = {
+                                    method: method.toUpperCase(),
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                    },
+                                };
+                                
+                                // 添加请求数据
+                                if (method.toUpperCase() !== 'GET' && data) {
+                                    config.body = JSON.stringify(data);
+                                } else if (method.toUpperCase() === 'GET' && data) {
+                                    // GET请求将数据添加到URL参数
+                                    const params = new URLSearchParams();
+                                    Object.keys(data).forEach(key => {
+                                        if (data[key] !== undefined && data[key] !== null) {
+                                            params.append(key, data[key]);
+                                        }
+                                    });
+                                    const paramString = params.toString();
+                                    if (paramString) {
+                                        url += (url.includes('?') ? '&' : '?') + paramString;
+                                    }
+                                }
+                                
+                                console.log('API Request:', method, url, data);
+                                
+                                const response = await fetch(url, config);
+                                
+                                // 检查网络响应状态
+                                if (!response.ok) {
+                                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                                }
+                                
+                                const responseData = await response.json();
+                                console.log('API Response:', responseData);
+                                
+                                // 增强错误处理
+                                if (responseData.code === 200 || responseData.success) {
+                                    return {
+                                        status: 0,
+                                        msg: responseData.message || '操作成功',
+                                        data: responseData.data || responseData
+                                    };
+                                } else {
+                                    // 业务错误处理
+                                    const errorMsg = this.getErrorMessage(responseData);
+                                    return {
+                                        status: responseData.code || 1,
+                                        msg: errorMsg
+                                    };
+                                }
+                            } catch (error) {
+                                console.error('API Error:', error);
+                                
+                                // 网络错误处理
+                                let errorMessage = '操作失败';
+                                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                                    errorMessage = '网络连接异常，请检查网络设置';
+                                } else if (error.message.includes('timeout')) {
+                                    errorMessage = '请求超时，请稍后重试';
+                                } else if (error.message.includes('HTTP 401')) {
+                                    errorMessage = '认证失败，请重新登录';
+                                } else if (error.message.includes('HTTP 403')) {
+                                    errorMessage = '权限不足，无法执行此操作';
+                                } else if (error.message.includes('HTTP 404')) {
+                                    errorMessage = '请求的资源不存在';
+                                } else if (error.message.includes('HTTP 500')) {
+                                    errorMessage = '服务器内部错误，请联系管理员';
+                                } else {
+                                    errorMessage = error.message || '未知错误';
+                                }
+                                
+                                return {
+                                    status: 1,
+                                    msg: errorMessage
+                                };
+                            }
+                        },
+                        
+                        // 路由跳转处理
+                        jumpTo: (to, action) => {
+                            console.log('Navigation to:', to);
+                            // 可以在这里处理特殊的路由逻辑
+                            return false; // 返回false让AMIS处理路由
+                        },
+                        
+                        // 通知处理
+                        notify: (type, msg, title) => {
+                            console.log('Notification:', type, msg, title);
+                            // 可以在这里自定义通知显示
+                        },
+                        
+                        // 主题配置
+                        theme: 'cxd'
+                    });
+                    
+                    console.log('DDD平台初始化完成');
+                    
+                } else {
+                    throw new Error(result.message || '获取应用配置失败');
+                }
+                
+            } catch (error) {
+                console.error('应用初始化失败:', error);
+                document.getElementById('app-container').innerHTML = `
+                    <div class="error-message">
+                        <h3>❌ 应用初始化失败</h3>
+                        <p><strong>错误信息:</strong> ${error.message}</p>
+                        <p><strong>可能原因:</strong></p>
+                        <ul>
+                            <li>后端服务未启动 (http://localhost:8100)</li>
+                            <li>网络连接问题</li>
+                            <li>服务器配置错误</li>
+                        </ul>
+                        <button onclick="location.reload()" style="
+                            padding: 8px 16px; 
+                            background: #dc3545; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 4px; 
+                            cursor: pointer;
+                            margin-top: 10px;
+                        ">
+                            重新加载
+                        </button>
+                        <button onclick="window.open('/static/amis-test', '_blank')" style="
+                            padding: 8px 16px; 
+                            background: #007bff; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 4px; 
+                            cursor: pointer;
+                            margin-top: 10px;
+                            margin-left: 10px;
+                        ">
+                            备用测试页面
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // 错误消息处理函数
+        function getErrorMessage(responseData) {
+            if (responseData.message) {
+                return responseData.message;
+            }
+            
+            // 根据错误码返回用户友好的错误消息
+            const errorMap = {
+                400: '请求参数错误，请检查输入信息',
+                401: '认证失败，请重新登录',
+                403: '权限不足，无法执行此操作',
+                404: '请求的资源不存在',
+                405: '请求方法不被允许',
+                409: '数据冲突，请刷新后重试',
+                422: '数据验证失败，请检查输入信息',
+                429: '请求过于频繁，请稍后重试',
+                500: '服务器内部错误，请联系管理员',
+                502: '网关错误，请稍后重试',
+                503: '服务暂时不可用，请稍后重试',
+                504: '网关超时，请稍后重试',
+            };
+            
+            return errorMap[responseData.code] || responseData.msg || '操作失败';
+        }
+        
+        // 表单验证增强函数
+        function enhanceFormValidation() {
+            // 获取验证配置
+            fetch(`${API_BASE}/amis/validation-config`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.code === 200 && result.data) {
+                        console.log('验证配置加载成功:', result.data);
+                        
+                        // 应用全局验证配置
+                        if (window.amisLib && amisInstance) {
+                            // 可以在这里设置全局验证规则
+                            console.log('应用全局验证配置');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.warn('验证配置加载失败:', error);
+                });
+        }
+        
+        // 添加表单提交增强
+        function enhanceFormSubmission() {
+            // 监听AMIS表单事件
+            document.addEventListener('formSubmitStart', function(event) {
+                console.log('表单提交开始:', event.detail);
+            });
+            
+            document.addEventListener('formSubmitSuccess', function(event) {
+                console.log('表单提交成功:', event.detail);
+                // 可以在这里添加成功后的处理逻辑
+            });
+            
+            document.addEventListener('formSubmitError', function(event) {
+                console.error('表单提交失败:', event.detail);
+                // 可以在这里添加错误处理逻辑
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，开始初始化DDD平台应用...');
+            initApp().then(() => {
+                // 应用初始化完成后的增强功能
+                enhanceFormValidation();
+                enhanceFormSubmission();
+            });
+        });
+        
+        // 全局错误处理
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+        });
+        
+        // 导出全局API供调试使用
+        window.DDDPlatform = {
+            amisInstance: () => amisInstance,
+            reload: () => location.reload(),
+            getApiBase: () => API_BASE
+        };
+    </script>
+</body>
+</html>
