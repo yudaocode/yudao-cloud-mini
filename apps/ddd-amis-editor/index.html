@@ -1294,10 +1294,48 @@
             <div class="component-item" draggable="true" data-component-type="input-text" onclick="addInputText()">🔤 文本输入</div>
             <div class="component-item" draggable="true" data-component-type="textarea" onclick="addTextarea()">📝 多行文本</div>
             <div class="component-item" draggable="true" data-component-type="select" onclick="addSelect()">📋 下拉选择</div>
+            <div class="component-item" draggable="true" data-component-type="date-picker" onclick="addDatePicker()">📅 日期选择器</div>
+            <div class="component-item" draggable="true" data-component-type="upload" onclick="addUpload()">📁 文件上传</div>
+            <div class="component-item" draggable="true" data-component-type="rich-text" onclick="addRichText()">📝 富文本编辑器</div>
+            <div class="component-item" draggable="true" data-component-type="cascader" onclick="addCascader()">📂 级联选择器</div>
+            <div class="component-item" draggable="true" data-component-type="number" onclick="addNumberInput()">🔢 数字输入</div>
+            <div class="component-item" draggable="true" data-component-type="switch" onclick="addSwitch()">🔘 开关</div>
+            <div class="component-item" draggable="true" data-component-type="checkbox" onclick="addCheckbox()">☑️ 复选框</div>
+            <div class="component-item" draggable="true" data-component-type="radio" onclick="addRadio()">🔘 单选框</div>
             
             <h4 style="margin: 16px 0 8px; color: #666; font-size: 12px;">数据组件</h4>
             <div class="component-item" draggable="true" data-component-type="table" onclick="addTable()">📋 数据表格</div>
             <div class="component-item" draggable="true" data-component-type="crud" onclick="addCrud()">🔧 CRUD管理</div>
+            <div class="component-item" draggable="true" data-component-type="tree" onclick="addTree()">🌳 树形结构</div>
+            <div class="component-item" draggable="true" data-component-type="timeline" onclick="addTimeline()">⏰ 时间轴</div>
+            <div class="component-item" draggable="true" data-component-type="list" onclick="addList()">📄 列表</div>
+            <div class="component-item" draggable="true" data-component-type="pagination" onclick="addPagination()">📖 分页器</div>
+            
+            <h4 style="margin: 16px 0 8px; color: #666; font-size: 12px;">展示组件</h4>
+            <div class="component-item" draggable="true" data-component-type="tag" onclick="addTag()">🏷️ 标签</div>
+            <div class="component-item" draggable="true" data-component-type="progress" onclick="addProgress()">📊 进度条</div>
+            <div class="component-item" draggable="true" data-component-type="image" onclick="addImage()">🖼️ 图片</div>
+            <div class="component-item" draggable="true" data-component-type="divider" onclick="addDivider()">➖ 分割线</div>
+            <div class="component-item" draggable="true" data-component-type="status" onclick="addStatus()">🟢 状态标识</div>
+            
+            <h4 style="margin: 16px 0 8px; color: #666; font-size: 12px;">交互组件</h4>
+            <div class="component-item" draggable="true" data-component-type="button" onclick="addButton()">🔘 按钮</div>
+            <div class="component-item" draggable="true" data-component-type="button-group" onclick="addButtonGroup()">🔘 按钮组</div>
+            <div class="component-item" draggable="true" data-component-type="dropdown-button" onclick="addDropdownButton()">📥 下拉按钮</div>
+            <div class="component-item" draggable="true" data-component-type="tabs" onclick="addTabs()">📂 标签页</div>
+            <div class="component-item" draggable="true" data-component-type="collapse" onclick="addCollapse()">📁 折叠面板</div>
+            
+            <h4 style="margin: 16px 0 8px; color: #666; font-size: 12px;">🎯 完整CRUD示例</h4>
+            <div class="component-item" onclick="loadUserManagementDemo()" style="background: #fff0f6; border: 2px solid #f759ab; font-weight: bold;">🔥 用户管理系统</div>
+            <div class="component-item" onclick="loadProjectManagementDemo()" style="background: #f0f9ff; border: 1px solid #69c0ff;">📂 项目管理系统</div>
+            <div class="component-item" onclick="loadOrderManagementDemo()" style="background: #fcffe6; border: 1px solid #95de64;">📋 订单管理系统</div>
+            
+            <h4 style="margin: 16px 0 8px; color: #666; font-size: 12px;">🔥 DDD屏幕生成器</h4>
+            <div class="component-item" onclick="generateListScreen()" style="background: #e6f7ff; border: 1px solid #91d5ff;">📄 列表屏幕</div>
+            <div class="component-item" onclick="generateDetailScreen()" style="background: #f6ffed; border: 1px solid #b7eb8f;">👁️ 详情屏幕</div>
+            <div class="component-item" onclick="generateEditScreen()" style="background: #fff2e8; border: 1px solid #ffd591;">✏️ 编辑屏幕</div>
+            <div class="component-item" onclick="generateDashboardScreen()" style="background: #f9f0ff; border: 1px solid #d3adf7;">📊 仪表板屏幕</div>
+            <div class="component-item" onclick="generateWorkflowScreen()" style="background: #fff1f0; border: 1px solid #ffa39e;">🔄 工作流屏幕</div>
             
             <h4 style="margin: 16px 0 8px; color: #666; font-size: 12px;">DDD模板</h4>
             <div class="component-item" onclick="loadTemplate('entity-management')">🏗️ 实体管理</div>
@@ -5612,6 +5650,1308 @@ export interface ${formatName(config.schema.title || 'DDD', 'PascalCase')}ListRe
             currentSchema.body.push(crud);
             renderContent();
             showStatus('CRUD管理已添加', 'success');
+        }
+
+        // ========== 新增组件函数 ==========
+        
+        // 表单组件
+        function addDatePicker() {
+            const datePicker = {
+                type: 'input-date',
+                name: 'date',
+                label: '选择日期',
+                format: 'YYYY-MM-DD',
+                placeholder: '请选择日期'
+            };
+            currentSchema.body.push(datePicker);
+            renderContent();
+            showStatus('日期选择器已添加', 'success');
+        }
+
+        function addUpload() {
+            const upload = {
+                type: 'input-file',
+                name: 'file',
+                label: '文件上传',
+                accept: '.jpg,.png,.pdf,.doc,.docx',
+                multiple: true,
+                maxSize: 10485760,
+                placeholder: '点击或拖拽文件到此处上传'
+            };
+            currentSchema.body.push(upload);
+            renderContent();
+            showStatus('文件上传组件已添加', 'success');
+        }
+
+        function addRichText() {
+            const richText = {
+                type: 'input-rich-text',
+                name: 'content',
+                label: '富文本内容',
+                placeholder: '请输入富文本内容...',
+                options: {
+                    height: 300,
+                    toolbar: 'bold italic underline strikethrough | alignleft aligncenter alignright | bullist numlist | link image'
+                }
+            };
+            currentSchema.body.push(richText);
+            renderContent();
+            showStatus('富文本编辑器已添加', 'success');
+        }
+
+        function addCascader() {
+            const cascader = {
+                type: 'input-cascader',
+                name: 'cascader',
+                label: '级联选择',
+                options: [
+                    {
+                        label: '浙江省',
+                        value: 'zhejiang',
+                        children: [
+                            { label: '杭州市', value: 'hangzhou' },
+                            { label: '宁波市', value: 'ningbo' }
+                        ]
+                    },
+                    {
+                        label: '江苏省',
+                        value: 'jiangsu',
+                        children: [
+                            { label: '南京市', value: 'nanjing' },
+                            { label: '苏州市', value: 'suzhou' }
+                        ]
+                    }
+                ]
+            };
+            currentSchema.body.push(cascader);
+            renderContent();
+            showStatus('级联选择器已添加', 'success');
+        }
+
+        function addNumberInput() {
+            const numberInput = {
+                type: 'input-number',
+                name: 'number',
+                label: '数字输入',
+                min: 0,
+                max: 100,
+                step: 1,
+                placeholder: '请输入数字'
+            };
+            currentSchema.body.push(numberInput);
+            renderContent();
+            showStatus('数字输入框已添加', 'success');
+        }
+
+        function addSwitch() {
+            const switchComp = {
+                type: 'switch',
+                name: 'enabled',
+                label: '启用状态',
+                option: '开启'
+            };
+            currentSchema.body.push(switchComp);
+            renderContent();
+            showStatus('开关组件已添加', 'success');
+        }
+
+        function addCheckbox() {
+            const checkbox = {
+                type: 'checkboxes',
+                name: 'hobby',
+                label: '兴趣爱好',
+                options: [
+                    { label: '读书', value: 'reading' },
+                    { label: '音乐', value: 'music' },
+                    { label: '运动', value: 'sports' },
+                    { label: '旅游', value: 'travel' }
+                ]
+            };
+            currentSchema.body.push(checkbox);
+            renderContent();
+            showStatus('复选框已添加', 'success');
+        }
+
+        function addRadio() {
+            const radio = {
+                type: 'radios',
+                name: 'gender',
+                label: '性别',
+                options: [
+                    { label: '男', value: 'male' },
+                    { label: '女', value: 'female' },
+                    { label: '其他', value: 'other' }
+                ]
+            };
+            currentSchema.body.push(radio);
+            renderContent();
+            showStatus('单选框已添加', 'success');
+        }
+
+        // 数据展示组件
+        function addTree() {
+            const tree = {
+                type: 'tree-select',
+                name: 'tree',
+                label: '组织架构',
+                options: [
+                    {
+                        label: '总部',
+                        value: 'headquarters',
+                        children: [
+                            {
+                                label: '技术部',
+                                value: 'tech',
+                                children: [
+                                    { label: '前端组', value: 'frontend' },
+                                    { label: '后端组', value: 'backend' }
+                                ]
+                            },
+                            { label: '产品部', value: 'product' }
+                        ]
+                    }
+                ]
+            };
+            currentSchema.body.push(tree);
+            renderContent();
+            showStatus('树形结构已添加', 'success');
+        }
+
+        function addTimeline() {
+            const timeline = {
+                type: 'steps',
+                name: 'timeline',
+                label: '项目时间线',
+                value: 1,
+                steps: [
+                    {
+                        title: '项目启动',
+                        description: 'DDD平台项目正式启动 (2024-01-01)'
+                    },
+                    {
+                        title: '需求分析',
+                        description: '完成需求分析和技术选型 (2024-02-15)'
+                    },
+                    {
+                        title: '开发完成',
+                        description: '核心功能开发完成 (2024-03-30)'
+                    }
+                ]
+            };
+            currentSchema.body.push(timeline);
+            renderContent();
+            showStatus('时间轴已添加', 'success');
+        }
+
+        function addList() {
+            const list = {
+                type: 'list',
+                source: '$items',
+                listItem: {
+                    title: '$title',
+                    subTitle: '$subTitle',
+                    desc: '$desc',
+                    avatar: '$avatar'
+                }
+            };
+            currentSchema.body.push(list);
+            renderContent();
+            showStatus('列表组件已添加', 'success');
+        }
+
+        function addPagination() {
+            const pagination = {
+                type: 'pagination',
+                total: 100,
+                perPage: 10,
+                showSizeChanger: true,
+                showQuickJumper: true
+            };
+            currentSchema.body.push(pagination);
+            renderContent();
+            showStatus('分页器已添加', 'success');
+        }
+
+        // 展示组件
+        function addTag() {
+            const tag = {
+                type: 'tag',
+                label: '标签文本',
+                color: 'primary',
+                closable: true
+            };
+            currentSchema.body.push(tag);
+            renderContent();
+            showStatus('标签已添加', 'success');
+        }
+
+        function addProgress() {
+            const progress = {
+                type: 'progress',
+                value: 75,
+                showLabel: true,
+                stripe: true,
+                animate: true
+            };
+            currentSchema.body.push(progress);
+            renderContent();
+            showStatus('进度条已添加', 'success');
+        }
+
+        function addImage() {
+            const image = {
+                type: 'image',
+                src: 'https://via.placeholder.com/300x200/4f46e5/ffffff?text=DDD+Platform',
+                alt: 'DDD平台示例图片',
+                title: '示例图片',
+                imageMode: 'thumb'
+            };
+            currentSchema.body.push(image);
+            renderContent();
+            showStatus('图片组件已添加', 'success');
+        }
+
+        function addDivider() {
+            const divider = {
+                type: 'divider',
+                title: '分割线'
+            };
+            currentSchema.body.push(divider);
+            renderContent();
+            showStatus('分割线已添加', 'success');
+        }
+
+        function addStatus() {
+            const status = {
+                type: 'status',
+                value: 1,
+                map: {
+                    0: '离线',
+                    1: '在线',
+                    2: '忙碌'
+                }
+            };
+            currentSchema.body.push(status);
+            renderContent();
+            showStatus('状态标识已添加', 'success');
+        }
+
+        // 交互组件
+        function addButton() {
+            const button = {
+                type: 'button',
+                label: '按钮',
+                level: 'primary',
+                actionType: 'dialog',
+                dialog: {
+                    title: '提示',
+                    body: '这是一个示例按钮'
+                }
+            };
+            currentSchema.body.push(button);
+            renderContent();
+            showStatus('按钮已添加', 'success');
+        }
+
+        function addButtonGroup() {
+            const buttonGroup = {
+                type: 'button-group',
+                buttons: [
+                    { type: 'button', label: '新建', level: 'primary' },
+                    { type: 'button', label: '编辑', level: 'info' },
+                    { type: 'button', label: '删除', level: 'danger' }
+                ]
+            };
+            currentSchema.body.push(buttonGroup);
+            renderContent();
+            showStatus('按钮组已添加', 'success');
+        }
+
+        function addDropdownButton() {
+            const dropdownButton = {
+                type: 'dropdown-button',
+                label: '下拉按钮',
+                level: 'primary',
+                buttons: [
+                    { type: 'button', label: '选项1' },
+                    { type: 'button', label: '选项2' },
+                    { type: 'button', label: '选项3' }
+                ]
+            };
+            currentSchema.body.push(dropdownButton);
+            renderContent();
+            showStatus('下拉按钮已添加', 'success');
+        }
+
+        function addTabs() {
+            const tabs = {
+                type: 'tabs',
+                tabs: [
+                    {
+                        title: '基本信息',
+                        body: {
+                            type: 'tpl',
+                            tpl: '<p>基本信息内容</p>'
+                        }
+                    },
+                    {
+                        title: '详细配置',
+                        body: {
+                            type: 'tpl',
+                            tpl: '<p>详细配置内容</p>'
+                        }
+                    },
+                    {
+                        title: '权限设置',
+                        body: {
+                            type: 'tpl',
+                            tpl: '<p>权限设置内容</p>'
+                        }
+                    }
+                ]
+            };
+            currentSchema.body.push(tabs);
+            renderContent();
+            showStatus('标签页已添加', 'success');
+        }
+
+        function addCollapse() {
+            const collapse = {
+                type: 'collapse',
+                accordion: false,
+                body: [
+                    {
+                        title: '面板1',
+                        body: '这是面板1的内容'
+                    },
+                    {
+                        title: '面板2',
+                        body: '这是面板2的内容'
+                    },
+                    {
+                        title: '面板3',
+                        body: '这是面板3的内容'
+                    }
+                ]
+            };
+            currentSchema.body.push(collapse);
+            renderContent();
+            showStatus('折叠面板已添加', 'success');
+        }
+
+        // ========== 完整CRUD示例 ==========
+        
+        // 完整用户管理CRUD示例
+        function loadUserManagementDemo() {
+            currentSchema = {
+                type: 'page',
+                title: '用户管理系统 - 完整CRUD示例',
+                body: [
+                    {
+                        type: 'alert',
+                        level: 'info',
+                        body: '这是一个完整的用户管理CRUD应用示例，连接到后端API http://localhost:8100/api/users'
+                    },
+                    {
+                        type: 'crud',
+                        api: 'http://localhost:8100/api/users',
+                        syncLocation: false,
+                        title: '用户列表',
+                        headerToolbar: [
+                            'bulkActions',
+                            {
+                                type: 'button',
+                                label: '新增用户',
+                                actionType: 'dialog',
+                                icon: 'fa fa-plus',
+                                primary: true,
+                                dialog: {
+                                    title: '新增用户',
+                                    body: {
+                                        type: 'form',
+                                        api: 'post:http://localhost:8100/api/users',
+                                        body: [
+                                            {
+                                                type: 'input-text',
+                                                name: 'name',
+                                                label: '用户名',
+                                                required: true,
+                                                placeholder: '请输入用户名'
+                                            },
+                                            {
+                                                type: 'input-email',
+                                                name: 'email',
+                                                label: '邮箱',
+                                                required: true,
+                                                placeholder: '请输入邮箱地址'
+                                            },
+                                            {
+                                                type: 'input-text',
+                                                name: 'phone',
+                                                label: '手机号',
+                                                placeholder: '请输入手机号'
+                                            },
+                                            {
+                                                type: 'select',
+                                                name: 'role',
+                                                label: '角色',
+                                                value: 'user',
+                                                options: [
+                                                    { label: '管理员', value: 'admin' },
+                                                    { label: '用户', value: 'user' },
+                                                    { label: '访客', value: 'guest' }
+                                                ]
+                                            },
+                                            {
+                                                type: 'select',
+                                                name: 'status',
+                                                label: '状态',
+                                                value: 'active',
+                                                options: [
+                                                    { label: '启用', value: 'active' },
+                                                    { label: '禁用', value: 'inactive' }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            'reload'
+                        ],
+                        footerToolbar: ['statistics', 'pagination'],
+                        columns: [
+                            {
+                                name: 'id',
+                                label: 'ID',
+                                width: 60,
+                                type: 'text'
+                            },
+                            {
+                                name: 'avatar',
+                                label: '头像',
+                                type: 'image',
+                                width: 60,
+                                height: 40
+                            },
+                            {
+                                name: 'name',
+                                label: '用户名',
+                                searchable: true,
+                                type: 'text'
+                            },
+                            {
+                                name: 'email',
+                                label: '邮箱',
+                                searchable: true,
+                                type: 'text'
+                            },
+                            {
+                                name: 'role',
+                                label: '角色',
+                                type: 'mapping',
+                                map: {
+                                    'admin': '<span class="label label-info">管理员</span>',
+                                    'user': '<span class="label label-success">用户</span>',
+                                    'guest': '<span class="label label-default">访客</span>'
+                                }
+                            },
+                            {
+                                name: 'status',
+                                label: '状态',
+                                type: 'mapping',
+                                map: {
+                                    'active': '<span class="label label-success">启用</span>',
+                                    'inactive': '<span class="label label-danger">禁用</span>'
+                                }
+                            },
+                            {
+                                name: 'createdAt',
+                                label: '创建时间',
+                                type: 'datetime',
+                                format: 'YYYY-MM-DD HH:mm:ss',
+                                sortable: true
+                            },
+                            {
+                                type: 'operation',
+                                label: '操作',
+                                width: 150,
+                                buttons: [
+                                    {
+                                        type: 'button',
+                                        label: '详情',
+                                        actionType: 'dialog',
+                                        level: 'info',
+                                        dialog: {
+                                            title: '用户详情',
+                                            body: {
+                                                type: 'form',
+                                                body: [
+                                                    {
+                                                        type: 'static',
+                                                        name: 'name',
+                                                        label: '用户名'
+                                                    },
+                                                    {
+                                                        type: 'static',
+                                                        name: 'email',
+                                                        label: '邮箱'
+                                                    },
+                                                    {
+                                                        type: 'static',
+                                                        name: 'role',
+                                                        label: '角色'
+                                                    },
+                                                    {
+                                                        type: 'static',
+                                                        name: 'createdAt',
+                                                        label: '创建时间'
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'button',
+                                        label: '编辑',
+                                        actionType: 'dialog',
+                                        level: 'primary',
+                                        dialog: {
+                                            title: '编辑用户',
+                                            body: {
+                                                type: 'form',
+                                                api: 'put:http://localhost:8100/api/users/${id}',
+                                                body: [
+                                                    {
+                                                        type: 'input-text',
+                                                        name: 'name',
+                                                        label: '用户名',
+                                                        required: true
+                                                    },
+                                                    {
+                                                        type: 'input-email',
+                                                        name: 'email',
+                                                        label: '邮箱',
+                                                        required: true
+                                                    },
+                                                    {
+                                                        type: 'select',
+                                                        name: 'role',
+                                                        label: '角色',
+                                                        options: [
+                                                            { label: '管理员', value: 'admin' },
+                                                            { label: '用户', value: 'user' },
+                                                            { label: '访客', value: 'guest' }
+                                                        ]
+                                                    },
+                                                    {
+                                                        type: 'select',
+                                                        name: 'status',
+                                                        label: '状态',
+                                                        options: [
+                                                            { label: '启用', value: 'active' },
+                                                            { label: '禁用', value: 'inactive' }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'button',
+                                        label: '删除',
+                                        actionType: 'ajax',
+                                        level: 'danger',
+                                        confirmText: '确定要删除该用户吗？',
+                                        api: 'delete:http://localhost:8100/api/users/${id}'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+            renderContent();
+            showStatus('用户管理系统已加载 - 连接后端API', 'success');
+        }
+
+        function loadProjectManagementDemo() {
+            showStatus('项目管理系统开发中...', 'info');
+        }
+
+        function loadOrderManagementDemo() {
+            showStatus('订单管理系统开发中...', 'info');
+        }
+
+        // ========== DDD屏幕类型生成器 ==========
+        
+        // 生成列表屏幕
+        function generateListScreen() {
+            currentSchema = {
+                type: 'page',
+                title: '用户列表',
+                body: [
+                    {
+                        type: 'crud',
+                        title: '用户管理',
+                        api: '/api/users',
+                        filter: {
+                            title: '搜索筛选',
+                            body: [
+                                {
+                                    type: 'input-text',
+                                    name: 'keyword',
+                                    label: '关键词',
+                                    placeholder: '搜索用户名、邮箱'
+                                },
+                                {
+                                    type: 'select',
+                                    name: 'status',
+                                    label: '状态',
+                                    options: [
+                                        { label: '全部', value: '' },
+                                        { label: '启用', value: 'active' },
+                                        { label: '禁用', value: 'inactive' }
+                                    ]
+                                },
+                                {
+                                    type: 'input-date-range',
+                                    name: 'dateRange',
+                                    label: '创建时间'
+                                }
+                            ]
+                        },
+                        headerToolbar: [
+                            {
+                                type: 'button',
+                                label: '新建用户',
+                                level: 'primary',
+                                icon: 'fa fa-plus',
+                                actionType: 'drawer',
+                                drawer: {
+                                    title: '新建用户',
+                                    body: {
+                                        type: 'form',
+                                        api: 'POST:/api/users',
+                                        body: [
+                                            { type: 'input-text', name: 'name', label: '用户名', required: true },
+                                            { type: 'input-email', name: 'email', label: '邮箱', required: true },
+                                            { type: 'input-password', name: 'password', label: '密码', required: true },
+                                            { type: 'select', name: 'role', label: '角色', options: [
+                                                { label: '管理员', value: 'admin' },
+                                                { label: '普通用户', value: 'user' }
+                                            ]}
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                type: 'button',
+                                label: '批量删除',
+                                level: 'danger',
+                                icon: 'fa fa-trash'
+                            },
+                            'reload'
+                        ],
+                        columns: [
+                            { name: 'id', label: 'ID', sortable: true, width: 80 },
+                            { name: 'avatar', label: '头像', type: 'avatar', width: 60 },
+                            { name: 'name', label: '用户名', sortable: true },
+                            { name: 'email', label: '邮箱', sortable: true },
+                            { name: 'role', label: '角色', type: 'mapping', map: {
+                                'admin': '<span class="label label-success">管理员</span>',
+                                'user': '<span class="label label-info">普通用户</span>'
+                            }},
+                            { name: 'status', label: '状态', type: 'status', map: {
+                                'active': 'success',
+                                'inactive': 'danger'
+                            }},
+                            { name: 'createdAt', label: '创建时间', type: 'datetime', sortable: true },
+                            {
+                                name: 'operation',
+                                label: '操作',
+                                type: 'operation',
+                                buttons: [
+                                    {
+                                        type: 'button',
+                                        label: '查看',
+                                        level: 'info',
+                                        size: 'xs',
+                                        actionType: 'drawer',
+                                        drawer: {
+                                            title: '用户详情',
+                                            body: {
+                                                type: 'service',
+                                                api: '/api/users/${id}',
+                                                body: [
+                                                    {
+                                                        type: 'form',
+                                                        mode: 'horizontal',
+                                                        static: true,
+                                                        body: [
+                                                            { type: 'static', name: 'name', label: '用户名' },
+                                                            { type: 'static', name: 'email', label: '邮箱' },
+                                                            { type: 'static', name: 'role', label: '角色' },
+                                                            { type: 'static', name: 'status', label: '状态' },
+                                                            { type: 'static', name: 'createdAt', label: '创建时间' }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'button',
+                                        label: '编辑',
+                                        level: 'primary',
+                                        size: 'xs',
+                                        actionType: 'drawer',
+                                        drawer: {
+                                            title: '编辑用户',
+                                            body: {
+                                                type: 'form',
+                                                api: 'PUT:/api/users/${id}',
+                                                initApi: '/api/users/${id}',
+                                                body: [
+                                                    { type: 'input-text', name: 'name', label: '用户名', required: true },
+                                                    { type: 'input-email', name: 'email', label: '邮箱', required: true },
+                                                    { type: 'select', name: 'role', label: '角色', options: [
+                                                        { label: '管理员', value: 'admin' },
+                                                        { label: '普通用户', value: 'user' }
+                                                    ]},
+                                                    { type: 'switch', name: 'status', label: '启用状态' }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'button',
+                                        label: '删除',
+                                        level: 'danger',
+                                        size: 'xs',
+                                        actionType: 'ajax',
+                                        api: 'DELETE:/api/users/${id}',
+                                        confirmText: '确定要删除该用户吗？'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+            renderContent();
+            showStatus('列表屏幕已生成', 'success');
+        }
+
+        // 生成详情屏幕
+        function generateDetailScreen() {
+            currentSchema = {
+                type: 'page',
+                title: '用户详情',
+                body: [
+                    {
+                        type: 'service',
+                        api: '/api/users/1',
+                        body: [
+                            {
+                                type: 'panel',
+                                title: '基本信息',
+                                body: {
+                                    type: 'form',
+                                    mode: 'horizontal',
+                                    static: true,
+                                    body: [
+                                        { name: 'avatar', label: '头像', type: 'static-image' },
+                                        { name: 'name', label: '用户名', type: 'static' },
+                                        { name: 'email', label: '邮箱', type: 'static' },
+                                        { name: 'phone', label: '手机号', type: 'static' },
+                                        { name: 'role', label: '角色', type: 'static' },
+                                        { name: 'status', label: '状态', type: 'static' },
+                                        { name: 'createdAt', label: '创建时间', type: 'static' },
+                                        { name: 'lastLoginAt', label: '最后登录', type: 'static' }
+                                    ]
+                                }
+                            },
+                            {
+                                type: 'tabs',
+                                tabs: [
+                                    {
+                                        title: '权限信息',
+                                        body: {
+                                            type: 'service',
+                                            api: '/api/users/1/permissions',
+                                            body: [
+                                                {
+                                                    type: 'table',
+                                                    source: '${permissions}',
+                                                    columns: [
+                                                        { name: 'module', label: '模块' },
+                                                        { name: 'permission', label: '权限' },
+                                                        { name: 'granted', label: '是否授权', type: 'status' }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        title: '操作日志',
+                                        body: {
+                                            type: 'service',
+                                            api: '/api/users/1/logs',
+                                            body: [
+                                                {
+                                                    type: 'timeline',
+                                                    source: '${logs}',
+                                                    itemTitleTpl: '${action}',
+                                                    itemDetailTpl: '${description}<br/><small>${createdAt}</small>'
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                aside: {
+                    type: 'wrapper',
+                    size: 'xs',
+                    body: [
+                        {
+                            type: 'button',
+                            label: '编辑用户',
+                            level: 'primary',
+                            block: true,
+                            actionType: 'url',
+                            url: '/user/edit/1'
+                        },
+                        {
+                            type: 'button',
+                            label: '删除用户',
+                            level: 'danger',
+                            block: true,
+                            actionType: 'ajax',
+                            api: 'DELETE:/api/users/1',
+                            confirmText: '确定要删除该用户吗？'
+                        },
+                        {
+                            type: 'button',
+                            label: '返回列表',
+                            block: true,
+                            actionType: 'url',
+                            url: '/user/list'
+                        }
+                    ]
+                }
+            };
+            renderContent();
+            showStatus('详情屏幕已生成', 'success');
+        }
+
+        // 生成编辑屏幕
+        function generateEditScreen() {
+            currentSchema = {
+                type: 'page',
+                title: '编辑用户',
+                body: [
+                    {
+                        type: 'form',
+                        title: '用户信息',
+                        api: 'PUT:/api/users/1',
+                        initApi: '/api/users/1',
+                        redirect: '/user/list',
+                        body: [
+                            {
+                                type: 'tabs',
+                                tabs: [
+                                    {
+                                        title: '基本信息',
+                                        body: [
+                                            {
+                                                type: 'grid',
+                                                columns: [
+                                                    {
+                                                        body: [
+                                                            {
+                                                                type: 'input-text',
+                                                                name: 'name',
+                                                                label: '用户名',
+                                                                required: true,
+                                                                validations: {
+                                                                    minLength: 2,
+                                                                    maxLength: 20
+                                                                }
+                                                            },
+                                                            {
+                                                                type: 'input-email',
+                                                                name: 'email',
+                                                                label: '邮箱',
+                                                                required: true,
+                                                                validations: 'isEmail'
+                                                            },
+                                                            {
+                                                                type: 'input-text',
+                                                                name: 'phone',
+                                                                label: '手机号',
+                                                                validations: 'isPhoneNumber'
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        body: [
+                                                            {
+                                                                type: 'input-file',
+                                                                name: 'avatar',
+                                                                label: '头像',
+                                                                accept: '.jpg,.jpeg,.png',
+                                                                receiver: '/api/upload/avatar',
+                                                                autoUpload: true
+                                                            },
+                                                            {
+                                                                type: 'select',
+                                                                name: 'role',
+                                                                label: '角色',
+                                                                required: true,
+                                                                options: [
+                                                                    { label: '管理员', value: 'admin' },
+                                                                    { label: '普通用户', value: 'user' },
+                                                                    { label: '访客', value: 'guest' }
+                                                                ]
+                                                            },
+                                                            {
+                                                                type: 'switch',
+                                                                name: 'status',
+                                                                label: '启用状态',
+                                                                option: '启用'
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        title: '扩展信息',
+                                        body: [
+                                            {
+                                                type: 'input-date',
+                                                name: 'birthday',
+                                                label: '生日',
+                                                format: 'YYYY-MM-DD'
+                                            },
+                                            {
+                                                type: 'radios',
+                                                name: 'gender',
+                                                label: '性别',
+                                                options: [
+                                                    { label: '男', value: 'male' },
+                                                    { label: '女', value: 'female' },
+                                                    { label: '其他', value: 'other' }
+                                                ]
+                                            },
+                                            {
+                                                type: 'textarea',
+                                                name: 'bio',
+                                                label: '个人简介',
+                                                rows: 4,
+                                                maxLength: 500
+                                            },
+                                            {
+                                                type: 'checkboxes',
+                                                name: 'interests',
+                                                label: '兴趣爱好',
+                                                options: [
+                                                    { label: '编程', value: 'programming' },
+                                                    { label: '阅读', value: 'reading' },
+                                                    { label: '运动', value: 'sports' },
+                                                    { label: '音乐', value: 'music' },
+                                                    { label: '旅游', value: 'travel' }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        actions: [
+                            {
+                                type: 'button',
+                                label: '保存',
+                                level: 'primary',
+                                actionType: 'submit'
+                            },
+                            {
+                                type: 'button',
+                                label: '保存并继续',
+                                level: 'info',
+                                actionType: 'submit',
+                                reload: 'window'
+                            },
+                            {
+                                type: 'button',
+                                label: '取消',
+                                actionType: 'cancel'
+                            }
+                        ]
+                    }
+                ]
+            };
+            renderContent();
+            showStatus('编辑屏幕已生成', 'success');
+        }
+
+        // 生成仪表板屏幕
+        function generateDashboardScreen() {
+            currentSchema = {
+                type: 'page',
+                title: '用户管理仪表板',
+                body: [
+                    {
+                        type: 'alert',
+                        level: 'info',
+                        body: '📊 用户管理数据统计概览'
+                    },
+                    {
+                        type: 'grid',
+                        columns: [
+                            {
+                                body: {
+                                    type: 'stat-card',
+                                    number: '1,234',
+                                    label: '👥 总用户数',
+                                    color: '#1890ff'
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'stat-card',
+                                    number: '987',
+                                    label: '✅ 活跃用户',
+                                    color: '#52c41a'
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'stat-card',
+                                    number: '123',
+                                    label: '🔴 今日新增',
+                                    color: '#fa8c16'
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'stat-card',
+                                    number: '45',
+                                    label: '👤 在线用户',
+                                    color: '#722ed1'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        type: 'divider'
+                    },
+                    {
+                        type: 'grid',
+                        columns: [
+                            {
+                                body: {
+                                    type: 'chart',
+                                    title: '用户注册趋势',
+                                    api: '/api/charts/user-registration-trend',
+                                    config: {
+                                        type: 'line',
+                                        xField: 'date',
+                                        yField: 'count',
+                                        color: '#1890ff'
+                                    }
+                                }
+                            },
+                            {
+                                body: {
+                                    type: 'chart',
+                                    title: '角色分布',
+                                    api: '/api/charts/role-distribution',
+                                    config: {
+                                        type: 'pie',
+                                        angleField: 'value',
+                                        colorField: 'type'
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        type: 'divider'
+                    },
+                    {
+                        type: 'panel',
+                        title: '快速操作',
+                        body: [
+                            {
+                                type: 'button-group',
+                                buttons: [
+                                    {
+                                        type: 'button',
+                                        label: '新建用户',
+                                        level: 'primary',
+                                        icon: 'fa fa-plus',
+                                        actionType: 'url',
+                                        url: '/user/create'
+                                    },
+                                    {
+                                        type: 'button',
+                                        label: '用户列表',
+                                        level: 'info',
+                                        icon: 'fa fa-list',
+                                        actionType: 'url',
+                                        url: '/user/list'
+                                    },
+                                    {
+                                        type: 'button',
+                                        label: '导出数据',
+                                        level: 'success',
+                                        icon: 'fa fa-download',
+                                        actionType: 'ajax',
+                                        api: '/api/users/export'
+                                    },
+                                    {
+                                        type: 'button',
+                                        label: '数据分析',
+                                        level: 'warning',
+                                        icon: 'fa fa-chart-bar',
+                                        actionType: 'url',
+                                        url: '/analytics/users'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        type: 'panel',
+                        title: '最近活动',
+                        body: {
+                            type: 'service',
+                            api: '/api/users/recent-activities',
+                            body: [
+                                {
+                                    type: 'list',
+                                    source: '${activities}',
+                                    listItem: {
+                                        title: '${user.name} ${action}',
+                                        subTitle: '${createdAt}',
+                                        desc: '${description}',
+                                        avatar: '${user.avatar}'
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            };
+            renderContent();
+            showStatus('仪表板屏幕已生成', 'success');
+        }
+
+        // 生成工作流屏幕
+        function generateWorkflowScreen() {
+            currentSchema = {
+                type: 'page',
+                title: '用户审批工作流',
+                body: [
+                    {
+                        type: 'service',
+                        api: '/api/workflow/user-approval/1',
+                        body: [
+                            {
+                                type: 'panel',
+                                title: '申请信息',
+                                body: {
+                                    type: 'form',
+                                    mode: 'horizontal',
+                                    static: true,
+                                    body: [
+                                        { name: 'applicant', label: '申请人', type: 'static' },
+                                        { name: 'requestType', label: '申请类型', type: 'static' },
+                                        { name: 'reason', label: '申请理由', type: 'static' },
+                                        { name: 'createdAt', label: '申请时间', type: 'static' }
+                                    ]
+                                }
+                            },
+                            {
+                                type: 'steps',
+                                source: '${steps}',
+                                status: 'process',
+                                labelPlacement: 'vertical'
+                            },
+                            {
+                                type: 'panel',
+                                title: '当前处理任务',
+                                body: [
+                                    {
+                                        type: 'form',
+                                        title: '审批意见',
+                                        api: 'POST:/api/workflow/user-approval/1/process',
+                                        body: [
+                                            {
+                                                type: 'radios',
+                                                name: 'action',
+                                                label: '审批操作',
+                                                required: true,
+                                                options: [
+                                                    { label: '✅ 同意', value: 'approve' },
+                                                    { label: '❌ 拒绝', value: 'reject' },
+                                                    { label: '🔄 驳回修改', value: 'return' }
+                                                ]
+                                            },
+                                            {
+                                                type: 'textarea',
+                                                name: 'comment',
+                                                label: '处理意见',
+                                                rows: 3,
+                                                placeholder: '请填写处理意见...'
+                                            },
+                                            {
+                                                type: 'input-file',
+                                                name: 'attachments',
+                                                label: '附件',
+                                                multiple: true,
+                                                accept: '.pdf,.doc,.docx,.jpg,.png'
+                                            }
+                                        ],
+                                        actions: [
+                                            {
+                                                type: 'button',
+                                                label: '提交处理',
+                                                level: 'primary',
+                                                actionType: 'submit'
+                                            },
+                                            {
+                                                type: 'button',
+                                                label: '保存草稿',
+                                                level: 'info',
+                                                actionType: 'ajax',
+                                                api: 'POST:/api/workflow/user-approval/1/draft'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                type: 'panel',
+                                title: '处理历史',
+                                body: {
+                                    type: 'timeline',
+                                    source: '${history}',
+                                    itemTitleTpl: '${processor} - ${action}',
+                                    itemDetailTpl: '${comment}<br/><small style="color: #999;">${processedAt}</small>'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+            renderContent();
+            showStatus('工作流屏幕已生成', 'success');
         }
 
         // 加载仪表板模板
