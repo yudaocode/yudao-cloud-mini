@@ -1,0 +1,207 @@
+{
+  "type": "page",
+  "title": "📊 DDD项目概览",
+  "description": "DDD项目总览仪表板模板",
+  "body": [
+    {
+      "type": "alert",
+      "level": "info",
+      "body": "🎯 DDD项目全景视图 - 实时监控领域建模进度和系统健康状况"
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${projectCount}",
+            "label": "📁 活跃项目",
+            "color": "#1890ff"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${domainCount}",
+            "label": "🏗️ 业务域",
+            "color": "#52c41a"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${aggregateCount}",
+            "label": "⚡ 聚合根",
+            "color": "#fa8c16"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${entityCount}",
+            "label": "💎 实体总数",
+            "color": "#722ed1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "panel",
+            "title": "📈 项目健康度",
+            "body": [
+              {
+                "type": "chart",
+                "config": {
+                  "type": "doughnut",
+                  "title": "模型完整性分布"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "body": {
+            "type": "panel",
+            "title": "⏱️ 开发活动",
+            "body": [
+              {
+                "type": "chart",
+                "config": {
+                  "type": "line",
+                  "title": "最近30天提交趋势"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "🚀 快速操作",
+      "body": [
+        {
+          "type": "grid",
+          "columns": [
+            {
+              "body": {
+                "type": "action",
+                "label": "创建新实体",
+                "icon": "➕",
+                "level": "primary"
+              }
+            },
+            {
+              "body": {
+                "type": "action",
+                "label": "设计聚合",
+                "icon": "🏗️",
+                "level": "success"
+              }
+            },
+            {
+              "body": {
+                "type": "action",
+                "label": "生成代码",
+                "icon": "⚡",
+                "level": "info"
+              }
+            },
+            {
+              "body": {
+                "type": "action",
+                "label": "导出文档",
+                "icon": "📄",
+                "level": "warning"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "📋 最近项目",
+      "columns": [
+        { "name": "name", "label": "项目名称", "width": 150 },
+        { "name": "description", "label": "描述", "width": 200 },
+        { "name": "domains", "label": "业务域数", "width": 80 },
+        { "name": "entities", "label": "实体数", "width": 80 },
+        { "name": "status", "label": "状态", "width": 100 },
+        { "name": "lastModified", "label": "最后修改", "width": 120 },
+        { "name": "action", "label": "操作", "width": 150 }
+      ],
+      "data": [
+        {
+          "name": "电商平台",
+          "description": "基于DDD的电商系统",
+          "domains": 8,
+          "entities": 32,
+          "status": "开发中",
+          "lastModified": "2025-01-01"
+        },
+        {
+          "name": "支付系统",
+          "description": "微服务支付平台",
+          "domains": 5,
+          "entities": 18,
+          "status": "已完成",
+          "lastModified": "2024-12-28"
+        },
+        {
+          "name": "用户中心",
+          "description": "统一用户管理系统",
+          "domains": 3,
+          "entities": 12,
+          "status": "测试中",
+          "lastModified": "2024-12-30"
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "panel",
+            "title": "📊 系统信息",
+            "body": [
+              {
+                "type": "property",
+                "items": [
+                  { "label": "平台版本", "content": "DDD Platform v1.0.0" },
+                  { "label": "运行环境", "content": "Development" },
+                  { "label": "启动时间", "content": "${startTime}" },
+                  { "label": "内存使用", "content": "${memoryUsage}" },
+                  { "label": "在线用户", "content": "${onlineUsers}" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "body": {
+            "type": "panel",
+            "title": "🔗 快速链接",
+            "body": [
+              {
+                "type": "list",
+                "items": [
+                  "📖 DDD设计指南",
+                  "🛠️ 代码生成器",
+                  "📈 性能监控",
+                  "🔐 权限管理",
+                  "📋 API文档"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

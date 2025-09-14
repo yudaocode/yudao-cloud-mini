@@ -1,0 +1,159 @@
+{
+  "type": "page",
+  "title": "🎨 DDD领域设计",
+  "description": "领域驱动设计建模工具模板",
+  "body": [
+    {
+      "type": "alert",
+      "level": "success",
+      "body": "🎯 使用领域驱动设计方法构建高质量的软件模型，确保业务复杂性得到有效管理"
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "card",
+            "header": { "title": "📈 设计进度" },
+            "body": [
+              {
+                "type": "property",
+                "items": [
+                  { "label": "领域分析", "content": "85% 完成" },
+                  { "label": "实体建模", "content": "70% 完成" },
+                  { "label": "聚合设计", "content": "60% 完成" },
+                  { "label": "服务定义", "content": "45% 完成" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "body": {
+            "type": "card",
+            "header": { "title": "🏗️ 模型统计" },
+            "body": [
+              {
+                "type": "grid",
+                "columns": [
+                  {
+                    "body": {
+                      "type": "stat-card",
+                      "number": "8",
+                      "label": "业务域",
+                      "color": "#1890ff"
+                    }
+                  },
+                  {
+                    "body": {
+                      "type": "stat-card",
+                      "number": "23",
+                      "label": "聚合",
+                      "color": "#52c41a"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "form",
+      "title": "🎯 领域建模配置",
+      "body": [
+        {
+          "type": "input-text",
+          "label": "领域名称",
+          "name": "domainName",
+          "required": true,
+          "placeholder": "例如：用户管理域"
+        },
+        {
+          "type": "textarea",
+          "label": "领域描述",
+          "name": "domainDescription",
+          "rows": 3,
+          "placeholder": "描述该领域的核心职责和边界..."
+        },
+        {
+          "type": "select",
+          "label": "领域类型",
+          "name": "domainType",
+          "options": [
+            { "label": "核心域 (Core Domain)", "value": "core" },
+            { "label": "支撑域 (Supporting Domain)", "value": "supporting" },
+            { "label": "通用域 (Generic Domain)", "value": "generic" }
+          ]
+        },
+        {
+          "type": "input-text",
+          "label": "聚合根名称",
+          "name": "aggregateName",
+          "placeholder": "例如：User"
+        },
+        {
+          "type": "textarea",
+          "label": "业务规则",
+          "name": "businessRules",
+          "rows": 4,
+          "placeholder": "定义该聚合的核心业务规则和不变性约束..."
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "📊 领域关系图",
+      "body": [
+        {
+          "type": "chart",
+          "config": {
+            "type": "network",
+            "title": "领域边界与依赖关系"
+          }
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "panel",
+            "title": "🔧 设计模式",
+            "body": [
+              {
+                "type": "property",
+                "items": [
+                  { "label": "Repository", "content": "数据访问抽象" },
+                  { "label": "Factory", "content": "复杂对象创建" },
+                  { "label": "Domain Service", "content": "跨聚合业务逻辑" },
+                  { "label": "Event Sourcing", "content": "事件驱动架构" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "body": {
+            "type": "panel",
+            "title": "📋 设计检查清单",
+            "body": [
+              {
+                "type": "list",
+                "items": [
+                  "✅ 领域边界清晰定义",
+                  "✅ 聚合根正确识别",
+                  "⏳ 业务不变性建模",
+                  "⏳ 领域事件设计",
+                  "❌ 性能优化考虑"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

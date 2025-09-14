@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Query } from '@midwayjs/core';
+import { Body, Controller, Del, Get, Inject, Param, Post, Put, Query } from '@midwayjs/core';
 import { AmisSchemaEnhancedService } from '../service/amis-schema-enhanced.service';
 import { AmisSchemaService } from '../service/amis-schema.service';
 
@@ -1184,6 +1184,505 @@ export class AmisController {
       return {
         code: 500,
         message: `获取复杂度分析失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  // ==================== DDD实体CRUD API ====================
+
+  /**
+   * 获取项目列表
+   */
+  @Get('/api/projects')
+  async getProjects(@Query('page') page = 1, @Query('size') size = 10) {
+    try {
+      const mockData = {
+        total: 25,
+        items: [
+          {
+            id: 1,
+            name: '电商平台',
+            description: '基于DDD的电商平台系统',
+            status: 'active',
+            createdAt: '2024-01-15 10:30:00',
+            updatedAt: '2024-01-20 15:45:00',
+            domainCount: 5,
+            aggregateCount: 12,
+            entityCount: 28
+          },
+          {
+            id: 2,
+            name: '订单管理系统',
+            description: '高并发订单处理系统',
+            status: 'development',
+            createdAt: '2024-01-10 09:15:00',
+            updatedAt: '2024-01-18 14:20:00',
+            domainCount: 3,
+            aggregateCount: 8,
+            entityCount: 18
+          },
+          {
+            id: 3,
+            name: '用户管理中心',
+            description: '统一用户身份管理平台',
+            status: 'testing',
+            createdAt: '2024-01-05 08:00:00',
+            updatedAt: '2024-01-16 11:30:00',
+            domainCount: 2,
+            aggregateCount: 5,
+            entityCount: 12
+          }
+        ]
+      };
+
+      return {
+        code: 200,
+        message: '获取项目列表成功',
+        data: mockData,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `获取项目列表失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 创建新项目
+   */
+  @Post('/api/projects')
+  async createProject(@Body() projectData: any) {
+    try {
+      const newProject = {
+        id: Date.now(),
+        name: projectData.name,
+        description: projectData.description || '',
+        status: 'development',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        domainCount: 0,
+        aggregateCount: 0,
+        entityCount: 0
+      };
+
+      return {
+        code: 200,
+        message: '项目创建成功',
+        data: newProject,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `创建项目失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 更新项目
+   */
+  @Put('/api/projects/:id')
+  async updateProject(@Param('id') id: string, @Body() projectData: any) {
+    try {
+      const updatedProject = {
+        id: parseInt(id),
+        ...projectData,
+        updatedAt: new Date().toISOString()
+      };
+
+      return {
+        code: 200,
+        message: '项目更新成功',
+        data: updatedProject,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `更新项目失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 删除项目
+   */
+  @Del('/api/projects/:id')
+  async deleteProject(@Param('id') id: string) {
+    try {
+      return {
+        code: 200,
+        message: `项目 ${id} 删除成功`,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `删除项目失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 获取领域列表
+   */
+  @Get('/api/domains')
+  async getDomainsAPI(@Query('projectId') projectId?: string, @Query('page') page = 1, @Query('size') size = 10) {
+    try {
+      const mockData = {
+        total: 12,
+        items: [
+          {
+            id: 1,
+            name: '用户域',
+            description: '用户注册、登录、权限管理',
+            projectId: 1,
+            aggregateCount: 3,
+            entityCount: 8,
+            status: 'active',
+            createdAt: '2024-01-15 11:00:00'
+          },
+          {
+            id: 2,
+            name: '订单域',
+            description: '订单创建、支付、配送管理',
+            projectId: 1,
+            aggregateCount: 4,
+            entityCount: 12,
+            status: 'active',
+            createdAt: '2024-01-15 11:30:00'
+          },
+          {
+            id: 3,
+            name: '商品域',
+            description: '商品管理、库存控制',
+            projectId: 1,
+            aggregateCount: 2,
+            entityCount: 6,
+            status: 'development',
+            createdAt: '2024-01-15 12:00:00'
+          }
+        ]
+      };
+
+      return {
+        code: 200,
+        message: '获取领域列表成功',
+        data: mockData,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `获取领域列表失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 创建新领域
+   */
+  @Post('/api/domains')
+  async createDomain(@Body() domainData: any) {
+    try {
+      const newDomain = {
+        id: Date.now(),
+        name: domainData.name,
+        description: domainData.description || '',
+        projectId: domainData.projectId,
+        aggregateCount: 0,
+        entityCount: 0,
+        status: 'development',
+        createdAt: new Date().toISOString()
+      };
+
+      return {
+        code: 200,
+        message: '领域创建成功',
+        data: newDomain,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `创建领域失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 获取聚合列表
+   */
+  @Get('/api/aggregates')
+  async getAggregatesAPI(@Query('domainId') domainId?: string, @Query('page') page = 1, @Query('size') size = 10) {
+    try {
+      const mockData = {
+        total: 8,
+        items: [
+          {
+            id: 1,
+            name: '用户聚合',
+            description: '用户基本信息和权限管理',
+            domainId: 1,
+            entityCount: 3,
+            rootEntity: 'User',
+            status: 'active',
+            createdAt: '2024-01-15 13:00:00'
+          },
+          {
+            id: 2,
+            name: '订单聚合',
+            description: '订单生命周期管理',
+            domainId: 2,
+            entityCount: 5,
+            rootEntity: 'Order',
+            status: 'active',
+            createdAt: '2024-01-15 13:30:00'
+          },
+          {
+            id: 3,
+            name: '支付聚合',
+            description: '支付流程和状态管理',
+            domainId: 2,
+            entityCount: 4,
+            rootEntity: 'Payment',
+            status: 'development',
+            createdAt: '2024-01-15 14:00:00'
+          }
+        ]
+      };
+
+      return {
+        code: 200,
+        message: '获取聚合列表成功',
+        data: mockData,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `获取聚合列表失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 创建新聚合
+   */
+  @Post('/api/aggregates')
+  async createAggregate(@Body() aggregateData: any) {
+    try {
+      const newAggregate = {
+        id: Date.now(),
+        name: aggregateData.name,
+        description: aggregateData.description || '',
+        domainId: aggregateData.domainId,
+        entityCount: 0,
+        rootEntity: aggregateData.rootEntity || '',
+        status: 'development',
+        createdAt: new Date().toISOString()
+      };
+
+      return {
+        code: 200,
+        message: '聚合创建成功',
+        data: newAggregate,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `创建聚合失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 获取实体列表
+   */
+  @Get('/api/entities')
+  async getEntitiesAPI(@Query('aggregateId') aggregateId?: string, @Query('page') page = 1, @Query('size') size = 10) {
+    try {
+      const mockData = {
+        total: 15,
+        items: [
+          {
+            id: 1,
+            name: 'User',
+            description: '用户实体',
+            aggregateId: 1,
+            type: 'Entity',
+            properties: [
+              { name: 'id', type: 'Long', description: '用户ID' },
+              { name: 'username', type: 'String', description: '用户名' },
+              { name: 'email', type: 'String', description: '邮箱' },
+              { name: 'status', type: 'UserStatus', description: '用户状态' }
+            ],
+            status: 'active',
+            createdAt: '2024-01-15 14:30:00'
+          },
+          {
+            id: 2,
+            name: 'Order',
+            description: '订单实体',
+            aggregateId: 2,
+            type: 'AggregateRoot',
+            properties: [
+              { name: 'id', type: 'Long', description: '订单ID' },
+              { name: 'orderNo', type: 'String', description: '订单号' },
+              { name: 'userId', type: 'Long', description: '用户ID' },
+              { name: 'amount', type: 'BigDecimal', description: '订单金额' },
+              { name: 'status', type: 'OrderStatus', description: '订单状态' }
+            ],
+            status: 'active',
+            createdAt: '2024-01-15 15:00:00'
+          },
+          {
+            id: 3,
+            name: 'OrderItem',
+            description: '订单项实体',
+            aggregateId: 2,
+            type: 'Entity',
+            properties: [
+              { name: 'id', type: 'Long', description: '订单项ID' },
+              { name: 'orderId', type: 'Long', description: '订单ID' },
+              { name: 'productId', type: 'Long', description: '商品ID' },
+              { name: 'quantity', type: 'Integer', description: '数量' },
+              { name: 'price', type: 'BigDecimal', description: '单价' }
+            ],
+            status: 'active',
+            createdAt: '2024-01-15 15:15:00'
+          }
+        ]
+      };
+
+      return {
+        code: 200,
+        message: '获取实体列表成功',
+        data: mockData,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `获取实体列表失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 创建新实体
+   */
+  @Post('/api/entities')
+  async createEntity(@Body() entityData: any) {
+    try {
+      const newEntity = {
+        id: Date.now(),
+        name: entityData.name,
+        description: entityData.description || '',
+        aggregateId: entityData.aggregateId,
+        type: entityData.type || 'Entity',
+        properties: entityData.properties || [],
+        status: 'development',
+        createdAt: new Date().toISOString()
+      };
+
+      return {
+        code: 200,
+        message: '实体创建成功',
+        data: newEntity,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `创建实体失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 更新实体
+   */
+  @Put('/api/entities/:id')
+  async updateEntity(@Param('id') id: string, @Body() entityData: any) {
+    try {
+      const updatedEntity = {
+        id: parseInt(id),
+        ...entityData,
+        updatedAt: new Date().toISOString()
+      };
+
+      return {
+        code: 200,
+        message: '实体更新成功',
+        data: updatedEntity,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `更新实体失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 删除实体
+   */
+  @Del('/api/entities/:id')
+  async deleteEntity(@Param('id') id: string) {
+    try {
+      return {
+        code: 200,
+        message: `实体 ${id} 删除成功`,
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `删除实体失败: ${error.message}`,
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * 获取系统信息
+   */
+  @Get('/api/info')
+  async getSystemInfo() {
+    try {
+      return {
+        code: 200,
+        data: {
+          name: 'DDD平台',
+          version: '1.0.0',
+          environment: process.env.NODE_ENV || 'development',
+          startTime: new Date().toISOString(),
+          uptime: process.uptime()
+        },
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      return {
+        code: 500,
+        message: `获取系统信息失败: ${error.message}`,
         timestamp: Date.now(),
       };
     }

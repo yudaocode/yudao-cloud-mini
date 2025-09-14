@@ -1,0 +1,169 @@
+{
+  "type": "page",
+  "title": "📝 DDD实体配置",
+  "description": "DDD实体属性配置表单模板",
+  "body": [
+    {
+      "type": "alert",
+      "level": "info",
+      "body": "🎯 配置DDD实体的基本信息、属性和业务规则"
+    },
+    {
+      "type": "form",
+      "title": "基本信息",
+      "body": [
+        {
+          "type": "input-text",
+          "label": "实体名称",
+          "name": "entityName",
+          "required": true,
+          "placeholder": "例如：User、Order、Product"
+        },
+        {
+          "type": "input-text",
+          "label": "显示名称",
+          "name": "displayName",
+          "placeholder": "例如：用户、订单、产品"
+        },
+        {
+          "type": "textarea",
+          "label": "实体描述",
+          "name": "description",
+          "rows": 3,
+          "placeholder": "详细描述该实体的业务含义和职责..."
+        },
+        {
+          "type": "select",
+          "label": "所属域",
+          "name": "domain",
+          "required": true,
+          "options": [
+            { "label": "用户域 (User Domain)", "value": "user" },
+            { "label": "订单域 (Order Domain)", "value": "order" },
+            { "label": "产品域 (Product Domain)", "value": "product" },
+            { "label": "支付域 (Payment Domain)", "value": "payment" },
+            { "label": "库存域 (Inventory Domain)", "value": "inventory" }
+          ]
+        },
+        {
+          "type": "select",
+          "label": "实体类型",
+          "name": "entityType",
+          "required": true,
+          "options": [
+            { "label": "聚合根 (Aggregate Root)", "value": "aggregate" },
+            { "label": "实体 (Entity)", "value": "entity" },
+            { "label": "值对象 (Value Object)", "value": "valueObject" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "form",
+      "title": "属性配置",
+      "body": [
+        {
+          "type": "input-text",
+          "label": "属性名称",
+          "name": "propertyName",
+          "placeholder": "例如：name、email、age"
+        },
+        {
+          "type": "input-text",
+          "label": "属性显示名",
+          "name": "propertyDisplayName",
+          "placeholder": "例如：姓名、邮箱、年龄"
+        },
+        {
+          "type": "select",
+          "label": "数据类型",
+          "name": "dataType",
+          "options": [
+            { "label": "String - 字符串", "value": "string" },
+            { "label": "Integer - 整数", "value": "integer" },
+            { "label": "Long - 长整数", "value": "long" },
+            { "label": "Boolean - 布尔值", "value": "boolean" },
+            { "label": "Date - 日期", "value": "date" },
+            { "label": "DateTime - 日期时间", "value": "datetime" },
+            { "label": "BigDecimal - 高精度数字", "value": "decimal" },
+            { "label": "Enum - 枚举", "value": "enum" }
+          ]
+        },
+        {
+          "type": "select",
+          "label": "约束条件",
+          "name": "constraints",
+          "multiple": true,
+          "options": [
+            { "label": "必填 (Required)", "value": "required" },
+            { "label": "唯一 (Unique)", "value": "unique" },
+            { "label": "非空 (Not Null)", "value": "notNull" },
+            { "label": "正数 (Positive)", "value": "positive" },
+            { "label": "邮箱格式 (Email)", "value": "email" },
+            { "label": "手机号格式 (Phone)", "value": "phone" }
+          ]
+        },
+        {
+          "type": "input-text",
+          "label": "默认值",
+          "name": "defaultValue",
+          "placeholder": "设置默认值（可选）"
+        },
+        {
+          "type": "textarea",
+          "label": "属性描述",
+          "name": "propertyDescription",
+          "rows": 2,
+          "placeholder": "描述该属性的业务含义..."
+        }
+      ]
+    },
+    {
+      "type": "form",
+      "title": "业务规则",
+      "body": [
+        {
+          "type": "textarea",
+          "label": "业务规则",
+          "name": "businessRules",
+          "rows": 4,
+          "placeholder": "定义该实体的核心业务规则和不变性约束..."
+        },
+        {
+          "type": "textarea",
+          "label": "领域事件",
+          "name": "domainEvents",
+          "rows": 3,
+          "placeholder": "描述该实体状态变化时需要发布的领域事件..."
+        },
+        {
+          "type": "select",
+          "label": "持久化策略",
+          "name": "persistenceStrategy",
+          "options": [
+            { "label": "JPA/Hibernate", "value": "jpa" },
+            { "label": "MyBatis", "value": "mybatis" },
+            { "label": "MongoDB", "value": "mongodb" },
+            { "label": "Redis", "value": "redis" },
+            { "label": "Elasticsearch", "value": "elasticsearch" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "💡 设计建议",
+      "body": [
+        {
+          "type": "property",
+          "items": [
+            { "label": "聚合根设计", "content": "确保聚合根是唯一的外部访问入口" },
+            { "label": "实体标识", "content": "每个实体必须有唯一标识符(ID)" },
+            { "label": "值对象", "content": "值对象应该设计为不可变(Immutable)" },
+            { "label": "业务规则", "content": "将业务逻辑封装在实体内部，避免贫血模型" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMIS SDK 修复测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        #amisContainer {
+            margin-top: 20px;
+            min-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AMIS SDK 6.3.0 修复验证</h1>
+        
+        <div id="loadingStatus" class="status info">
+            正在加载 AMIS SDK...
+        </div>
+
+        <div id="amisContainer">
+            <!-- AMIS 组件将在这里渲染 -->
+        </div>
+    </div>
+
+    <script>
+        // 测试脚本
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('loadingStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function testAmisSDK() {
+            updateStatus('开始加载 AMIS CSS...', 'info');
+            
+            // 动态加载 CSS
+            const cssLink = document.createElement('link');
+            cssLink.rel = 'stylesheet';
+            cssLink.type = 'text/css';
+            cssLink.href = 'https://unpkg.com/amis@6.3.0/sdk/antd.css';
+            
+            cssLink.onload = function() {
+                updateStatus('CSS 加载成功，开始加载 AMIS JS...', 'info');
+                loadAmisJS();
+            };
+            
+            cssLink.onerror = function() {
+                updateStatus('CSS 加载失败！', 'error');
+            };
+            
+            document.head.appendChild(cssLink);
+        }
+
+        function loadAmisJS() {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/amis@6.3.0/sdk/sdk.js';
+            
+            script.onload = function() {
+                updateStatus('AMIS SDK 加载成功！正在初始化...', 'success');
+                setTimeout(initializeAmis, 100);
+            };
+            
+            script.onerror = function() {
+                updateStatus('AMIS SDK 加载失败！', 'error');
+            };
+            
+            document.head.appendChild(script);
+        }
+
+        function initializeAmis() {
+            try {
+                // 检查 amis 是否已正确加载
+                if (typeof amis === 'undefined') {
+                    updateStatus('错误：amis 对象未定义', 'error');
+                    return;
+                }
+
+                if (typeof amis.embed === 'undefined') {
+                    updateStatus('错误：amis.embed 方法未定义', 'error');
+                    return;
+                }
+
+                updateStatus('AMIS SDK 验证成功！正在渲染示例组件...', 'success');
+
+                // 创建一个简单的 AMIS schema
+                const schema = {
+                    type: 'page',
+                    title: 'AMIS SDK 6.3.0 测试成功！',
+                    body: [
+                        {
+                            type: 'alert',
+                            level: 'success',
+                            body: '恭喜！AMIS SDK 已成功加载并可以正常使用。'
+                        },
+                        {
+                            type: 'form',
+                            title: '测试表单',
+                            body: [
+                                {
+                                    type: 'input-text',
+                                    name: 'name',
+                                    label: '姓名',
+                                    placeholder: '请输入姓名'
+                                },
+                                {
+                                    type: 'input-email',
+                                    name: 'email',
+                                    label: '邮箱',
+                                    placeholder: '请输入邮箱'
+                                }
+                            ]
+                        },
+                        {
+                            type: 'divider'
+                        },
+                        {
+                            type: 'plain',
+                            text: '版本信息：AMIS 6.3.0 SDK (Browser UMD Build)'
+                        }
+                    ]
+                };
+
+                // 使用 amis.embed 渲染组件
+                amis.embed('#amisContainer', schema);
+                
+                updateStatus('AMIS 组件渲染成功！所有测试通过。', 'success');
+                
+                // 输出版本信息
+                console.log('AMIS SDK 加载完成');
+                console.log('可用的 amis 方法:', Object.keys(amis));
+                
+            } catch (error) {
+                updateStatus(`初始化 AMIS 时出错: ${error.message}`, 'error');
+                console.error('AMIS 初始化错误:', error);
+            }
+        }
+
+        // 开始测试
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，开始测试 AMIS SDK...');
+            testAmisSDK();
+        });
+    </script>
+</body>
+</html>

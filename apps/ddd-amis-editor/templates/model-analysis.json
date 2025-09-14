@@ -1,0 +1,177 @@
+{
+  "type": "page",
+  "title": "📊 DDD模型分析",
+  "description": "DDD模型质量分析和优化建议模板",
+  "body": [
+    {
+      "type": "alert",
+      "level": "success",
+      "body": "🔍 DDD模型质量分析 - 评估领域模型的设计质量并提供优化建议"
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${modelScore}",
+            "label": "📊 模型评分",
+            "color": "#52c41a"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${complexityLevel}",
+            "label": "🔄 复杂度等级",
+            "color": "#fa8c16"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${couplingScore}",
+            "label": "🔗 耦合度",
+            "color": "#1890ff"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${cohesionScore}",
+            "label": "💎 内聚度",
+            "color": "#722ed1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "panel",
+            "title": "📈 质量趋势",
+            "body": [
+              {
+                "type": "chart",
+                "config": {
+                  "type": "line",
+                  "title": "模型质量变化趋势"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "body": {
+            "type": "panel",
+            "title": "🎯 问题分布",
+            "body": [
+              {
+                "type": "chart",
+                "config": {
+                  "type": "doughnut",
+                  "title": "设计问题类型分布"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "⚠️ 设计问题清单",
+      "columns": [
+        { "name": "level", "label": "级别", "width": 80 },
+        { "name": "type", "label": "问题类型", "width": 120 },
+        { "name": "entity", "label": "涉及实体", "width": 120 },
+        { "name": "description", "label": "问题描述", "width": 250 },
+        { "name": "suggestion", "label": "优化建议", "width": 200 },
+        { "name": "priority", "label": "优先级", "width": 80 }
+      ],
+      "data": [
+        {
+          "level": "严重",
+          "type": "聚合边界",
+          "entity": "User",
+          "description": "User聚合包含过多实体，违反了聚合大小原则",
+          "suggestion": "拆分为多个小聚合",
+          "priority": "高"
+        },
+        {
+          "level": "警告",
+          "type": "循环依赖",
+          "entity": "Order, Product",
+          "description": "Order和Product之间存在循环依赖",
+          "suggestion": "引入中间实体或事件解耦",
+          "priority": "中"
+        },
+        {
+          "level": "提示",
+          "type": "命名规范",
+          "entity": "OrderItem",
+          "description": "实体命名不符合领域语言",
+          "suggestion": "重命名为LineItem",
+          "priority": "低"
+        }
+      ]
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "panel",
+            "title": "✅ 设计优点",
+            "body": [
+              {
+                "type": "list",
+                "items": [
+                  "✅ 聚合根设计清晰",
+                  "✅ 领域事件使用得当",
+                  "✅ 值对象封装良好",
+                  "✅ 业务规则内聚性高"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "body": {
+            "type": "panel",
+            "title": "🎯 改进建议",
+            "body": [
+              {
+                "type": "list",
+                "items": [
+                  "🔧 减少聚合间直接依赖",
+                  "📦 提取共享值对象",
+                  "⚡ 优化领域服务粒度",
+                  "📋 补充业务规则文档"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "📊 详细分析报告",
+      "body": [
+        {
+          "type": "property",
+          "items": [
+            { "label": "分析时间", "content": "${analysisTime}" },
+            { "label": "模型版本", "content": "${modelVersion}" },
+            { "label": "分析规则", "content": "DDD最佳实践规则集 v2.0" },
+            { "label": "总计问题", "content": "${totalIssues} 个" },
+            { "label": "建议修复", "content": "${criticalIssues} 个严重问题" }
+          ]
+        }
+      ]
+    }
+  ]
+}

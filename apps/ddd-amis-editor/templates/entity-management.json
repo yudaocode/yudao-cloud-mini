@@ -1,0 +1,117 @@
+{
+  "type": "page",
+  "title": "🏗️ DDD实体管理",
+  "description": "领域驱动设计实体管理模板",
+  "body": [
+    {
+      "type": "alert",
+      "level": "info",
+      "body": "📋 领域实体是DDD中承载业务逻辑的核心概念，具有唯一标识且生命周期贯穿整个业务流程"
+    },
+    {
+      "type": "grid",
+      "columns": [
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${entityCount}",
+            "label": "📊 总实体数",
+            "color": "#1890ff"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${aggregateCount}",
+            "label": "🏗️ 聚合根",
+            "color": "#52c41a"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${valueObjectCount}",
+            "label": "💎 值对象",
+            "color": "#fa8c16"
+          }
+        },
+        {
+          "body": {
+            "type": "stat-card",
+            "number": "${domainServiceCount}",
+            "label": "⚙️ 领域服务",
+            "color": "#722ed1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "form",
+      "title": "🔍 实体查询",
+      "mode": "horizontal",
+      "body": [
+        {
+          "type": "input-text",
+          "label": "实体名称",
+          "name": "entityName",
+          "placeholder": "输入实体名称进行搜索"
+        },
+        {
+          "type": "select",
+          "label": "所属域",
+          "name": "domain",
+          "placeholder": "选择业务域",
+          "options": [
+            { "label": "用户域", "value": "user" },
+            { "label": "订单域", "value": "order" },
+            { "label": "产品域", "value": "product" },
+            { "label": "支付域", "value": "payment" },
+            { "label": "库存域", "value": "inventory" }
+          ]
+        },
+        {
+          "type": "select",
+          "label": "实体类型",
+          "name": "entityType",
+          "placeholder": "选择实体类型",
+          "options": [
+            { "label": "聚合根", "value": "aggregate" },
+            { "label": "实体", "value": "entity" },
+            { "label": "值对象", "value": "valueObject" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "crud",
+      "title": "实体列表",
+      "columns": [
+        { "name": "id", "label": "ID", "width": 80 },
+        { "name": "name", "label": "实体名称", "width": 120 },
+        { "name": "description", "label": "描述", "width": 200 },
+        { "name": "domain", "label": "所属域", "width": 100 },
+        { "name": "entityType", "label": "类型", "width": 100 },
+        { "name": "properties", "label": "属性数量", "width": 80 },
+        { "name": "status", "label": "状态", "width": 80 },
+        { "name": "createdAt", "label": "创建时间", "width": 120 },
+        { "name": "updatedAt", "label": "更新时间", "width": 120 },
+        { "name": "action", "label": "操作", "width": 200 }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "💡 DDD实体设计指南",
+      "body": [
+        {
+          "type": "property",
+          "items": [
+            { "label": "实体特征", "content": "具有唯一标识(ID)，状态可变，有生命周期" },
+            { "label": "聚合根", "content": "聚合的入口点，负责维护业务不变性" },
+            { "label": "值对象", "content": "不可变对象，通过属性值来标识" },
+            { "label": "领域服务", "content": "封装不属于实体或值对象的业务逻辑" }
+          ]
+        }
+      ]
+    }
+  ]
+}

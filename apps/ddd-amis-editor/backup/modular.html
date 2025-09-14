@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDD元数据驱动开发平台 - 模块化版本</title>
+    
+    <!-- 核心CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/themes/antd.css" />
+    <link rel="stylesheet" href="./src/css/main.css" />
+    
+    <!-- 第三方依赖 -->
+    <script src="https://unpkg.com/amis@6.3.0/lib/sdk.js"></script>
+    
+    <style>
+        /* 基础重置和加载状态 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1890ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 16px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载状态 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">DDD平台加载中...</div>
+    </div>
+    
+    <!-- 应用容器 -->
+    <div id="app" class="app-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <!-- 顶部工具栏 -->
+            <div class="toolbar-main">
+                <div class="toolbar-header">
+                    <h3>🎯 DDD平台</h3>
+                    <div class="toolbar-actions">
+                        <button class="toolbar-btn" onclick="dddEditor.newSchema()" title="新建项目">
+                            📝
+                        </button>
+                        <button class="toolbar-btn" onclick="dddEditor.saveSchema()" title="保存项目 (Ctrl+S)">
+                            💾
+                        </button>
+                        <button class="toolbar-btn" onclick="dddEditor.importSchema()" title="导入Schema">
+                            📂
+                        </button>
+                        <button class="toolbar-btn" onclick="dddEditor.previewCode()" title="预览代码">
+                            👀
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 组件工具栏 -->
+                <div class="component-toolbar-main">
+                    <!-- 动态加载组件列表 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 顶部操作栏 -->
+            <div class="top-toolbar">
+                <div class="left-actions">
+                    <button class="action-btn primary" onclick="dddEditor.validateSchema()">
+                        ✅ 验证Schema
+                    </button>
+                    <button class="action-btn" onclick="dddEditor.previewCode()">
+                        🔍 代码预览
+                    </button>
+                </div>
+                
+                <div class="center-info">
+                    <span id="status-text" class="status-text">就绪</span>
+                </div>
+                
+                <div class="right-actions">
+                    <button class="action-btn" onclick="toggleFullscreen()">
+                        🔳 全屏
+                    </button>
+                    <button class="action-btn" onclick="showHelp()">
+                        ❓ 帮助
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 画布区域 -->
+            <div class="canvas-container">
+                <div id="canvas" class="canvas">
+                    <!-- AMIS组件渲染区域 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 全局模态框容器 -->
+    <div id="modal-container"></div>
+    
+    <!-- 状态提示容器 -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- 脚本加载 -->
+    <script>
+        // 全局配置
+        window.DDD_CONFIG = {
+            version: '1.0.0',
+            debug: true,
+            apiBase: '/api',
+            autoSave: true,
+            autoSaveInterval: 30000 // 30秒自动保存
+        };
+        
+        // 全局错误处理
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('全局错误:', {
+                message: msg,
+                source: url,
+                line: line,
+                column: col,
+                error: error
+            });
+            
+            // 显示用户友好的错误信息
+            if (window.DDDEditorUtils) {
+                window.DDDEditorUtils.showStatus('应用遇到错误，请刷新页面重试', 'error');
+            }
+            
+            return false;
+        };
+        
+        // Promise错误处理
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未处理的Promise错误:', event.reason);
+            if (window.DDDEditorUtils) {
+                window.DDDEditorUtils.showStatus('操作失败，请重试', 'error');
+            }
+        });
+        
+        // 全屏切换
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('无法进入全屏模式:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // 显示帮助
+        function showHelp() {
+            if (window.DDDEditorUtils) {
+                window.DDDEditorUtils.showModal('帮助文档', `
+                    <div style="line-height: 1.6;">
+                        <h4>🚀 快速开始</h4>
+                        <ul>
+                            <li>从左侧工具栏拖拽组件到画布</li>
+                            <li>点击组件进行编辑和配置</li>
+                            <li>使用Ctrl+S保存项目</li>
+                        </ul>
+                        
+                        <h4>⌨️ 快捷键</h4>
+                        <ul>
+                            <li><kbd>Ctrl+S</kbd> - 保存项目</li>
+                            <li><kbd>Ctrl+N</kbd> - 新建项目</li>
+                            <li><kbd>Ctrl+Z</kbd> - 撤销</li>
+                            <li><kbd>Ctrl+Shift+Z</kbd> - 重做</li>
+                        </ul>
+                        
+                        <h4>🔧 DDD组件</h4>
+                        <ul>
+                            <li><strong>实体</strong> - 领域核心对象</li>
+                            <li><strong>聚合</strong> - 业务一致性边界</li>
+                            <li><strong>服务</strong> - 业务逻辑处理</li>
+                            <li><strong>仓储</strong> - 数据访问抽象</li>
+                            <li><strong>值对象</strong> - 不可变值类型</li>
+                        </ul>
+                    </div>
+                `);
+            }
+        }
+        
+        // 应用初始化
+        async function initializeApp() {
+            try {
+                console.log('开始初始化应用...');
+                
+                // 等待AMIS加载完成
+                let retryCount = 0;
+                const maxRetries = 10;
+                
+                while (typeof amis === 'undefined' && retryCount < maxRetries) {
+                    console.log(`等待AMIS加载... (${retryCount + 1}/${maxRetries})`);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    retryCount++;
+                }
+                
+                if (typeof amis === 'undefined') {
+                    throw new Error('AMIS框架加载失败，请检查网络连接或CDN状态');
+                }
+                
+                console.log('AMIS框架加载成功');
+                
+                // 加载工具模块
+                try {
+                    await loadModule('./src/utils/utils.js');
+                    console.log('工具模块加载成功');
+                } catch (error) {
+                    console.warn('工具模块加载失败，使用内置实现:', error);
+                    // 提供基本的工具函数
+                    window.DDD_Utils = {
+                        showStatus: function(message, type = 'info') {
+                            console.log(`[${type.toUpperCase()}] ${message}`);
+                            
+                            // 简单的状态显示
+                            const statusDiv = document.getElementById('status') || document.createElement('div');
+                            statusDiv.id = 'status';
+                            statusDiv.style.position = 'fixed';
+                            statusDiv.style.top = '20px';
+                            statusDiv.style.right = '20px';
+                            statusDiv.style.padding = '8px 16px';
+                            statusDiv.style.borderRadius = '4px';
+                            statusDiv.style.zIndex = '10000';
+                            statusDiv.style.color = 'white';
+                            statusDiv.style.backgroundColor = type === 'error' ? '#ff4d4f' : type === 'success' ? '#52c41a' : '#1890ff';
+                            statusDiv.textContent = message;
+                            
+                            document.body.appendChild(statusDiv);
+                            
+                            setTimeout(() => {
+                                if (statusDiv.parentNode) {
+                                    statusDiv.parentNode.removeChild(statusDiv);
+                                }
+                            }, 3000);
+                        }
+                    };
+                }
+                
+                // 加载组件模块
+                try {
+                    await loadModule('./src/components/templates.js');
+                    console.log('组件模板加载成功');
+                } catch (error) {
+                    console.warn('组件模板加载失败，使用简化版本:', error);
+                    // 提供基本的组件模板
+                    window.DDD_Templates = {
+                        getComponentTemplate: function(type) {
+                            const basicTemplates = {
+                                entity: {
+                                    type: 'card',
+                                    header: { title: '实体 - Entity', subTitle: 'DDD核心业务对象' },
+                                    body: {
+                                        type: 'form',
+                                        mode: 'horizontal',
+                                        body: [
+                                            { type: 'input-text', name: 'name', label: '实体名称', required: true },
+                                            { type: 'textarea', name: 'description', label: '实体描述', rows: 3 }
+                                        ]
+                                    }
+                                },
+                                form: {
+                                    type: 'form',
+                                    title: '表单',
+                                    body: [
+                                        { type: 'input-text', name: 'name', label: '名称', required: true }
+                                    ]
+                                }
+                            };
+                            return basicTemplates[type] || basicTemplates.form;
+                        }
+                    };
+                }
+                
+                // 加载选择器模块
+                try {
+                    await loadModule('./src/components/selectors-fixed.js');
+                    console.log('选择器模块加载成功');
+                } catch (error) {
+                    console.warn('选择器模块加载失败，禁用选择器功能:', error);
+                }
+                
+                // 加载编辑器模块
+                try {
+                    await loadModule('./src/js/editor.js');
+                    console.log('编辑器模块加载成功');
+                } catch (error) {
+                    console.warn('编辑器模块加载失败，使用简化编辑器:', error);
+                    // 创建简化编辑器
+                    window.dddEditor = {
+                        isInitialized: false,
+                        currentSchema: {
+                            type: 'page',
+                            title: 'DDD平台 - 简化模式',
+                            body: []
+                        },
+                        
+                        async init() {
+                            this.isInitialized = true;
+                            this.render();
+                            return true;
+                        },
+                        
+                        render() {
+                            const container = document.getElementById('editor-container');
+                            if (container && window.amis) {
+                                try {
+                                    window.amisInstance = amis.embed(container, this.currentSchema);
+                                    console.log('AMIS实例创建成功');
+                                } catch (error) {
+                                    console.error('AMIS渲染失败:', error);
+                                    container.innerHTML = `
+                                        <div style="padding: 20px; text-align: center;">
+                                            <h3>编辑器加载失败</h3>
+                                            <p>错误信息: ${error.message}</p>
+                                            <button onclick="location.reload()">重新加载</button>
+                                        </div>
+                                    `;
+                                }
+                            }
+                        },
+                        
+                        getCurrentSchema() {
+                            return this.currentSchema;
+                        },
+                        
+                        addComponent(type) {
+                            const template = window.DDD_Templates ? 
+                                window.DDD_Templates.getComponentTemplate(type) : 
+                                { type: 'tpl', tpl: `新增${type}组件` };
+                            
+                            this.currentSchema.body = this.currentSchema.body || [];
+                            this.currentSchema.body.push(template);
+                            this.render();
+                            
+                            if (window.DDD_Utils) {
+                                window.DDD_Utils.showStatus(`已添加${type}组件`, 'success');
+                            }
+                        }
+                    };
+                }
+                
+                // 初始化编辑器
+                if (window.dddEditor) {
+                    console.log('初始化编辑器...');
+                    await window.dddEditor.init();
+                    console.log('编辑器初始化完成');
+                    
+                    // 隐藏加载状态
+                    const loadingOverlay = document.getElementById('loading-overlay');
+                    if (loadingOverlay) {
+                        loadingOverlay.classList.add('hidden');
+                    }
+                    
+                    // 初始化组件工具栏
+                    initializeBasicToolbar();
+                    
+                    // 显示成功消息
+                    if (window.DDD_Utils) {
+                        window.DDD_Utils.showStatus('DDD平台初始化成功！', 'success');
+                    }
+                    
+                } else {
+                    throw new Error('DDD编辑器创建失败');
+                }
+                
+            } catch (error) {
+                console.error('应用初始化失败:', error);
+                
+                // 显示错误状态
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.innerHTML = `
+                        <div style="text-align: center; color: #ff4d4f;">
+                            <h3>❌ 初始化失败</h3>
+                            <p style="margin: 16px 0;">${error.message}</p>
+                            <button onclick="location.reload()" 
+                                style="padding: 8px 16px; background: #1890ff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                重新加载
+                            </button>
+                            <p style="margin-top: 16px; font-size: 12px; color: #999;">
+                                如果问题持续存在，请检查网络连接或尝试使用 <a href="./simple.html" style="color: #1890ff;">单文件版本</a>
+                            </p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // 初始化基础工具栏
+        function initializeBasicToolbar() {
+            const toolbar = document.querySelector('.component-toolbar-main');
+            if (!toolbar) return;
+            
+            const components = [
+                { type: 'entity', label: '实体', icon: '🏗️' },
+                { type: 'form', label: '表单', icon: '📝' },
+                { type: 'table', label: '表格', icon: '📋' }
+            ];
+            
+            const toolbarHTML = components.map(comp => `
+                <button class="component-btn" onclick="window.dddEditor && window.dddEditor.addComponent('${comp.type}')" 
+                    style="display: block; width: 100%; margin-bottom: 8px; padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; text-align: left;">
+                    ${comp.icon} ${comp.label}
+                </button>
+            `).join('');
+            
+            toolbar.innerHTML = toolbarHTML;
+        }
+                                    style="padding: 8px 16px; background: #1890ff; color: white; border: none; border-radius: 4px;">
+                                🔄 重新加载
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // 动态加载模块
+        function loadModule(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = () => reject(new Error(`无法加载模块: ${src}`));
+                document.head.appendChild(script);
+            });
+        }
+        
+        // 页面加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+        
+        // 页面卸载前保存数据
+        window.addEventListener('beforeunload', function(e) {
+            if (window.dddEditor && window.dddEditor.isInitialized) {
+                // 这里可以实现未保存更改的提醒
+                const hasUnsavedChanges = false; // 实际应用中需要检查是否有未保存的更改
+                
+                if (hasUnsavedChanges) {
+                    const message = '您有未保存的更改，确定要离开吗？';
+                    e.returnValue = message;
+                    return message;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

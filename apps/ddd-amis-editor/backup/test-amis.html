@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMIS测试页面</title>
+    <link rel="stylesheet" href="https://unpkg.com/amis@6.3.0/lib/themes/antd.css">
+    <script src="https://unpkg.com/amis@6.3.0/lib/sdk.js"></script>
+</head>
+<body>
+    <div id="root" style="height: 100vh;"></div>
+    
+    <script>
+        // 等待AMIS加载
+        function waitForAmis() {
+            if (typeof amis !== 'undefined') {
+                console.log('AMIS加载成功');
+                console.log('AMIS版本:', amis);
+                console.log('amis.embed是否存在:', typeof amis.embed);
+                
+                // 测试基本渲染
+                const schema = {
+                    type: 'page',
+                    title: 'DDD平台测试',
+                    body: [
+                        {
+                            type: 'alert',
+                            level: 'success',
+                            body: '🎉 AMIS加载成功！模块化版本可以正常工作。'
+                        },
+                        {
+                            type: 'button',
+                            label: '测试按钮',
+                            level: 'primary'
+                        }
+                    ]
+                };
+                
+                try {
+                    amis.embed('#root', schema);
+                    console.log('AMIS渲染成功');
+                } catch (error) {
+                    console.error('AMIS渲染失败:', error);
+                }
+            } else {
+                console.log('等待AMIS加载...');
+                setTimeout(waitForAmis, 100);
+            }
+        }
+        
+        // 页面加载后开始等待
+        document.addEventListener('DOMContentLoaded', waitForAmis);
+    </script>
+</body>
+</html>

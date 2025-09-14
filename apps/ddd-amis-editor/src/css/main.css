@@ -1,0 +1,481 @@
+/* DDD平台编辑器主要样式 */
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: #f5f5f5;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* 侧边栏样式 */
+.sidebar {
+    width: 300px;
+    background: #fff;
+    border-right: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 16px;
+    border-bottom: 1px solid #e8e8e8;
+    background: #1890ff;
+    color: white;
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.sidebar-subtitle {
+    font-size: 12px;
+    opacity: 0.8;
+    margin: 4px 0 0 0;
+}
+
+/* 工具栏样式 */
+.toolbar {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.toolbar-section {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.toolbar-section:last-child {
+    border-bottom: none;
+}
+
+.toolbar-header {
+    padding: 12px 16px;
+    background: #fafafa;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px solid #e8e8e8;
+    user-select: none;
+}
+
+.toolbar-header:hover {
+    background: #f0f0f0;
+}
+
+.toolbar-header::before {
+    content: '📁';
+    margin-right: 8px;
+}
+
+.toolbar-header.collapsed::before {
+    content: '📂';
+}
+
+.toolbar-content {
+    padding: 8px;
+}
+
+.toolbar-content.collapsed {
+    display: none;
+}
+
+/* 组件按钮样式 */
+.component-btn {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 12px;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.component-btn:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+    background: #f6ffed;
+}
+
+.component-btn:active {
+    background: #e6f7ff;
+}
+
+/* 主内容区域 */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 顶部工具栏 */
+.top-toolbar {
+    height: 48px;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 8px;
+}
+
+.toolbar-btn {
+    padding: 6px 12px;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+}
+
+.toolbar-btn.primary {
+    background: #1890ff;
+    border-color: #1890ff;
+    color: #fff;
+}
+
+.toolbar-btn.primary:hover {
+    background: #40a9ff;
+}
+
+/* 画布容器 */
+.canvas-container {
+    flex: 1;
+    background: #f5f5f5;
+    padding: 16px;
+    overflow: auto;
+}
+
+.canvas {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    min-height: calc(100vh - 100px);
+    padding: 16px;
+}
+
+/* 状态显示 */
+.status {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    z-index: 10000;
+    display: none;
+    transition: all 0.3s;
+}
+
+.status.success {
+    background: #52c41a;
+}
+
+.status.error {
+    background: #ff4d4f;
+}
+
+.status.warning {
+    background: #faad14;
+}
+
+.status.info {
+    background: #1890ff;
+}
+
+/* 加载指示器 */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1890ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: #666;
+    font-size: 14px;
+}
+
+/* 属性检查器 */
+.property-inspector {
+    position: fixed;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 320px;
+    max-height: 80vh;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    display: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.inspector-header {
+    padding: 16px;
+    background: #1890ff;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.inspector-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inspector-body {
+    max-height: calc(80vh - 64px);
+    overflow-y: auto;
+}
+
+/* 属性标签页 */
+.property-tabs {
+    display: flex;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.property-tab {
+    flex: 1;
+    padding: 8px 12px;
+    text-align: center;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-size: 12px;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.property-tab:hover {
+    color: #1890ff;
+}
+
+.property-tab.active {
+    color: #1890ff;
+    border-bottom-color: #1890ff;
+    background: #f6ffed;
+}
+
+.tab-content {
+    display: none;
+    padding: 16px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 属性表单样式 */
+.inspector-section {
+    margin-bottom: 20px;
+}
+
+.inspector-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 4px;
+}
+
+.property-item {
+    margin-bottom: 12px;
+}
+
+.property-item label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+}
+
+.property-item input,
+.property-item textarea,
+.property-item select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.property-item input:focus,
+.property-item textarea:focus,
+.property-item select:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.property-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.property-checkbox input {
+    width: auto;
+    margin-right: 8px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+        overflow: hidden;
+    }
+    
+    .sidebar-title,
+    .sidebar-subtitle,
+    .toolbar-header,
+    .component-btn {
+        display: none;
+    }
+    
+    .property-inspector {
+        width: calc(100% - 32px);
+        right: 16px;
+        max-height: 60vh;
+    }
+}
+
+/* 对话框样式 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    margin: 0;
+    color: #1890ff;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #999;
+}
+
+/* 搜索框样式 */
+.search-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+/* 列表项样式 */
+.list-item {
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.list-item:hover {
+    border-color: #1890ff;
+    background: #f6ffed;
+}
+
+.list-item-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.list-item-description {
+    color: #666;
+    font-size: 12px;
+}
