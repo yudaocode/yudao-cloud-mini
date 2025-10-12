@@ -9,6 +9,7 @@ import cn.iocoder.yudao.framework.security.core.service.SecurityFrameworkService
 import cn.iocoder.yudao.framework.tenant.core.aop.TenantIgnore;
 import cn.iocoder.yudao.framework.tenant.core.aop.TenantIgnoreAspect;
 import cn.iocoder.yudao.framework.tenant.core.db.TenantDatabaseInterceptor;
+import cn.iocoder.yudao.framework.tenant.core.job.TenantJobAspect;
 import cn.iocoder.yudao.framework.tenant.core.mq.rabbitmq.TenantRabbitMQInitializer;
 import cn.iocoder.yudao.framework.tenant.core.mq.redis.TenantRedisMessageInterceptor;
 import cn.iocoder.yudao.framework.tenant.core.mq.rocketmq.TenantRocketMQInitializer;
@@ -192,6 +193,14 @@ public class YudaoTenantAutoConfiguration {
     @ConditionalOnClass(name = "org.apache.rocketmq.spring.core.RocketMQTemplate")
     public TenantRocketMQInitializer tenantRocketMQInitializer() {
         return new TenantRocketMQInitializer();
+    }
+
+    // ========== Job ==========
+
+    @Bean
+    @ConditionalOnClass(name = "com.xxl.job.core.handler.annotation.XxlJob")
+    public TenantJobAspect tenantJobAspect(TenantFrameworkService tenantFrameworkService) {
+        return new TenantJobAspect(tenantFrameworkService);
     }
 
     // ========== Redis ==========
