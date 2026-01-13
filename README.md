@@ -1,20 +1,41 @@
 <p align="center">
- <img src="https://img.shields.io/badge/Spring%20Cloud-2024-blue.svg" alt="Coverage Status">
- <img src="https://img.shields.io/badge/Spring%20Boot-3.4.5-blue.svg" alt="Downloads">
- <img src="https://img.shields.io/badge/Vue-3.2-blue.svg" alt="Downloads">
- <img src="https://img.shields.io/github/license/YunaiV/yudao-cloud" alt="Downloads" />
+ <a href="./LICENSE">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
+ </a>
+ <img src="https://img.shields.io/badge/JDK-17-brightgreen.svg" alt="JDK">
+ <img src="https://img.shields.io/badge/Spring%20Boot-3.5.9-blue.svg" alt="Spring Boot">
+ <img src="https://img.shields.io/badge/Spring%20Cloud-2025.0.0-blue.svg" alt="Spring Cloud">
 </p>
 
-**严肃声明：现在、未来都不会有商业版本，所有代码全部开源!！**
+## yudao-cloud-mini（精简版）
 
-**「我喜欢写代码，乐此不疲」**  
-**「我喜欢做开源，以此为乐」**
+**严肃声明：现在、未来都不会有商业版本，所有代码全部开源！**
 
-我 🐶 在上海艰苦奋斗，早中晚在 top3 大厂认真搬砖，夜里为开源做贡献。
+本仓库是 **芋道 Spring Cloud 精简版（yudao-cloud-mini）**：默认只包含「系统功能 + 基础设施」两个模块，便于你更快上手、按需扩展。
 
-如果这个项目让你有所收获，记得 Star 关注哦，这对我是非常不错的鼓励与支持。
+- 启动文档：[`https://cloud.iocoder.cn/quick-start/`](https://cloud.iocoder.cn/quick-start/)
+- 视频教程：[`https://cloud.iocoder.cn/video/`](https://cloud.iocoder.cn/video/)
+- 迁移文档（完整版 -> 精简版）：[`https://cloud.iocoder.cn/migrate-module/`](https://cloud.iocoder.cn/migrate-module/)
 
-可参考 [《迁移文档》](https://cloud.iocoder.cn/migrate-module/) ，只需要 5-10 分钟，即可将【完整版】按需迁移到【精简版】
+### 🚀 5 分钟启动（本仓库）
+
+1. 初始化数据库：创建 `ruoyi-vue-pro`（推荐 `utf8mb4`），导入 `sql/mysql/ruoyi-vue-pro.sql` 与 `sql/mysql/quartz.sql`
+2. 修改本地配置：编辑 `yudao-server/src/main/resources/application-local.yaml`（数据库 / Redis 连接信息）
+3. 启动后端：
+
+```bash
+mvn -pl yudao-server -am spring-boot:run
+```
+
+启动成功后访问：
+
+- Swagger UI：[`http://localhost:48080/swagger-ui`](http://localhost:48080/swagger-ui)
+- 默认账号：`admin` / `123456`
+
+> 更多业务模块（会员/流程/支付/商城/公众号/CRM/ERP/AI 等）在完整版中提供：[`yudao-cloud`](https://gitee.com/zhijiantianya/yudao-cloud)
+
+<details>
+<summary>旧版介绍（包含完整版功能/演示图等，点击展开）</summary>
 
 ## 🐶 新手必读
 
@@ -398,3 +419,5 @@
 | ![](/.image/admin-uniapp/07.png) | ![](/.image/admin-uniapp/08.png) | ![](/.image/admin-uniapp/09.png) |
 
 目前已经实现登录、我的、工作台、编辑资料、头像修改、密码修改、常见问题、关于我们等基础功能。
+
+</details>
