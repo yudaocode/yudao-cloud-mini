@@ -24,8 +24,9 @@
 <!--        <module>yudao-module-mall</module>-->
 <!--        <module>yudao-module-crm</module>-->
 <!--        <module>yudao-module-erp</module>-->
-<!--        <module>yudao-module-ai</module>-->
 <!--        <module>yudao-module-iot</module>-->
+<!--        <module>yudao-module-mes</module>-->
+<!--        <module>yudao-module-ai</module>-->
     </modules>
 
     <name>${project.artifactId}</name>
@@ -33,7 +34,7 @@
     <url>https://github.com/YunaiV/ruoyi-vue-pro</url>
 
     <properties>
-        <revision>2026.01-SNAPSHOT</revision>
+        <revision>2026.03-SNAPSHOT</revision>
         <!-- Maven 相关 -->
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
