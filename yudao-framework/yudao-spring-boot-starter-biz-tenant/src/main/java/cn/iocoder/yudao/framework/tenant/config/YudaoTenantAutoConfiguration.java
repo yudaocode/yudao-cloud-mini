@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.framework.tenant.config;
 
-import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.yudao.framework.common.biz.system.tenant.TenantCommonApi;
 import cn.iocoder.yudao.framework.common.enums.WebFilterOrderEnum;
 import cn.iocoder.yudao.framework.mybatis.core.util.MyBatisUtils;
@@ -46,10 +45,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 
@@ -63,13 +59,6 @@ public class YudaoTenantAutoConfiguration {
 
     @Bean
     public TenantFrameworkService tenantFrameworkService(TenantCommonApi tenantApi) {
-        // 参见 https://gitee.com/zhijiantianya/yudao-cloud/issues/IC6YZF
-        try {
-            TenantCommonApi tenantApiImpl = SpringUtil.getBean("tenantApiImpl", TenantCommonApi.class);
-            if (tenantApiImpl != null) {
-                tenantApi = tenantApiImpl;
-            }
-        } catch (Exception ignored) {}
         return new TenantFrameworkServiceImpl(tenantApi);
     }
 
@@ -167,14 +156,9 @@ public class YudaoTenantAutoConfiguration {
 
     // ========== MQ ==========
 
-    /**
-     * 多租户 Redis 消息队列的配置类
-     *
-     * 为什么要单独一个配置类呢？如果直接把 TenantRedisMessageInterceptor Bean 的初始化放外面，会报 RedisMessageInterceptor 类不存在的错误
-     */
-    @Configuration
-    @ConditionalOnClass(name = "cn.iocoder.yudao.framework.mq.redis.core.RedisMQTemplate")
-    public static class TenantRedisMQAutoConfiguration {
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = "cn.iocoder.yudao.framework.mq.redis.core.interceptor.RedisMessageInterceptor")
+    public static class TenantRedisMQConfiguration {
 
         @Bean
         public TenantRedisMessageInterceptor tenantRedisMessageInterceptor() {
@@ -183,24 +167,26 @@ public class YudaoTenantAutoConfiguration {
 
     }
 
-    @Bean
+    @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(name = "org.springframework.amqp.rabbit.core.RabbitTemplate")
-    public TenantRabbitMQInitializer tenantRabbitMQInitializer() {
-        return new TenantRabbitMQInitializer();
+    public static class TenantRabbitMQConfiguration {
+
+        @Bean
+        public TenantRabbitMQInitializer tenantRabbitMQInitializer() {
+            return new TenantRabbitMQInitializer();
+        }
+
     }
 
-    @Bean
+    @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(name = "org.apache.rocketmq.spring.core.RocketMQTemplate")
-    public TenantRocketMQInitializer tenantRocketMQInitializer() {
-        return new TenantRocketMQInitializer();
-    }
+    public static class TenantRocketMQConfiguration {
 
-    // ========== Job ==========
+        @Bean
+        public TenantRocketMQInitializer tenantRocketMQInitializer() {
+            return new TenantRocketMQInitializer();
+        }
 
-    @Bean
-    @ConditionalOnClass(name = "com.xxl.job.core.handler.annotation.XxlJob")
-    public TenantJobAspect tenantJobAspect(TenantFrameworkService tenantFrameworkService) {
-        return new TenantJobAspect(tenantFrameworkService);
     }
 
     // ========== Redis ==========
@@ -216,7 +202,25 @@ public class YudaoTenantAutoConfiguration {
         RedisCacheWriter cacheWriter = RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory,
                 BatchStrategies.scan(yudaoCacheProperties.getRedisScanBatchSize()));
         // 创建 TenantRedisCacheManager 对象
-        return new TenantRedisCacheManager(cacheWriter, redisCacheConfiguration, tenantProperties.getIgnoreCaches());
+        TenantRedisCacheManager cacheManager = new TenantRedisCacheManager(cacheWriter, redisCacheConfiguration,
+                tenantProperties.getIgnoreCaches());
+        // 开启事务感知：@Transactional 方法内的 @CacheEvict / @CachePut 自动延迟到 afterCommit，
+        //             避免事务未提交就清缓存被并发读穿写脏值；无事务时立即生效，行为不变
+        cacheManager.setTransactionAware(true);
+        return cacheManager;
+    }
+
+    // ========== Job ==========
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = "com.xxl.job.core.context.XxlJobContext")
+    public static class TenantJobConfiguration {
+
+        @Bean
+        public TenantJobAspect tenantJobAspect(TenantFrameworkService tenantFrameworkService) {
+            return new TenantJobAspect(tenantFrameworkService);
+        }
+
     }
 
 }

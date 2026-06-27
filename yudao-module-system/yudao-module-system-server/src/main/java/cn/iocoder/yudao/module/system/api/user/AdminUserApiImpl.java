@@ -69,10 +69,10 @@ public class AdminUserApiImpl implements AdminUserApi {
 
     @Override
     public CommonResult<List<AdminUserRespDTO>> getUserList(Collection<Long> ids) {
-        return DataPermissionUtils.executeIgnore(() -> { // 禁用数据权限。原因是，一般基于指定 id 的 API 查询，都是数据拼接为主
+        return success(DataPermissionUtils.executeIgnore(() -> { // 禁用数据权限。原因是，一般基于指定 id 的 API 查询，都是数据拼接为主
             List<AdminUserDO> users = userService.getUserList(ids);
-            return success(BeanUtils.toBean(users, AdminUserRespDTO.class));
-        });
+            return BeanUtils.toBean(users, AdminUserRespDTO.class);
+        }));
     }
 
     @Override
@@ -84,6 +84,12 @@ public class AdminUserApiImpl implements AdminUserApi {
     @Override
     public CommonResult<List<AdminUserRespDTO>> getUserListByPostIds(Collection<Long> postIds) {
         List<AdminUserDO> users = userService.getUserListByPostIds(postIds);
+        return success(BeanUtils.toBean(users, AdminUserRespDTO.class));
+    }
+
+    @Override
+    public CommonResult<List<AdminUserRespDTO>> getUserListByNickname(String nickname) {
+        List<AdminUserDO> users = userService.getUserListByNickname(nickname);
         return success(BeanUtils.toBean(users, AdminUserRespDTO.class));
     }
 
