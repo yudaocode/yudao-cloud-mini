@@ -145,6 +145,10 @@
             <groupId>com.github.binarywang</groupId>
             <artifactId>wx-java-miniapp-spring-boot-starter</artifactId>  <!-- 微信登录（小程序） -->
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId> <!-- 微信 SDK 的 HttpComponents 实现需要，WxJava 将其声明为 provided -->
+        </dependency>
 
         <dependency>
             <groupId>com.anji-plus</groupId>
