@@ -83,8 +83,8 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
         </dependency>
-    </dependencies>
 
+    </dependencies>
 
     <build>
         <!-- 设置构建的 jar 包名 -->
