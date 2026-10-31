@@ -95,6 +95,8 @@
             <artifactId>easy-trans-mybatis-plus-extend</artifactId>
         </dependency>
 
+        
+        
     </dependencies>
 
 </project>
